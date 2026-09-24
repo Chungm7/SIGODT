@@ -1,0 +1,109 @@
+[2026-05-27 17:08:30] LOCK obtenido correctamente
+[2026-05-27 17:08:30] Token expirado. Generando nuevo token...
+[2026-05-27 17:08:31] TOKEN OK
+[2026-05-27 17:08:31] INICIO DEL PROCESO
+[2026-05-27 17:08:31] BLOQUE OBTENIDO: 20
+[2026-05-27 17:08:31] Consultando orden: 013538-2026
+[2026-05-27 17:08:38] ERROR API: 013538-2026 | DETALLE: file_get_contents(http://10.10.10.16/SIGODT/api/SATCH/get_data_satch.php?orden_de_giro=013538-2026&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic2F0Y2hyZXNvdXJjZWlkIl0sImV4cCI6MTc3OTk0OTczMSwidXNlcl9uYW1lIjoibXBjaEB0ZXN0LmNvbSIsImp0aSI6ImM3M2NmZGU3LWI0YmMtNDAyMi1hYmJkLTczYjdjZGM0NDVjYyIsImNsaWVudF9pZCI6InNhdGNoYXBpdGVzdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.I6H6iK_XMTvrwxw2zuf_wYB303piTu649d8XpPxe_8Y): Failed to open stream: HTTP request failed! HTTP/1.1 400 Bad Request
+
+[2026-05-27 17:08:38] Consultando orden: 013537-2026
+[2026-05-27 17:08:39] ERROR API: 013537-2026 | DETALLE: file_get_contents(http://10.10.10.16/SIGODT/api/SATCH/get_data_satch.php?orden_de_giro=013537-2026&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic2F0Y2hyZXNvdXJjZWlkIl0sImV4cCI6MTc3OTk0OTczMSwidXNlcl9uYW1lIjoibXBjaEB0ZXN0LmNvbSIsImp0aSI6ImM3M2NmZGU3LWI0YmMtNDAyMi1hYmJkLTczYjdjZGM0NDVjYyIsImNsaWVudF9pZCI6InNhdGNoYXBpdGVzdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.I6H6iK_XMTvrwxw2zuf_wYB303piTu649d8XpPxe_8Y): Failed to open stream: HTTP request failed! HTTP/1.1 400 Bad Request
+
+[2026-05-27 17:08:39] Consultando orden: 013536-2026
+[2026-05-27 17:08:39] ERROR API: 013536-2026 | DETALLE: file_get_contents(http://10.10.10.16/SIGODT/api/SATCH/get_data_satch.php?orden_de_giro=013536-2026&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic2F0Y2hyZXNvdXJjZWlkIl0sImV4cCI6MTc3OTk0OTczMSwidXNlcl9uYW1lIjoibXBjaEB0ZXN0LmNvbSIsImp0aSI6ImM3M2NmZGU3LWI0YmMtNDAyMi1hYmJkLTczYjdjZGM0NDVjYyIsImNsaWVudF9pZCI6InNhdGNoYXBpdGVzdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.I6H6iK_XMTvrwxw2zuf_wYB303piTu649d8XpPxe_8Y): Failed to open stream: HTTP request failed! HTTP/1.1 400 Bad Request
+
+[2026-05-27 17:08:39] Consultando orden: 013535-2026
+[2026-05-27 17:08:40] ERROR API: 013535-2026 | DETALLE: file_get_contents(http://10.10.10.16/SIGODT/api/SATCH/get_data_satch.php?orden_de_giro=013535-2026&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic2F0Y2hyZXNvdXJjZWlkIl0sImV4cCI6MTc3OTk0OTczMSwidXNlcl9uYW1lIjoibXBjaEB0ZXN0LmNvbSIsImp0aSI6ImM3M2NmZGU3LWI0YmMtNDAyMi1hYmJkLTczYjdjZGM0NDVjYyIsImNsaWVudF9pZCI6InNhdGNoYXBpdGVzdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.I6H6iK_XMTvrwxw2zuf_wYB303piTu649d8XpPxe_8Y): Failed to open stream: HTTP request failed! HTTP/1.1 400 Bad Request
+
+[2026-05-27 17:08:40] Consultando orden: 013534-2026
+[2026-05-27 17:08:40] ERROR API: 013534-2026 | DETALLE: file_get_contents(http://10.10.10.16/SIGODT/api/SATCH/get_data_satch.php?orden_de_giro=013534-2026&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic2F0Y2hyZXNvdXJjZWlkIl0sImV4cCI6MTc3OTk0OTczMSwidXNlcl9uYW1lIjoibXBjaEB0ZXN0LmNvbSIsImp0aSI6ImM3M2NmZGU3LWI0YmMtNDAyMi1hYmJkLTczYjdjZGM0NDVjYyIsImNsaWVudF9pZCI6InNhdGNoYXBpdGVzdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.I6H6iK_XMTvrwxw2zuf_wYB303piTu649d8XpPxe_8Y): Failed to open stream: HTTP request failed! HTTP/1.1 400 Bad Request
+
+[2026-05-27 17:08:40] Consultando orden: 013533-2026
+[2026-05-27 17:08:41] PAGADA: 013533-2026
+[2026-05-27 17:08:41] Consultando orden: 013532-2026
+[2026-05-27 17:08:41] ERROR API: 013532-2026 | DETALLE: file_get_contents(http://10.10.10.16/SIGODT/api/SATCH/get_data_satch.php?orden_de_giro=013532-2026&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic2F0Y2hyZXNvdXJjZWlkIl0sImV4cCI6MTc3OTk0OTczMSwidXNlcl9uYW1lIjoibXBjaEB0ZXN0LmNvbSIsImp0aSI6ImM3M2NmZGU3LWI0YmMtNDAyMi1hYmJkLTczYjdjZGM0NDVjYyIsImNsaWVudF9pZCI6InNhdGNoYXBpdGVzdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.I6H6iK_XMTvrwxw2zuf_wYB303piTu649d8XpPxe_8Y): Failed to open stream: HTTP request failed! HTTP/1.1 400 Bad Request
+
+[2026-05-27 17:08:41] Consultando orden: 013531-2026
+[2026-05-27 17:08:42] ERROR API: 013531-2026 | DETALLE: file_get_contents(http://10.10.10.16/SIGODT/api/SATCH/get_data_satch.php?orden_de_giro=013531-2026&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic2F0Y2hyZXNvdXJjZWlkIl0sImV4cCI6MTc3OTk0OTczMSwidXNlcl9uYW1lIjoibXBjaEB0ZXN0LmNvbSIsImp0aSI6ImM3M2NmZGU3LWI0YmMtNDAyMi1hYmJkLTczYjdjZGM0NDVjYyIsImNsaWVudF9pZCI6InNhdGNoYXBpdGVzdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.I6H6iK_XMTvrwxw2zuf_wYB303piTu649d8XpPxe_8Y): Failed to open stream: HTTP request failed! HTTP/1.1 400 Bad Request
+
+[2026-05-27 17:08:42] Consultando orden: 013530-2026
+[2026-05-27 17:08:42] PAGADA: 013530-2026
+[2026-05-27 17:08:42] Consultando orden: 013529-2026
+[2026-05-27 17:08:43] PAGADA: 013529-2026
+[2026-05-27 17:08:43] Consultando orden: 013527-2026
+[2026-05-27 17:08:44] ERROR API: 013527-2026 | DETALLE: file_get_contents(http://10.10.10.16/SIGODT/api/SATCH/get_data_satch.php?orden_de_giro=013527-2026&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic2F0Y2hyZXNvdXJjZWlkIl0sImV4cCI6MTc3OTk0OTczMSwidXNlcl9uYW1lIjoibXBjaEB0ZXN0LmNvbSIsImp0aSI6ImM3M2NmZGU3LWI0YmMtNDAyMi1hYmJkLTczYjdjZGM0NDVjYyIsImNsaWVudF9pZCI6InNhdGNoYXBpdGVzdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.I6H6iK_XMTvrwxw2zuf_wYB303piTu649d8XpPxe_8Y): Failed to open stream: HTTP request failed! HTTP/1.1 400 Bad Request
+
+[2026-05-27 17:08:44] Consultando orden: 013525-2026
+[2026-05-27 17:08:44] ERROR API: 013525-2026 | DETALLE: file_get_contents(http://10.10.10.16/SIGODT/api/SATCH/get_data_satch.php?orden_de_giro=013525-2026&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic2F0Y2hyZXNvdXJjZWlkIl0sImV4cCI6MTc3OTk0OTczMSwidXNlcl9uYW1lIjoibXBjaEB0ZXN0LmNvbSIsImp0aSI6ImM3M2NmZGU3LWI0YmMtNDAyMi1hYmJkLTczYjdjZGM0NDVjYyIsImNsaWVudF9pZCI6InNhdGNoYXBpdGVzdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.I6H6iK_XMTvrwxw2zuf_wYB303piTu649d8XpPxe_8Y): Failed to open stream: HTTP request failed! HTTP/1.1 400 Bad Request
+
+[2026-05-27 17:08:44] Consultando orden: 013523-2026
+[2026-05-27 17:08:44] ERROR API: 013523-2026 | DETALLE: file_get_contents(http://10.10.10.16/SIGODT/api/SATCH/get_data_satch.php?orden_de_giro=013523-2026&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic2F0Y2hyZXNvdXJjZWlkIl0sImV4cCI6MTc3OTk0OTczMSwidXNlcl9uYW1lIjoibXBjaEB0ZXN0LmNvbSIsImp0aSI6ImM3M2NmZGU3LWI0YmMtNDAyMi1hYmJkLTczYjdjZGM0NDVjYyIsImNsaWVudF9pZCI6InNhdGNoYXBpdGVzdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.I6H6iK_XMTvrwxw2zuf_wYB303piTu649d8XpPxe_8Y): Failed to open stream: HTTP request failed! HTTP/1.1 400 Bad Request
+
+[2026-05-27 17:08:44] Consultando orden: 013524-2026
+[2026-05-27 17:08:45] ERROR API: 013524-2026 | DETALLE: file_get_contents(http://10.10.10.16/SIGODT/api/SATCH/get_data_satch.php?orden_de_giro=013524-2026&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic2F0Y2hyZXNvdXJjZWlkIl0sImV4cCI6MTc3OTk0OTczMSwidXNlcl9uYW1lIjoibXBjaEB0ZXN0LmNvbSIsImp0aSI6ImM3M2NmZGU3LWI0YmMtNDAyMi1hYmJkLTczYjdjZGM0NDVjYyIsImNsaWVudF9pZCI6InNhdGNoYXBpdGVzdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.I6H6iK_XMTvrwxw2zuf_wYB303piTu649d8XpPxe_8Y): Failed to open stream: HTTP request failed! HTTP/1.1 400 Bad Request
+
+[2026-05-27 17:08:45] Consultando orden: 013522-2026
+[2026-05-27 17:08:45] PAGADA: 013522-2026
+[2026-05-27 17:08:46] Consultando orden: 013356-2026
+[2026-05-27 17:08:46] ERROR API: 013356-2026 | DETALLE: file_get_contents(http://10.10.10.16/SIGODT/api/SATCH/get_data_satch.php?orden_de_giro=013356-2026&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic2F0Y2hyZXNvdXJjZWlkIl0sImV4cCI6MTc3OTk0OTczMSwidXNlcl9uYW1lIjoibXBjaEB0ZXN0LmNvbSIsImp0aSI6ImM3M2NmZGU3LWI0YmMtNDAyMi1hYmJkLTczYjdjZGM0NDVjYyIsImNsaWVudF9pZCI6InNhdGNoYXBpdGVzdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.I6H6iK_XMTvrwxw2zuf_wYB303piTu649d8XpPxe_8Y): Failed to open stream: HTTP request failed! HTTP/1.1 400 Bad Request
+
+[2026-05-27 17:08:46] Consultando orden: 013349-2026
+[2026-05-27 17:08:46] ERROR API: 013349-2026 | DETALLE: file_get_contents(http://10.10.10.16/SIGODT/api/SATCH/get_data_satch.php?orden_de_giro=013349-2026&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic2F0Y2hyZXNvdXJjZWlkIl0sImV4cCI6MTc3OTk0OTczMSwidXNlcl9uYW1lIjoibXBjaEB0ZXN0LmNvbSIsImp0aSI6ImM3M2NmZGU3LWI0YmMtNDAyMi1hYmJkLTczYjdjZGM0NDVjYyIsImNsaWVudF9pZCI6InNhdGNoYXBpdGVzdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.I6H6iK_XMTvrwxw2zuf_wYB303piTu649d8XpPxe_8Y): Failed to open stream: HTTP request failed! HTTP/1.1 400 Bad Request
+
+[2026-05-27 17:08:46] Consultando orden: 013348-2026
+[2026-05-27 17:08:47] ERROR API: 013348-2026 | DETALLE: file_get_contents(http://10.10.10.16/SIGODT/api/SATCH/get_data_satch.php?orden_de_giro=013348-2026&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic2F0Y2hyZXNvdXJjZWlkIl0sImV4cCI6MTc3OTk0OTczMSwidXNlcl9uYW1lIjoibXBjaEB0ZXN0LmNvbSIsImp0aSI6ImM3M2NmZGU3LWI0YmMtNDAyMi1hYmJkLTczYjdjZGM0NDVjYyIsImNsaWVudF9pZCI6InNhdGNoYXBpdGVzdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.I6H6iK_XMTvrwxw2zuf_wYB303piTu649d8XpPxe_8Y): Failed to open stream: HTTP request failed! HTTP/1.1 400 Bad Request
+
+[2026-05-27 17:08:47] Consultando orden: 013347-2026
+[2026-05-27 17:08:47] ERROR API: 013347-2026 | DETALLE: file_get_contents(http://10.10.10.16/SIGODT/api/SATCH/get_data_satch.php?orden_de_giro=013347-2026&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic2F0Y2hyZXNvdXJjZWlkIl0sImV4cCI6MTc3OTk0OTczMSwidXNlcl9uYW1lIjoibXBjaEB0ZXN0LmNvbSIsImp0aSI6ImM3M2NmZGU3LWI0YmMtNDAyMi1hYmJkLTczYjdjZGM0NDVjYyIsImNsaWVudF9pZCI6InNhdGNoYXBpdGVzdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.I6H6iK_XMTvrwxw2zuf_wYB303piTu649d8XpPxe_8Y): Failed to open stream: HTTP request failed! HTTP/1.1 400 Bad Request
+
+[2026-05-27 17:08:47] Consultando orden: 013346-2026
+[2026-05-27 17:08:48] ERROR API: 013346-2026 | DETALLE: file_get_contents(http://10.10.10.16/SIGODT/api/SATCH/get_data_satch.php?orden_de_giro=013346-2026&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic2F0Y2hyZXNvdXJjZWlkIl0sImV4cCI6MTc3OTk0OTczMSwidXNlcl9uYW1lIjoibXBjaEB0ZXN0LmNvbSIsImp0aSI6ImM3M2NmZGU3LWI0YmMtNDAyMi1hYmJkLTczYjdjZGM0NDVjYyIsImNsaWVudF9pZCI6InNhdGNoYXBpdGVzdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.I6H6iK_XMTvrwxw2zuf_wYB303piTu649d8XpPxe_8Y): Failed to open stream: HTTP request failed! HTTP/1.1 400 Bad Request
+
+[2026-05-27 17:08:48] BLOQUE FINALIZADO
+[2026-05-27 17:08:48] BLOQUE OBTENIDO: 20
+[2026-05-27 17:08:48] Consultando orden: 013345-2026
+[2026-05-27 17:08:49] ERROR API: 013345-2026 | DETALLE: file_get_contents(http://10.10.10.16/SIGODT/api/SATCH/get_data_satch.php?orden_de_giro=013345-2026&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic2F0Y2hyZXNvdXJjZWlkIl0sImV4cCI6MTc3OTk0OTczMSwidXNlcl9uYW1lIjoibXBjaEB0ZXN0LmNvbSIsImp0aSI6ImM3M2NmZGU3LWI0YmMtNDAyMi1hYmJkLTczYjdjZGM0NDVjYyIsImNsaWVudF9pZCI6InNhdGNoYXBpdGVzdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.I6H6iK_XMTvrwxw2zuf_wYB303piTu649d8XpPxe_8Y): Failed to open stream: HTTP request failed! HTTP/1.1 400 Bad Request
+
+[2026-05-27 17:08:49] Consultando orden: 013344-2026
+[2026-05-27 17:08:49] ERROR API: 013344-2026 | DETALLE: file_get_contents(http://10.10.10.16/SIGODT/api/SATCH/get_data_satch.php?orden_de_giro=013344-2026&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic2F0Y2hyZXNvdXJjZWlkIl0sImV4cCI6MTc3OTk0OTczMSwidXNlcl9uYW1lIjoibXBjaEB0ZXN0LmNvbSIsImp0aSI6ImM3M2NmZGU3LWI0YmMtNDAyMi1hYmJkLTczYjdjZGM0NDVjYyIsImNsaWVudF9pZCI6InNhdGNoYXBpdGVzdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.I6H6iK_XMTvrwxw2zuf_wYB303piTu649d8XpPxe_8Y): Failed to open stream: HTTP request failed! HTTP/1.1 400 Bad Request
+
+[2026-05-27 17:08:49] Consultando orden: 013343-2026
+[2026-05-27 17:08:50] ERROR API: 013343-2026 | DETALLE: file_get_contents(http://10.10.10.16/SIGODT/api/SATCH/get_data_satch.php?orden_de_giro=013343-2026&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic2F0Y2hyZXNvdXJjZWlkIl0sImV4cCI6MTc3OTk0OTczMSwidXNlcl9uYW1lIjoibXBjaEB0ZXN0LmNvbSIsImp0aSI6ImM3M2NmZGU3LWI0YmMtNDAyMi1hYmJkLTczYjdjZGM0NDVjYyIsImNsaWVudF9pZCI6InNhdGNoYXBpdGVzdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.I6H6iK_XMTvrwxw2zuf_wYB303piTu649d8XpPxe_8Y): Failed to open stream: HTTP request failed! HTTP/1.1 400 Bad Request
+
+[2026-05-27 17:08:50] Consultando orden: 013342-2026
+[2026-05-27 17:08:50] ERROR API: 013342-2026 | DETALLE: file_get_contents(http://10.10.10.16/SIGODT/api/SATCH/get_data_satch.php?orden_de_giro=013342-2026&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic2F0Y2hyZXNvdXJjZWlkIl0sImV4cCI6MTc3OTk0OTczMSwidXNlcl9uYW1lIjoibXBjaEB0ZXN0LmNvbSIsImp0aSI6ImM3M2NmZGU3LWI0YmMtNDAyMi1hYmJkLTczYjdjZGM0NDVjYyIsImNsaWVudF9pZCI6InNhdGNoYXBpdGVzdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.I6H6iK_XMTvrwxw2zuf_wYB303piTu649d8XpPxe_8Y): Failed to open stream: HTTP request failed! HTTP/1.1 400 Bad Request
+
+[2026-05-27 17:08:50] Consultando orden: 013341-2026
+[2026-05-27 17:08:50] ERROR API: 013341-2026 | DETALLE: file_get_contents(http://10.10.10.16/SIGODT/api/SATCH/get_data_satch.php?orden_de_giro=013341-2026&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic2F0Y2hyZXNvdXJjZWlkIl0sImV4cCI6MTc3OTk0OTczMSwidXNlcl9uYW1lIjoibXBjaEB0ZXN0LmNvbSIsImp0aSI6ImM3M2NmZGU3LWI0YmMtNDAyMi1hYmJkLTczYjdjZGM0NDVjYyIsImNsaWVudF9pZCI6InNhdGNoYXBpdGVzdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.I6H6iK_XMTvrwxw2zuf_wYB303piTu649d8XpPxe_8Y): Failed to open stream: HTTP request failed! HTTP/1.1 400 Bad Request
+
+[2026-05-27 17:08:50] Consultando orden: 013340-2026
+[2026-05-27 17:08:51] ERROR API: 013340-2026 | DETALLE: file_get_contents(http://10.10.10.16/SIGODT/api/SATCH/get_data_satch.php?orden_de_giro=013340-2026&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic2F0Y2hyZXNvdXJjZWlkIl0sImV4cCI6MTc3OTk0OTczMSwidXNlcl9uYW1lIjoibXBjaEB0ZXN0LmNvbSIsImp0aSI6ImM3M2NmZGU3LWI0YmMtNDAyMi1hYmJkLTczYjdjZGM0NDVjYyIsImNsaWVudF9pZCI6InNhdGNoYXBpdGVzdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.I6H6iK_XMTvrwxw2zuf_wYB303piTu649d8XpPxe_8Y): Failed to open stream: HTTP request failed! HTTP/1.1 400 Bad Request
+
+[2026-05-27 17:08:51] Consultando orden: 013339-2026
+[2026-05-27 17:08:51] ERROR API: 013339-2026 | DETALLE: file_get_contents(http://10.10.10.16/SIGODT/api/SATCH/get_data_satch.php?orden_de_giro=013339-2026&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic2F0Y2hyZXNvdXJjZWlkIl0sImV4cCI6MTc3OTk0OTczMSwidXNlcl9uYW1lIjoibXBjaEB0ZXN0LmNvbSIsImp0aSI6ImM3M2NmZGU3LWI0YmMtNDAyMi1hYmJkLTczYjdjZGM0NDVjYyIsImNsaWVudF9pZCI6InNhdGNoYXBpdGVzdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.I6H6iK_XMTvrwxw2zuf_wYB303piTu649d8XpPxe_8Y): Failed to open stream: HTTP request failed! HTTP/1.1 400 Bad Request
+
+[2026-05-27 17:08:51] Consultando orden: 013338-2026
+[2026-05-27 17:08:52] ERROR API: 013338-2026 | DETALLE: file_get_contents(http://10.10.10.16/SIGODT/api/SATCH/get_data_satch.php?orden_de_giro=013338-2026&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic2F0Y2hyZXNvdXJjZWlkIl0sImV4cCI6MTc3OTk0OTczMSwidXNlcl9uYW1lIjoibXBjaEB0ZXN0LmNvbSIsImp0aSI6ImM3M2NmZGU3LWI0YmMtNDAyMi1hYmJkLTczYjdjZGM0NDVjYyIsImNsaWVudF9pZCI6InNhdGNoYXBpdGVzdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.I6H6iK_XMTvrwxw2zuf_wYB303piTu649d8XpPxe_8Y): Failed to open stream: HTTP request failed! HTTP/1.1 400 Bad Request
+
+[2026-05-27 17:08:52] Consultando orden: 013337-2026
+[2026-05-27 17:08:52] ERROR API: 013337-2026 | DETALLE: file_get_contents(http://10.10.10.16/SIGODT/api/SATCH/get_data_satch.php?orden_de_giro=013337-2026&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic2F0Y2hyZXNvdXJjZWlkIl0sImV4cCI6MTc3OTk0OTczMSwidXNlcl9uYW1lIjoibXBjaEB0ZXN0LmNvbSIsImp0aSI6ImM3M2NmZGU3LWI0YmMtNDAyMi1hYmJkLTczYjdjZGM0NDVjYyIsImNsaWVudF9pZCI6InNhdGNoYXBpdGVzdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.I6H6iK_XMTvrwxw2zuf_wYB303piTu649d8XpPxe_8Y): Failed to open stream: HTTP request failed! HTTP/1.1 400 Bad Request
+
+[2026-05-27 17:08:52] Consultando orden: 013336-2026
+[2026-05-27 17:08:52] ERROR API: 013336-2026 | DETALLE: file_get_contents(http://10.10.10.16/SIGODT/api/SATCH/get_data_satch.php?orden_de_giro=013336-2026&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic2F0Y2hyZXNvdXJjZWlkIl0sImV4cCI6MTc3OTk0OTczMSwidXNlcl9uYW1lIjoibXBjaEB0ZXN0LmNvbSIsImp0aSI6ImM3M2NmZGU3LWI0YmMtNDAyMi1hYmJkLTczYjdjZGM0NDVjYyIsImNsaWVudF9pZCI6InNhdGNoYXBpdGVzdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.I6H6iK_XMTvrwxw2zuf_wYB303piTu649d8XpPxe_8Y): Failed to open stream: HTTP request failed! HTTP/1.1 400 Bad Request
+
+[2026-05-27 17:08:52] Consultando orden: 013335-2026
+[2026-05-27 17:08:53] ERROR API: 013335-2026 | DETALLE: file_get_contents(http://10.10.10.16/SIGODT/api/SATCH/get_data_satch.php?orden_de_giro=013335-2026&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic2F0Y2hyZXNvdXJjZWlkIl0sImV4cCI6MTc3OTk0OTczMSwidXNlcl9uYW1lIjoibXBjaEB0ZXN0LmNvbSIsImp0aSI6ImM3M2NmZGU3LWI0YmMtNDAyMi1hYmJkLTczYjdjZGM0NDVjYyIsImNsaWVudF9pZCI6InNhdGNoYXBpdGVzdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.I6H6iK_XMTvrwxw2zuf_wYB303piTu649d8XpPxe_8Y): Failed to open stream: HTTP request failed! HTTP/1.1 400 Bad Request
+
+[2026-05-27 17:08:53] Consultando orden: 013334-2026
+[2026-05-27 17:08:53] ERROR API: 013334-2026 | DETALLE: file_get_contents(http://10.10.10.16/SIGODT/api/SATCH/get_data_satch.php?orden_de_giro=013334-2026&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic2F0Y2hyZXNvdXJjZWlkIl0sImV4cCI6MTc3OTk0OTczMSwidXNlcl9uYW1lIjoibXBjaEB0ZXN0LmNvbSIsImp0aSI6ImM3M2NmZGU3LWI0YmMtNDAyMi1hYmJkLTczYjdjZGM0NDVjYyIsImNsaWVudF9pZCI6InNhdGNoYXBpdGVzdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.I6H6iK_XMTvrwxw2zuf_wYB303piTu649d8XpPxe_8Y): Failed to open stream: HTTP request failed! HTTP/1.1 400 Bad Request
+
+[2026-05-27 17:08:53] Consultando orden: 013333-2026
+[2026-05-27 17:08:54] ERROR API: 013333-2026 | DETALLE: file_get_contents(http://10.10.10.16/SIGODT/api/SATCH/get_data_satch.php?orden_de_giro=013333-2026&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic2F0Y2hyZXNvdXJjZWlkIl0sImV4cCI6MTc3OTk0OTczMSwidXNlcl9uYW1lIjoibXBjaEB0ZXN0LmNvbSIsImp0aSI6ImM3M2NmZGU3LWI0YmMtNDAyMi1hYmJkLTczYjdjZGM0NDVjYyIsImNsaWVudF9pZCI6InNhdGNoYXBpdGVzdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.I6H6iK_XMTvrwxw2zuf_wYB303piTu649d8XpPxe_8Y): Failed to open stream: HTTP request failed! HTTP/1.1 400 Bad Request
+
+[2026-05-27 17:08:54] Consultando orden: 013332-2026
+[2026-05-27 17:08:54] ERROR API: 013332-2026 | DETALLE: file_get_contents(http://10.10.10.16/SIGODT/api/SATCH/get_data_satch.php?orden_de_giro=013332-2026&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic2F0Y2hyZXNvdXJjZWlkIl0sImV4cCI6MTc3OTk0OTczMSwidXNlcl9uYW1lIjoibXBjaEB0ZXN0LmNvbSIsImp0aSI6ImM3M2NmZGU3LWI0YmMtNDAyMi1hYmJkLTczYjdjZGM0NDVjYyIsImNsaWVudF9pZCI6InNhdGNoYXBpdGVzdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.I6H6iK_XMTvrwxw2zuf_wYB303piTu649d8XpPxe_8Y): Failed to open stream: HTTP request failed! HTTP/1.1 400 Bad Request
+
+[2026-05-27 17:08:54] Consultando orden: 013331-2026
+[2026-05-27 17:08:54] ERROR API: 013331-2026 | DETALLE: file_get_contents(http://10.10.10.16/SIGODT/api/SATCH/get_data_satch.php?orden_de_giro=013331-2026&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsic2F0Y2hyZXNvdXJjZWlkIl0sImV4cCI6MTc3OTk0OTczMSwidXNlcl9uYW1lIjoibXBjaEB0ZXN0LmNvbSIsImp0aSI6ImM3M2NmZGU3LWI0YmMtNDAyMi1hYmJkLTczYjdjZGM0NDVjYyIsImNsaWVudF9pZCI6InNhdGNoYXBpdGVzdCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSJdfQ.I6H6iK_XMTvrwxw2zuf_wYB303piTu649d8XpPxe_8Y): Failed to open stream: HTTP request failed! HTTP/1.1 400 Bad Request
+
+[2026-05-27 17:08:54] Consultando orden: 013330-2026
