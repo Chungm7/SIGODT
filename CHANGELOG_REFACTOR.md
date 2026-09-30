@@ -89,3 +89,68 @@ Este documento registra cronológicamente cada una de las modificaciones arquite
   2. La actualización condiciona la escritura con `AND (pers_id IS NULL OR pers_id = 0)`, garantizando que nunca se sobreescriba un registro que ya fue reclamado por otro funcionario.
   3. `update_bitacora_grupo($pers_id, $menor)` aplica la misma protección dentro del rango de IDs.
 * **Cómo ajustarlo:** Si más adelante se actualizan los triggers de base de datos para que lean directamente variables de sesión de PostgreSQL (`SET LOCAL app.current_user_id`), las llamadas a `update_bitacora` podrán retirarse gradualmente sin afectar la lógica.
+
+---
+
+## [Fase P2] — Arquitectura y Deuda Técnica: Unificación de Modelos y Controladores
+**Fecha:** 2026-09-30  
+**Rama:** `dev`  
+**Objetivo:** Consolidar clases y controladores duplicados para respetar el principio de única fuente de verdad (Single Source of Truth), prevenir colisiones fatales de clases en PHP (`Fatal Error: Cannot declare class...`) y estandarizar el consumo desde las vistas.
+
+### 1. Archivos Afectados
+* `models/OrdenGiro.php`
+* `models/OrdenGiro_rep.php`
+* `controller/ordengiro.php`
+* `controller/orden_giro.php`
+* `view/consultar_documento/index.php`
+* `view/consultar_mes/index.php`
+* `view/consultar_og/index.php`
+* `models/Ciudadano.php`
+* `models/Ciudadano_mnt.php`
+* `controller/ciudadano.php`
+* `controller/ciudadano_mnt.php`
+* `view/mnt_ciudadano/ciud.js`
+* `models/Empresa.php`
+* `models/Empresa_mnt.php`
+* `controller/empresa.php`
+* `controller/empresa_mnt.php`
+* `view/mnt_empresa/empresa.js`
+
+### 2. Detalle de los Cambios
+
+#### A. Consolidación de Órdenes de Giro (`models/OrdenGiro.php` y `controller/ordengiro.php`)
+* **Antes:**
+  * Existían dos modelos declarando la misma clase: `models/OrdenGiro.php` (emisión y reportes de tasas) y `models/OrdenGiro_rep.php` (consultas ciudadanas, reportes mensuales y búsqueda de órdenes para PDF).
+  * `controller/orden_giro.php` atendía 3 casos aislados (`get_ordenes_giro`, `get_ordenes_mes`, `get_orden_giro`) y las vistas `view/consultar_documento/`, `view/consultar_mes/` y `view/consultar_og/` apuntaban a este controlador secundario.
+  * La obtención de PDF en `get_orden_giro_by_id` tenía la URL `http://10.10.10.16/SIGODT/` quemada en código.
+* **Ahora:**
+  1. Se fusionaron los métodos `get_ordenes_giro()`, `get_ordenes_mes()`, `get_total_ordenes_mes()` y `get_orden_giro_by_id()` dentro de `models/OrdenGiro.php`. Se agregó `class_alias('Ordengiro', 'OrdenGiro')` para compatibilidad completa de nombres.
+  2. En `get_orden_giro_by_id()`, la URL del PDF ahora se construye dinámicamente mediante `Conectar::getEnv('APP_URL')`.
+  3. Se incorporaron los 3 casos correspondientes en `controller/ordengiro.php`.
+  4. Las vistas (`consultar_documento`, `consultar_mes`, `consultar_og`) se actualizaron para llamar directamente a `controller/ordengiro.php`.
+  5. `models/OrdenGiro_rep.php` y `controller/orden_giro.php` se convirtieron en shims de retrocompatibilidad que delegan a los archivos principales.
+* **Cómo ajustarlo:** Cualquier nuevo reporte o filtro sobre órdenes de giro debe agregarse únicamente en `models/OrdenGiro.php` y exponerse en `controller/ordengiro.php`.
+
+#### B. Consolidación de Ciudadano (`models/Ciudadano.php` y `controller/ciudadano.php`)
+* **Antes:**
+  * `models/Ciudadano.php` manejaba búsquedas por documento y registro para giros.
+  * `models/Ciudadano_mnt.php` declaraba otra clase `Ciudadano` para mantenimiento DataTables, paginación, edición e inactivación.
+  * `controller/ciudadano_mnt.php` y `view/mnt_ciudadano/ciud.js` trabajaban desvinculados del controlador central.
+* **Ahora:**
+  1. Se incorporaron en `models/Ciudadano.php` los métodos: `listarCiudadanos()`, `mostrar()`, `list_ciudadano()`, `get_total_ciudadano()`, `get_tito_doc()`, `existeDocumento()`, `insertar()`, `editar()` e `inactivar()`.
+  2. Se integraron los casos `listar`, `listar_tipos`, `listar_tabla`, `crear`, `mostrar`, `editar` y `cambiar_estado` en `controller/ciudadano.php`.
+  3. `view/mnt_ciudadano/ciud.js` apunta ahora directamente a `controller/ciudadano.php`.
+  4. `models/Ciudadano_mnt.php` y `controller/ciudadano_mnt.php` funcionan como shims delegadores.
+* **Cómo ajustarlo:** Nuevos campos en el formulario de ciudadanos deben mapearse en los métodos `insertar()` y `editar()` de `models/Ciudadano.php`.
+
+#### C. Consolidación de Empresa (`models/Empresa.php` y `controller/empresa.php`)
+* **Antes:**
+  * `models/Empresa.php` atendía consultas de RUC, giros comerciales y agrupaciones de procedimientos vehiculares.
+  * `models/Empresa_mnt.php` declaraba otra clase `Empresa` con la lógica de CRUD y DataTables.
+  * `controller/empresa_mnt.php` y `view/mnt_empresa/empresa.js` operaban en paralelo.
+* **Ahora:**
+  1. Se integraron en `models/Empresa.php` los métodos: `listarEmpresas()`, `list_empresa()`, `get_total_empresa()`, `existeRuc()`, `insertar()`, `editar()`, `inactivar()` y `mostrar()`.
+  2. Se añadieron los casos `listar`, `listar_tabla`, `crear`, `editar`, `cambiar_estado` y `mostrar` en `controller/empresa.php`.
+  3. `view/mnt_empresa/empresa.js` apunta directamente a `controller/empresa.php`.
+  4. `models/Empresa_mnt.php` y `controller/empresa_mnt.php` quedaron convertidos en shims.
+* **Cómo ajustarlo:** Reglas de validación adicionales para RUC o actividades económicas deben implementarse en `models/Empresa.php`.

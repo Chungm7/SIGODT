@@ -129,7 +129,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                 let ordenGiroId = `${formatearNumero(ordenNumero)}-${ordenAnio}`;
                 console.log("🔍 Buscando orden:", ordenGiroId);
 
-                fetch("../../controller/orden_giro.php?op=get_orden_giro", {
+                fetch("../../controller/ordengiro.php?op=get_orden_giro", {
                     method: "POST",
                     headers: { "Content-Type": "application/x-www-form-urlencoded" },
                     body: "ogciud_id=" + encodeURIComponent(ordenGiroId)

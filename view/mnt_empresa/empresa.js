@@ -34,7 +34,7 @@ function listar_todos() {
     serverSide: true,
     searching: false,
     ajax: {
-      url: "../../controller/empresa_mnt.php?op=listar_tabla",
+      url: "../../controller/empresa.php?op=listar_tabla",
       type: "POST",
       data: function(d) {
         d.search       = $("#search").val().trim();
@@ -86,7 +86,7 @@ function nuevoRegistro(){
 
 function editar(id){
   $.post(
-    "../../controller/empresa_mnt.php?op=mostrar",
+    "../../controller/empresa.php?op=mostrar",
     { empr_id: id },
     function(data) {
       const d = JSON.parse(data);
@@ -108,7 +108,7 @@ function guardar(){
   const data = {};
   formArray.forEach(({ name, value }) => { data[name] = value; });
 
-  $.post(`../../controller/empresa_mnt.php?op=${op}`, data)
+  $.post(`../../controller/empresa.php?op=${op}`, data)
     .done(res => {
       const r = JSON.parse(res);
       if (r.success) {
@@ -152,7 +152,7 @@ function cambiarEstado(id, estado){
   }).then(result => {
     if (result.isConfirmed) {
       $.post(
-        "../../controller/empresa_mnt.php?op=cambiar_estado",
+        "../../controller/empresa.php?op=cambiar_estado",
         { empr_id: id }
       )
       .done(() => {

@@ -5,7 +5,7 @@ let tabla_ciudadano;
 
 function cargarTiposDocumento() {
     $.ajax({
-        url: "../../controller/ciudadano_mnt.php?op=listar_tipos",
+        url: "../../controller/ciudadano.php?op=listar_tipos",
         method: "GET",
         dataType: "json",
         success: function (res) {
@@ -41,7 +41,7 @@ function listar_todos() {
         serverSide: true,
         searching: false,
         ajax: {
-            url: "../../controller/ciudadano_mnt.php?op=listar_tabla",
+            url: "../../controller/ciudadano.php?op=listar_tabla",
             type: "POST",
             data: function (d) {
                 d.search = $("#search").val().trim();
@@ -108,7 +108,7 @@ function nuevoRegistro() {
 
 function editar(id) {
     $.post(
-      "../../controller/ciudadano_mnt.php?op=mostrar",
+      "../../controller/ciudadano.php?op=mostrar",
       { ciud_id: id },
       function (data) {
         const d = JSON.parse(data);
@@ -148,7 +148,7 @@ function guardar() {
     formArray.forEach(({ name, value }) => { data[name] = value; });
   
     function enviar() {
-      $.post(`../../controller/ciudadano_mnt.php?op=${op}`, data)
+      $.post(`../../controller/ciudadano.php?op=${op}`, data)
         .done(res => {
           const r = JSON.parse(res);
           if (r.success) {
@@ -209,7 +209,7 @@ function guardar() {
     }).then((result) => {
       if (result.isConfirmed) {
         $.post(
-          "../../controller/ciudadano_mnt.php?op=cambiar_estado",
+          "../../controller/ciudadano.php?op=cambiar_estado",
           { ciud_id: id }
         )
         .done(() => {

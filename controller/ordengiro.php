@@ -1,9 +1,9 @@
 
 <?php
 require_once(__DIR__ . "/../base/Response.php");
-require_once("../config/conexion.php");
-require_once("../models/OrdenGiro.php");
-require_once("../models/Bitacora.php");
+require_once(__DIR__ . "/../config/conexion.php");
+require_once(__DIR__ . "/../models/OrdenGiro.php");
+require_once(__DIR__ . "/../models/Bitacora.php");
 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -227,6 +227,40 @@ switch ($_GET["op"]) {
         } else {
             $error_message = "No se ha encontrado información para la orden proporcionada.";
             echo json_encode(array("error" => $error_message));
+        }
+        break;
+
+    case "get_ordenes_giro":
+        $documento = $_POST["documento"] ?? "";
+        $data = $ordengiro->get_ordenes_giro($documento);
+        echo json_encode($data);
+        break;
+
+    case "get_ordenes_mes":
+        $search = isset($_POST["search"]) ? trim($_POST["search"]) : "";
+        $page = isset($_POST["page"]) ? intval($_POST["page"]) : 1;
+        $limit = isset($_POST["limit"]) ? intval($_POST["limit"]) : 10;
+        $offset = ($page - 1) * $limit;
+
+        $data = $ordengiro->get_ordenes_mes($search, $limit, $offset);
+        $total = $ordengiro->get_total_ordenes_mes($search);
+
+        echo json_encode([
+            "data" => $data,
+            "total" => $total,
+            "page" => $page,
+            "limit" => $limit
+        ]);
+        break;
+
+    case "get_orden_giro":
+        $ogciud_id = isset($_POST["ogciud_id"]) ? $_POST["ogciud_id"] : null;
+        $data = $ordengiro->get_orden_giro_by_id($ogciud_id);
+
+        if ($data) {
+            echo json_encode(["status" => "success", "data" => $data]);
+        } else {
+            echo json_encode(["status" => "error", "message" => "No se encontró la Orden de Giro"]);
         }
         break;
 }

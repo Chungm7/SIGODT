@@ -107,7 +107,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
         spinner.classList.remove("d-none");
         messageDiv.classList.add("d-none");
 
-        fetch("../../controller/orden_giro.php?op=get_ordenes_giro", {
+        fetch("../../controller/ordengiro.php?op=get_ordenes_giro", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: "documento=" + encodeURIComponent(documento)

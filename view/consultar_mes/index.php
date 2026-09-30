@@ -161,7 +161,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                     currentPage = page;
                     let body = `page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`;
 
-                    fetch("../../controller/orden_giro.php?op=get_ordenes_mes", {
+                    fetch("../../controller/ordengiro.php?op=get_ordenes_mes", {
                         method: "POST",
                         headers: { "Content-Type": "application/x-www-form-urlencoded" },
                         body: body
