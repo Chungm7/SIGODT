@@ -151,33 +151,36 @@ class tasa extends Conectar
             // 2. Normalizar comentario
             $comentario = mb_strtoupper($comentario, 'UTF-8');
 
-            // 3. Obtener año actual y año del último ogciud_id
-            $sql = "
-            SELECT 
-                TO_CHAR(CURRENT_DATE, 'YYYY') AS current_year,
-                SUBSTRING(MAX(ogciud_id) FROM 8 FOR 4)    AS last_year
-            FROM sc_giros.td_ordengirociud
-        ";
-            $stmt = $conectar->prepare($sql);
-            $stmt->execute();
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            $currentYear = $row['current_year'];
-            $lastYear    = $row['last_year'];
+            // 3. Obtener año actual
+            $currentYear = date('Y');
 
-            // 4. Si cambió de año, reiniciar la secuencia con el nextval calculado
-            if ($currentYear !== $lastYear) {
-                // Calcular nextval base (se toman los primeros 6 dígitos como integer + 1)
-                $sql2 = "
-                SELECT COALESCE(MAX(SUBSTRING(ogciud_id FROM 1 FOR 6)::INTEGER), 0) + 1 AS next_val
-                FROM sc_giros.td_ordengirociud
-                WHERE ogciud_id LIKE :mask
-            ";
-                $stmt2 = $conectar->prepare($sql2);
-                $stmt2->execute([':mask' => '%-' . $currentYear]);
-                $nextVal = $stmt2->fetchColumn();
+            // 4. Verificar si es la primera orden del año para sincronizar la secuencia
+            // En operaciones normales (ya existen órdenes este año), se omite el DDL por completo para evitar AccessExclusiveLock
+            $sqlCheck = "SELECT 1 FROM sc_giros.td_ordengirociud WHERE ogciud_id LIKE :mask LIMIT 1";
+            $stmtCheck = $conectar->prepare($sqlCheck);
+            $stmtCheck->execute([':mask' => '%-' . $currentYear]);
+            $hasOrdersThisYear = $stmtCheck->fetchColumn();
 
-                // Reiniciar la secuencia
-                $conectar->exec("ALTER SEQUENCE sc_giros.ordengiro_id_sequence RESTART WITH {$nextVal}");
+            if (!$hasOrdersThisYear) {
+                // Adquirir advisory lock transaccional (987654340) para sincronización atómica
+                $conectar->exec("SELECT pg_advisory_xact_lock(987654340)");
+
+                // Doble comprobación con el candado adquirido
+                $stmtCheck->execute([':mask' => '%-' . $currentYear]);
+                if (!$stmtCheck->fetchColumn()) {
+                    $sqlMax = "
+                        SELECT COALESCE(MAX(SUBSTRING(ogciud_id FROM 1 FOR 6)::INTEGER), 0) + 1 AS next_val
+                        FROM sc_giros.td_ordengirociud
+                        WHERE ogciud_id LIKE :mask
+                    ";
+                    $stmtMax = $conectar->prepare($sqlMax);
+                    $stmtMax->execute([':mask' => '%-' . $currentYear]);
+                    $nextVal = (int)$stmtMax->fetchColumn();
+                    if ($nextVal < 1) {
+                        $nextVal = 1;
+                    }
+                    $conectar->exec("ALTER SEQUENCE sc_giros.ordengiro_id_sequence RESTART WITH {$nextVal}");
+                }
             }
 
             // 5. Obtener datos de tasa y procedimiento

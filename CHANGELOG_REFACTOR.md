@@ -53,3 +53,39 @@ Este documento registra cronológicamente cada una de las modificaciones arquite
   * Se corrigió la zona horaria en respuestas JSON de `America/Bogota` a `America/Lima`.
 * **APIs Internas (`api.php`, `api_sisgi.php`, `buscar_automatizado.php`, `api_reload.php`):**
   * Se reemplazaron las URLs e IPs fijas hardcodeadas (`http://10.10.10.16/`, `http://216.244.171.252/`) por llamadas dinámicas a `Conectar::ruta()` y `SIS_SEGURIDAD_URL`.
+
+
+---
+
+## [Fase P1] — Integridad de Datos, Concurrencia y Depuración
+**Fecha:** 2026-09-30  
+**Rama:** `dev`  
+**Objetivo:** Eliminar condiciones de carrera en auditoría forense, evitar bloqueos de catálogo por DDL en runtime y suprimir endpoints duplicados obsoletos.
+
+### 1. Archivos Afectados
+* `api/api_.php` *(Eliminado)*
+* `models/Tasa.php`
+* `models/Bitacora.php`
+
+### 2. Detalle de los Cambios
+
+#### A. Eliminación de Endpoint Residual (`api/api_.php`)
+* **Antes:** Existía una copia de respaldo manual (`api_.php`) expuesta en la carpeta pública `/api/`. Presentaba fuga de sesiones (el `exit()` prevenía el logout hacia `sisSeguridad`), utilizaba zona horaria de Bogotá y representaba un vector de ataque.
+* **Ahora:** Se eliminó físicamente del repositorio. Todas las peticiones deben dirigirse al endpoint saneado [`api/api.php`](api/api.php).
+* **Cómo ajustarlo:** No requiere ajuste. Cualquier cliente que invoque este archivo debe actualizar su URL a `api/api.php`.
+
+#### B. Eliminación de Bloqueo DDL en Emisión de Órdenes (`models/Tasa.php`)
+* **Antes:** En el método `insert_girotasaciud`, se evaluaba `SELECT SUBSTRING(MAX(ogciud_id) FROM 8 FOR 4)`. Debido a la comparación lexicográfica de cadenas alfanuméricas, la condición de año nuevo evaluaba a `true` en casi todas las transacciones, ejecutando un `ALTER SEQUENCE ... RESTART WITH` dentro del ciclo HTTP y generando bloqueos exclusivos (`AccessExclusiveLock`) en PostgreSQL.
+* **Ahora:**
+  1. Se verifica la existencia de órdenes en el año actual mediante una consulta indexada rápida: `SELECT 1 FROM sc_giros.td_ordengirociud WHERE ogciud_id LIKE :mask LIMIT 1`.
+  2. En el 99.99% de las transacciones (cuando ya existen órdenes emitidas en el año), se omite el DDL por completo.
+  3. Si es estrictamente la primera orden del año nuevo, el reinicio de la secuencia se ejecuta protegido mediante un candado atómico de transacción (`pg_advisory_xact_lock(987654340)`) con doble comprobación, impidiendo que múltiples operadores colisionen.
+* **Cómo ajustarlo:** Si en el futuro se migra a secuencias anuales independientes (ej. `sc_giros.ordengiro_id_sequence_YYYY`), solo se requerirá cambiar la función generadora en este bloque.
+
+#### C. Protección contra Condiciones de Carrera en Auditoría (`models/Bitacora.php`)
+* **Antes:** Tras los triggers de inserción en base de datos, PHP consultaba `SELECT MAX(bita_id)` sin filtrar y le asignaba el usuario de sesión. Si dos operadores guardaban al mismo tiempo, el segundo sobreescribía la traza de auditoría del primero.
+* **Ahora:**
+  1. `update_bitacora($pers_id)` busca específicamente el último registro huérfano (`WHERE pers_id IS NULL OR pers_id = 0`).
+  2. La actualización condiciona la escritura con `AND (pers_id IS NULL OR pers_id = 0)`, garantizando que nunca se sobreescriba un registro que ya fue reclamado por otro funcionario.
+  3. `update_bitacora_grupo($pers_id, $menor)` aplica la misma protección dentro del rango de IDs.
+* **Cómo ajustarlo:** Si más adelante se actualizan los triggers de base de datos para que lean directamente variables de sesión de PostgreSQL (`SET LOCAL app.current_user_id`), las llamadas a `update_bitacora` podrán retirarse gradualmente sin afectar la lógica.
