@@ -1,0 +1,29 @@
+# Environment & Secrets
+.env
+.env.local
+.env.*.local
+
+# Composer & Dependencies
+/vendor/
+
+# IDE / Editor
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS generated
+.DS_Store
+Thumbs.db
+
+# Logs & Temporary files
+*.log
+api/logs/*.log
+!api/logs/.gitkeep
+
+# Citizen uploads / PII cached photos
+controller/uploads/ciudadanos/*
+!controller/uploads/ciudadanos/.gitkeep

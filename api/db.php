@@ -1,9 +1,11 @@
 <?php
-$host = "10.10.10.16";
-$port = "5432"; // Puerto predeterminado de PostgreSQL
-$dbname = "db_simcix";
-$user = "postgres";
-$password = "Mpch*2023*";
+require_once dirname(__DIR__) . '/config/conexion.php';
+
+$host = Conectar::getEnv('DB_HOST', '10.10.10.16');
+$port = Conectar::getEnv('DB_PORT', '5432');
+$dbname = Conectar::getEnv('DB_NAME', 'db_simcix');
+$user = Conectar::getEnv('DB_USER', 'postgres');
+$password = Conectar::getEnv('DB_PASS', '');
 
 $con = pg_connect("host=$host port=$port dbname=$dbname user=$user password=$password");
 if (!$con) {

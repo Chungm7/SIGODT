@@ -3,7 +3,8 @@
 
 header("Content-Type: application/json");
 include('db.php');              // define $con
-$ruta = 'http://10.10.10.16/';
+$sisUrl = Conectar::getEnv('SIS_SEGURIDAD_URL', 'http://10.10.10.16/sisSeguridad/');
+$ruta = rtrim(str_replace('/sisSeguridad', '', rtrim($sisUrl, '/')), '/') . '/';
 
 // ——————— Funciones de ayuda ———————
 
@@ -23,8 +24,7 @@ function responseAndExit($message, $data = [], $success = false, $status = 200)
 
 function getClientIp(): string
 {
-    $ip = $_SERVER['REMOTE_ADDR'] ?? '';
-    return strpos($ip, '::') === 0 ? '::1' : $ip;
+    return Conectar::getClientIp();
 }
 
 function authenticate(string $user, string $pass, string $ruta): array
@@ -33,9 +33,10 @@ function authenticate(string $user, string $pass, string $ruta): array
         responseAndExit("Error: Credenciales no ingresados.", [], false, 400);
     }
     $ip  = getClientIp();
+    $sistInic = Conectar::getEnv('SIS_SEGURIDAD_INIT', 'SIGI');
     $url = "{$ruta}sisSeguridad/ws/ws.php/?op=login"
-        . "&pers_dni={$user}&pers_contrasena={$pass}"
-        . "&pers_ip={$ip}&sist_inic=SIGI";
+        . "&pers_dni=" . urlencode($user) . "&pers_contrasena=" . urlencode($pass)
+        . "&pers_ip=" . urlencode($ip) . "&sist_inic=" . urlencode($sistInic);
 
     $ch   = curl_init($url);
     curl_setopt_array($ch, [

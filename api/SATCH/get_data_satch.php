@@ -4,7 +4,7 @@ include('../db.php');
 
 function response($message, $data = [], $success = false, $httpStatusCode = 200)
 {
-    date_default_timezone_set('America/Bogota');
+    date_default_timezone_set('America/Lima');
     $status = $httpStatusCode;
     $datetime = date("Y-m-d H:i:s");
     http_response_code($httpStatusCode);
@@ -25,19 +25,8 @@ if (empty($orden_de_giro)) {
     response('El parámetro orden_de_giro es requerido.', [], false, 400);
 }
 
-/* // Separar la parte numérica y el año
-list($num_part, $year_part) = explode('-', $orden_de_giro);
-
-// Eliminar los ceros iniciales de la parte numérica
-$num_part = ltrim($num_part, '0');
-
-// Concatenar de nuevo el número sin ceros iniciales y el año
-$orden_de_giro = $num_part . '-' . $year_part; */
-
-if (empty($orden_de_giro)) {
-    response('El parámetro orden_de_giro es requerido.', [], false, 400);
-}
-$url = 'http://satch.gob.pe:81/api.test/v1/recibos/getDatosReciboPorOrdenGiro/' . $orden_de_giro;
+$satchBaseUrl = rtrim(Conectar::getEnv('SATCH_API_URL', 'http://satch.gob.pe:81/api.test/v1/recibos/getDatosReciboPorOrdenGiro/'), '/') . '/';
+$url = $satchBaseUrl . urlencode($orden_de_giro);
 
 // Configurar opciones de la solicitud
 $options = array(

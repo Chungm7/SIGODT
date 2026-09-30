@@ -1,23 +1,29 @@
 <?php
 
 require_once("../config/conexion.php");
-if (!isset($_SESSION["usua_id_siagth"])) {
+if (!isset($_SESSION["usua_id_SIGODT"]) && !isset($_SESSION["usua_id_siagth"])) {
     header("Location:" . Conectar::ruta() . "view/404/");
+    exit();
 }
+
 // Incluye la clase TokenHelper si no está ya incluida
 class TokenHelper {
-    const SECRET_KEY = 'sgd*2023'; // Debe coincidir con el servidor
+    public static function getKey(): string
+    {
+        return Conectar::getEnv('PIDE_SECRET_KEY', 'sgd*2023');
+    }
 
     public static function encrypt(string $plain): string
     {
-        return openssl_encrypt($plain, 'AES-128-ECB', self::SECRET_KEY);
+        return openssl_encrypt($plain, 'AES-128-ECB', self::getKey());
     }
 
     public static function decrypt(string $cipher): ?string
     {
-        return openssl_decrypt($cipher, 'AES-128-ECB', self::SECRET_KEY);
+        return openssl_decrypt($cipher, 'AES-128-ECB', self::getKey());
     }   
 }
+
 function response($message, $data = [], $suc = true, $httpStatusCode = 200){
     $status = $httpStatusCode;
     $success = $suc;
@@ -26,9 +32,9 @@ function response($message, $data = [], $suc = true, $httpStatusCode = 200){
     echo json_encode(compact('timestamp', 'status', 'success', 'message', 'data'), JSON_UNESCAPED_UNICODE);
     exit();
 }
-// Datos de prueba - usando las credenciales exactas de la base de datos
-$usuario = '123';
-$contrasena = '123****';  // Exactamente como está en la base de datos
+
+$usuario = Conectar::getEnv('PIDE_RENIEC_USER', '20250001');
+$contrasena = Conectar::getEnv('PIDE_RENIEC_PASS', '20250001@');
 $dni = $_GET['dni'] ?? null;
 if (!$dni) {
     response("Debe ingresar un DNI", [], false, 400);
@@ -38,7 +44,8 @@ if (!$dni) {
 $token = TokenHelper::encrypt($contrasena);
 
 // URL del endpoint al que quieres enviar la solicitud
-$url = 'https://munichiclayo.gob.pe/Pide/Reniec/75143409'; // cambia esto según corresponda
+$pideBase = rtrim(Conectar::getEnv('PIDE_BASE_URL', 'https://www.munichiclayo.gob.pe/'), '/') . '/';
+$url = $pideBase . 'Pide/Reniec/' . urlencode($dni);
 
 // Crear los datos POST
 $data = [

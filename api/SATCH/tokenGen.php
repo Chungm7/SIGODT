@@ -2,19 +2,19 @@
 header("Content-Type: application/json");
 include('../db.php');
 
-// Datos de autenticación
-$username = 'satchapitest';
-$password = 'rQ4iDSYbHpq6c1D';
+// Datos de autenticación desde entorno
+$username = Conectar::getEnv('SATCH_CLIENT_ID', 'satchapitest');
+$password = Conectar::getEnv('SATCH_CLIENT_SECRET', 'rQ4iDSYbHpq6c1D');
 
 // Datos del cuerpo de la solicitud
 $data = array(
     'grant_type' => 'password',
-    'username' => 'mpch@test.com',
-    'password' => 'sX2kHKCQ27yjoi4N'
+    'username' => Conectar::getEnv('SATCH_USERNAME', 'mpch@test.com'),
+    'password' => Conectar::getEnv('SATCH_PASSWORD', 'sX2kHKCQ27yjoi4N')
 );
 
 // URL de la API
-$url = 'http://satch.gob.pe:81/api.test/oauth/token';
+$url = Conectar::getEnv('SATCH_AUTH_URL', 'http://satch.gob.pe:81/api.test/oauth/token');
 
 // Configurar opciones de la solicitud
 $options = array(

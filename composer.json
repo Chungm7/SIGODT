@@ -1,0 +1,12 @@
+{
+    "name": "renzosandovalmio/sigodt",
+    "authors": [
+        {
+            "name": "Renzo Sandoval",
+            "email": "U23205221@utp.edu.pe"
+        }
+    ],
+    "require": {
+        "vlucas/phpdotenv": "^5.7"
+    }
+}

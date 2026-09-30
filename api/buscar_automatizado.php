@@ -106,7 +106,7 @@ function get_active_token()
 
 function generate_new_token()
 {
-    $new_token_url = 'http://10.10.10.16/SIGODT/api/SATCH/tokenGen.php';
+    $new_token_url = Conectar::ruta() . 'api/SATCH/tokenGen.php';
 
     $response = @file_get_contents($new_token_url);
 
@@ -270,10 +270,10 @@ while (true) {
         write_log("Consultando orden: $orden_de_giro");
 
         $api_url =
-            'http://10.10.10.16/SIGODT/api/SATCH/get_data_satch.php?orden_de_giro=' .
-            $orden_de_giro .
+            Conectar::ruta() . 'api/SATCH/get_data_satch.php?orden_de_giro=' .
+            urlencode($orden_de_giro) .
             '&token=' .
-            $token['access_token'];
+            urlencode($token['access_token']);
 
         $context = stream_context_create([
             'http' => [

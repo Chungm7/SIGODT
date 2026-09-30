@@ -4,12 +4,13 @@ header("Content-Type: application/json");
 
 // Incluye el archivo de configuración de la base de datos para PostgreSQL
 include('db.php');
-$ruta = 'http://10.10.10.16/';
+$sisUrl = Conectar::getEnv('SIS_SEGURIDAD_URL', 'http://10.10.10.16/sisSeguridad/');
+$ruta = rtrim(str_replace('/sisSeguridad', '', rtrim($sisUrl, '/')), '/') . '/';
 
 // Función para responder con JSON
 function response($message, $data = [], $success = false, $httptatusCode = 200)
 {
-    date_default_timezone_set('America/Bogota');
+    date_default_timezone_set('America/Lima');
     $status = $httptatusCode;
     $datetime = date("Y-m-d H:i:s");
     http_response_code($httptatusCode);
@@ -26,7 +27,7 @@ if (!$con) {
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // Verifica si se proporcionó un ID en la solicitud GET
     if (isset($_GET['doc']) && $_GET['doc'] != "" && isset($_GET['proced_id']) && $_GET['proced_id'] != "") {
-        $url2 = 'http://10.10.10.16/SIGODT/api/buscar.php';
+        $url2 = Conectar::ruta() . 'api/buscar.php';
         $response2 = file_get_contents($url2);
         $id = $_GET['doc'];
         $proced_id = $_GET['proced_id'];

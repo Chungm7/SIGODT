@@ -4,8 +4,8 @@ require_once("../models/Bitacora.php");
 $bitacora = new Bitacora();
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $cantant = $bitacora->get_max_id()[0]["bita_id"];
-    // Realizar la solicitud a la URL deseada
-    $url = 'http://216.244.171.252/SIGODT/apiv4/buscar.php';
+    // Realizar la solicitud a la URL configurada
+    $url = Conectar::getEnv('SYNC_SEARCH_URL', Conectar::ruta() . 'api/buscar.php');
     
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);

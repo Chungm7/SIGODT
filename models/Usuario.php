@@ -13,18 +13,13 @@ class usuario extends conectar
                 exit();
             } else {
 
-                $ip = $_SERVER['REMOTE_ADDR'];
-                if (strpos($ip, '::') === 0) {
-                    // Si es IPv6, intenta obtener la dirección IPv4 local
-                    $ip = '::1'; // Dirección IPv6 de localhost
-
-                    // REEMPLAZAR POR LA DIRECCIÓN IP DE LA PC
-                    $ip = "192.168.12.44";
-                }
+                $ip = Conectar::getClientIp();
 
                 //comienzo API seguridad
                 $ch = curl_init();
-                $ws_reniec = "http://10.10.10.16/sisSeguridad/ws/ws.php/?op=login&pers_dni=" . $dni . "&pers_contrasena=" . $pass . "&pers_ip=" . $ip . "&sist_inic=SIGI";
+                $sisSeguridadUrl = rtrim(Conectar::getEnv('SIS_SEGURIDAD_URL', 'http://10.10.10.16/sisSeguridad/'), '/') . '/';
+                $sistInic = Conectar::getEnv('SIS_SEGURIDAD_INIT', 'SIGI');
+                $ws_reniec = $sisSeguridadUrl . "ws/ws.php/?op=login&pers_dni=" . urlencode($dni) . "&pers_contrasena=" . urlencode($pass) . "&pers_ip=" . urlencode($ip) . "&sist_inic=" . urlencode($sistInic);
 
                 curl_setopt($ch, CURLOPT_URL, $ws_reniec);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -112,7 +107,8 @@ class usuario extends conectar
 
         //comienzo API seguridad
         $ch = curl_init();
-        $ws_reniec = "http://10.10.10.16/sisSeguridad/ws/ws.php/?op=logout&hise_id=" . $hise_id;
+        $sisSeguridadUrl = rtrim(Conectar::getEnv('SIS_SEGURIDAD_URL', 'http://10.10.10.16/sisSeguridad/'), '/') . '/';
+        $ws_reniec = $sisSeguridadUrl . "ws/ws.php/?op=logout&hise_id=" . urlencode((string)$hise_id);
 
         curl_setopt($ch, CURLOPT_URL, $ws_reniec);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -137,7 +133,8 @@ class usuario extends conectar
 
         //comienzo API seguridad
         $ch = curl_init();
-        $ws_reniec = "http://10.10.10.16/sisSeguridad/ws/ws.php/?op=cambiar_contrasena&pers_id=" . $pers_id . "&claveantigua=" . $claveantigua . "&clave=" . $clave . "&clave2=" . $clave2;
+        $sisSeguridadUrl = rtrim(Conectar::getEnv('SIS_SEGURIDAD_URL', 'http://10.10.10.16/sisSeguridad/'), '/') . '/';
+        $ws_reniec = $sisSeguridadUrl . "ws/ws.php/?op=cambiar_contrasena&pers_id=" . urlencode((string)$pers_id) . "&claveantigua=" . urlencode((string)$claveantigua) . "&clave=" . urlencode((string)$clave) . "&clave2=" . urlencode((string)$clave2);
 
         curl_setopt($ch, CURLOPT_URL, $ws_reniec);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

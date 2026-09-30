@@ -8,16 +8,19 @@ require_once("../models/Bitacora.php");
 
 class TokenHelper
 {
-    const SECRET_KEY = 'sgd*2023'; // Debe coincidir con el servidor
+    public static function getKey(): string
+    {
+        return Conectar::getEnv('PIDE_SECRET_KEY', 'sgd*2023');
+    }
 
     public static function encrypt(string $plain): string
     {
-        return openssl_encrypt($plain, 'AES-128-ECB', self::SECRET_KEY);
+        return openssl_encrypt($plain, 'AES-128-ECB', self::getKey());
     }
 
     public static function decrypt(string $cipher): ?string
     {
-        return openssl_decrypt($cipher, 'AES-128-ECB', self::SECRET_KEY);
+        return openssl_decrypt($cipher, 'AES-128-ECB', self::getKey());
     }
 }
 function response($message, $data = [], $suc = true, $httpStatusCode = 200)
@@ -107,9 +110,9 @@ switch ($_GET["op"]) {
             }
             echo json_encode($output);
         } else {
-            // Datos de prueba - usando las credenciales exactas de la base de datos
-            $usuario = '20250001';
-            $contrasena = '20250001@';  // Exactamente como está en la base de datos
+            // Credenciales PIDE desde entorno
+            $usuario = Conectar::getEnv('PIDE_RENIEC_USER', '20250001');
+            $contrasena = Conectar::getEnv('PIDE_RENIEC_PASS', '20250001@');
 
             // Generar token
             $token = TokenHelper::encrypt($contrasena);
@@ -149,8 +152,8 @@ switch ($_GET["op"]) {
                 if (isset($reniecData["message"]) && $reniecData["message"] === "Consulta realizada correctamente" && $estado === 'procede') {
                     // La consulta se realizó correctamente, registrar al ciudadano en la base de datos local
 
-                    $usuario = '20250001';
-                    $contrasena = '20250001@';  // Exactamente como está en la base de datos
+                    $usuario = Conectar::getEnv('PIDE_RENIEC_USER', '20250001');
+                    $contrasena = Conectar::getEnv('PIDE_RENIEC_PASS', '20250001@');
                     // Generar token
                     $token = TokenHelper::encrypt($contrasena);
                     $url_minsa = 'https://www.munichiclayo.gob.pe/Pide/Minsa/' . $_POST["ciudadano_doc"];
@@ -240,8 +243,8 @@ switch ($_GET["op"]) {
                     }
                 } else if ($reniecData["message"] === "El número de DNI corresponde a un menor de edad") {
 
-                    $usuario = '20250001';
-                    $contrasena = '20250001@';  // Exactamente como está en la base de datos
+                    $usuario = Conectar::getEnv('PIDE_RENIEC_USER', '20250001');
+                    $contrasena = Conectar::getEnv('PIDE_RENIEC_PASS', '20250001@');
                     // Generar token
                     $token = TokenHelper::encrypt($contrasena);
                     $url_minsa = 'https://www.munichiclayo.gob.pe/Pide/Minsa/' . $_POST["ciudadano_doc"];
@@ -317,8 +320,8 @@ switch ($_GET["op"]) {
             echo json_encode($output);
         } else {
             // El ciudadano no está en la base de datos local, realizar consulta a la API de extranjería
-            $usuario = '20250001';
-            $contrasena = '20250001@';  // Exactamente como está en la base de datos
+            $usuario = Conectar::getEnv('PIDE_RENIEC_USER', '20250001');
+            $contrasena = Conectar::getEnv('PIDE_RENIEC_PASS', '20250001@');
             // Generar token
             $token = TokenHelper::encrypt($contrasena);
             $url = 'https://www.munichiclayo.gob.pe/Pide/Migraciones/' . $_POST["ciudadano_doc"];
