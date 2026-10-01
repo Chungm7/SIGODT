@@ -115,6 +115,7 @@ Este documento registra cronológicamente cada una de las modificaciones arquite
 * `controller/empresa.php`
 * `controller/empresa_mnt.php`
 * `view/mnt_empresa/empresa.js`
+* `controller/TCPDF-main/` *(Eliminado)*
 
 ### 2. Detalle de los Cambios
 
@@ -154,3 +155,8 @@ Este documento registra cronológicamente cada una de las modificaciones arquite
   3. `view/mnt_empresa/empresa.js` apunta directamente a `controller/empresa.php`.
   4. `models/Empresa_mnt.php` y `controller/empresa_mnt.php` quedaron convertidos en shims.
 * **Cómo ajustarlo:** Reglas de validación adicionales para RUC o actividades económicas deben implementarse en `models/Empresa.php`.
+
+#### D. Depuración de Librerías Huérfanas (`controller/TCPDF-main/`)
+* **Antes:** La carpeta `controller/TCPDF-main/` (29 MB, 375 archivos) permanecía en el árbol fuente desde el commit inicial (`feat: init repo`). No era referenciada ni invocada por ningún script del sistema, ya que la emisión de comprobantes se realiza íntegramente mediante FPDF (`public/plantilla_reporte.php`).
+* **Ahora:** Se eliminó por completo `controller/TCPDF-main/` del repositorio, liberando 29 MB y reduciendo significativamente el tiempo de clonación y despliegue.
+* **Cómo ajustarlo:** Si en el futuro se requieren capacidades avanzadas de renderizado no soportadas por FPDF, la integración debe realizarse a través de Composer (`composer require tecnickcom/tcpdf` o `dompdf/dompdf`), nunca copiando repositorios manuales dentro de `controller/`.
