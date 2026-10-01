@@ -95,15 +95,148 @@ $(document).ready(function () {
             };
             reader.readAsDataURL(input.files[0]);
         }
+    $(document).on("change", "#tido_id", function () {
+        const $doc = $("#ciud_numero_documento");
+        $("#doc_status").text("");
+        if (esTipoDni()) {
+            $doc.attr("maxlength", "8").attr("inputmode", "numeric").attr("placeholder", "8 dígitos");
+            $doc.val($doc.val().replace(/\D/g, '').slice(0, 8));
+        } else {
+            $doc.removeAttr("inputmode").attr("maxlength", "15").attr("placeholder", "Ingrese N° Documento");
+        }
+    });
+
+    $(document).on("input", "#ciud_numero_documento", function () {
+        if (esTipoDni()) {
+            let val = $(this).val().replace(/\D/g, '').slice(0, 8);
+            $(this).val(val);
+            if (val.length > 0 && val.length < 8) {
+                $("#doc_status").html('<span class="text-muted small">Faltan ' + (8 - val.length) + ' dígitos</span>');
+            } else if (val.length === 8 && !$("#ciud_id").val()) {
+                consultarDocumentoMnt();
+            } else {
+                $("#doc_status").text("");
+            }
+        } else {
+            $("#doc_status").text("");
+        }
+    });
+
+    $(document).on("keydown", "#registerForm input, #registerForm select", function (e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            const inputId = $(this).attr("id");
+
+            if (inputId === "tido_id") {
+                $("#ciud_numero_documento").focus().select();
+                return;
+            }
+
+            if (inputId === "ciud_numero_documento") {
+                if (esTipoDni() && $(this).val().trim().length === 8 && !$("#ciud_id").val()) {
+                    consultarDocumentoMnt();
+                } else {
+                    $("#ciud_primer_apellido").focus().select();
+                }
+                return;
+            }
+
+            if (inputId === "ciud_primer_apellido") {
+                $("#ciud_segundo_apellido").focus().select();
+                return;
+            }
+
+            if (inputId === "ciud_segundo_apellido") {
+                $("#ciud_nombre").focus().select();
+                return;
+            }
+
+            if (inputId === "ciud_nombre") {
+                $("#ciud_sexo").focus();
+                return;
+            }
+
+            if (inputId === "ciud_sexo") {
+                $("#ciud_fecha_nac").focus();
+                return;
+            }
+
+            if (inputId === "ciud_fecha_nac") {
+                $("#btnGuardarCiudadano").focus();
+                return;
+            }
+        }
     });
 });
-// lo fuerzas al scope window
+
+function esTipoDni() {
+    const desc = $("#tido_id option:selected").text().toUpperCase().trim();
+    const val = $("#tido_id").val();
+    return desc === "DNI" || val == "1";
+}
+
+function consultarDocumentoMnt() {
+    const numDoc = $("#ciud_numero_documento").val().trim();
+    if (!esTipoDni()) {
+        $("#ciud_primer_apellido").focus().select();
+        return;
+    }
+    if (numDoc.length !== 8) {
+        $("#doc_status").html('<span class="text-warning small">El DNI debe tener 8 dígitos</span>');
+        $("#ciud_primer_apellido").focus().select();
+        return;
+    }
+
+    $("#doc_status").html('<span class="spinner-border spinner-border-sm text-primary" role="status"></span> <span class="text-primary small">Buscando...</span>');
+
+    $.post(
+        "../../controller/ciudadano.php?op=consultar_dni",
+        { ciudadano_doc: numDoc },
+        function (data) {
+            $("#doc_status").text("");
+            if (data && data.trim() !== "") {
+                try {
+                    const response = JSON.parse(data);
+                    if (response.ciudadano_nombre) {
+                        $("#ciud_primer_apellido").val(response.ciudadano_apep || "");
+                        $("#ciud_segundo_apellido").val(response.ciudadano_apem || "");
+                        $("#ciud_nombre").val(response.ciudadano_nombre || "");
+                        if (response.ciud_sexo) {
+                            $("#ciud_sexo").val(response.ciud_sexo);
+                        }
+                        if (response.ciud_fecha_nac) {
+                            $("#ciud_fecha_nac").val(response.ciud_fecha_nac);
+                        }
+                        if (response.ciud_foto) {
+                            $("#previewFoto").attr("src", response.ciud_foto).show();
+                        }
+                        $("#doc_status").html('<span class="text-success small">✓ Autocompletado</span>');
+                        $("#ciud_primer_apellido").focus().select();
+                        return;
+                    }
+                } catch (e) {
+                    console.error("Error al parsear respuesta DNI:", e);
+                }
+            }
+            $("#doc_status").html('<span class="text-muted small">No registrado en BD/RENIEC</span>');
+            $("#ciud_primer_apellido").focus().select();
+        }
+    ).fail(function () {
+        $("#doc_status").text("");
+        $("#ciud_primer_apellido").focus().select();
+    });
+}
 
 function nuevoRegistro() {
     $("#ciud_id").val("");
     $("#registerForm")[0].reset();
+    $("#doc_status").text("");
+    $("#previewFoto").hide().attr("src", "");
     $("#modal-title").text("Registrar Ciudadano");
     $("#registerModal").modal("show");
+    setTimeout(function () {
+        $("#tido_id").focus();
+    }, 400);
 }
 
 function editar(id) {
@@ -142,11 +275,14 @@ function editar(id) {
   }
   
 function guardar() {
+    const $btn = $("#btnGuardarCiudadano");
     const op = $("#ciud_id").val() ? "editar" : "crear";
     const formArray = $("#registerForm").serializeArray();
     const data = {};
     formArray.forEach(({ name, value }) => { data[name] = value; });
-  
+
+    $btn.prop("disabled", true).html('<span class="spinner-border spinner-border-sm me-1" role="status"></span> Guardando...');
+
     function enviar() {
       $.post(`../../controller/ciudadano.php?op=${op}`, data)
         .done(res => {
@@ -176,9 +312,12 @@ function guardar() {
             icon: 'error',
             confirmButtonText: 'Aceptar'
           });
+        })
+        .always(() => {
+          $btn.prop("disabled", false).html('Guardar');
         });
     }
-  
+
     const fileInput = document.getElementById("ciud_foto_file");
     const file = fileInput.files[0];
     if (file) {

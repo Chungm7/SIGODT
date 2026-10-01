@@ -105,8 +105,11 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                                     </select>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">N° Documento</label>
-                                    <input type="text" id="ciud_numero_documento" name="ciud_numero_documento" class="form-control" required>
+                                    <label class="form-label d-flex justify-content-between align-items-center">
+                                        <span>N° Documento</span>
+                                        <span id="doc_status" class="small"></span>
+                                    </label>
+                                    <input type="text" id="ciud_numero_documento" name="ciud_numero_documento" class="form-control" autocomplete="off" required>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Primer Apellido</label>
@@ -153,7 +156,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button class="btn btn-success" onclick="guardar()">Guardar</button>
+                        <button type="button" class="btn btn-success" id="btnGuardarCiudadano" onclick="guardar()">Guardar</button>
                     </div>
                 </div>
             </div>
@@ -163,7 +166,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
 
 
         <?php require_once("../html/mainjs.php"); ?>
-        <script src="ciud.js"></script>
+        <script src="ciud.js?v=<?php echo filemtime('ciud.js'); ?>"></script>
     </body>
 
     </html>

@@ -175,6 +175,8 @@ Este documento registra cronológicamente cada una de las modificaciones arquite
 * `view/giros_ciudadano/usudetalleciudadano.js`
 * `view/consultar_og/index.php`
 * `view/mnt_empresa/index.php`
+* `view/mnt_ciudadano/index.php`
+* `view/mnt_ciudadano/ciud.js`
 
 ### 2. Detalle de los Cambios
 
@@ -201,4 +203,8 @@ Este documento registra cronológicamente cada una de las modificaciones arquite
 #### F. Estandarización de Clases de Interfaz en Mantenimientos
 * **Antes:** Los botones de filtrado y reseteo en empresas usaban clases de marcas sociales (`btn-facebook`, `btn-youtube`).
 * **Ahora:** Se migraron a clases del sistema de diseño (`btn-blue` y `btn-danger`), preservando idéntico color visual sin incurrir en antipatrones de clases.
+
+#### G. Autocompletado y Flujo Secuencial en Mantenimiento de Ciudadanos
+* **Antes:** En el modal de registro de ciudadanos (`registerModal`), el botón *"Guardar"* estaba fuera del formulario sin submit, por lo que presionar `Enter` en cualquier campo no producía ninguna acción. Además, no contaba con consulta a RENIEC/BD, obligando al operador a digitar manualmente todos los datos.
+* **Ahora:** Al presionar `Enter` se avanza automáticamente al siguiente campo del formulario. Si el tipo de documento seleccionado es DNI y se completan los 8 dígitos, el sistema consulta automáticamente a RENIEC/BD y autocompleta primer apellido, segundo apellido, nombres, sexo y fecha de nacimiento. Asimismo, el botón *"Guardar"* incorpora bloqueo y spinner durante la persistencia.
 
