@@ -8,8 +8,12 @@ if (formCiudadanosDetalles) {
         return;
       }
       e.preventDefault();
-      if (e.target.id === "ciudadano_doc" && typeof limitabuscadni === "function") {
-        limitabuscadni(e.target);
+      if (e.target.id === "ciudadano_doc") {
+        if (typeof ejecutarBusquedaDoc === "function") {
+          ejecutarBusquedaDoc();
+        } else if (typeof limitabuscadni === "function") {
+          limitabuscadni(e.target);
+        }
       } else if (e.target.id === "empr_ruc" && typeof limitarbuscarruc === "function") {
         limitarbuscarruc(e.target);
       }
@@ -46,10 +50,30 @@ $("#empr_razon_social").on("change", function () {
 
 document.addEventListener("DOMContentLoaded", function () {
   var modalPayment = document.getElementById("modal-payment");
+  if (modalPayment) {
+    modalPayment.addEventListener("shown.bs.modal", function () {
+      document.getElementById("comentarioInput")?.focus();
+    });
+  }
 
-  modalPayment.addEventListener("shown.bs.modal", function () {
-    document.getElementById("comentarioInput").focus();
-  });
+  var modalMantenimiento = document.getElementById("modalmantenimiento");
+  if (modalMantenimiento) {
+    modalMantenimiento.addEventListener("shown.bs.modal", function () {
+      var docInput = document.getElementById("ciudadano_doc");
+      if (docInput) {
+        docInput.focus();
+        docInput.select();
+      }
+    });
+  }
+});
+
+$(document).on("shown.bs.modal", "#modalmantenimiento", function () {
+  var docInput = document.getElementById("ciudadano_doc");
+  if (docInput) {
+    docInput.focus();
+    docInput.select();
+  }
 });
 
 function init() {
@@ -215,23 +239,21 @@ $(document).ready(function () {
 
 
 function buscarDNI(ciudadano_doc, tipo_documento) {
+  var doc = (ciudadano_doc || $("#ciudadano_doc").val() || "").toString().trim();
+  var tipo = (tipo_documento || $("#name_select_tipo").text() || "DNI").trim();
 
   // Verificar qué tipo de documento está seleccionado
-  if (tipo_documento === "DNI" || tipo_documento === "RUC") {
-    var ciudadano_doc = $("#ciudadano_doc").val();
-    if (ciudadano_doc.length > 8) {
-      ciudadano_doc = ciudadano_doc.slice(0, 8);
+  if (tipo === "DNI" || tipo === "RUC") {
+    if (doc.length > 8) {
+      doc = doc.slice(0, 8);
     }
     $.post(
       "../../controller/ciudadano.php?op=consultar_dni",
-      { ciudadano_doc: ciudadano_doc },
+      { ciudadano_doc: doc },
       function (data) {
-        // Verifica si data no está vacía
         if (data.trim() !== "") {
-          // Parsea la respuesta JSON del servidor
           var response = JSON.parse(data);
 
-          // Verifica si se encontró la persona
           if (response.ciudadano_nombre) {
             $("#ciudadano_nombre").val(response.ciudadano_nombre);
             $("#ciudadano_apep").val(response.ciudadano_apep);
@@ -241,44 +263,38 @@ function buscarDNI(ciudadano_doc, tipo_documento) {
             $("#esCPP").val("0");
 
             $("#ciud_mensaje")
+              .attr("class", "alert alert-success py-1 mb-2")
               .text("Ciudadano encontrado")
-              .css("color", "green")
+              .removeClass("d-none")
               .show();
-            // Verifica si se recibió la foto del ciudadano
             if (response.ciud_foto) {
-              // Actualiza la imagen con la foto recibida (base64)
               $("#imagen_ciudadano").attr("src", response.ciud_foto);
             }
-            // Aquí bloqueamos los otros campos
-            $("#ciudadano_nombre").attr("readonly", "readonly");
-            $("#ciudadano_apep").attr("readonly", "readonly");
-            $("#ciudadano_apem").attr("readonly", "readonly");
+            $("#ciudadano_nombre, #ciudadano_apep, #ciudadano_apem").attr("readonly", "readonly");
           } else {
-            // Si no se encuentra a la persona, muestra el mensaje "No encontrado" en rojo
-            $("#ciud_mensaje").text(response.error).css("color", "red").show();
-
+            $("#ciud_mensaje")
+              .attr("class", "alert alert-danger py-1 mb-2")
+              .text(response.error || "Ciudadano no encontrado")
+              .removeClass("d-none")
+              .show();
           }
         } else {
-          // Si no se encuentra a la persona, muestra el mensaje "No encontrado" en rojo
           $("#ciud_mensaje")
+            .attr("class", "alert alert-danger py-1 mb-2")
             .text("Ciudadano no encontrado")
-            .css("color", "red")
+            .removeClass("d-none")
             .show();
         }
       }
     );
-  } else if (tipo_documento === "CEE") {
+  } else if (tipo === "CEE") {
     $.post(
       "../../controller/ciudadano.php?op=consultar_carnet",
-      { ciudadano_doc: ciudadano_doc },
+      { ciudadano_doc: doc },
       function (data) {
-        // Verifica si data no está vacía
         if (data.trim() !== "") {
-          // Parsea la respuesta JSON del servidor
-
           var response = JSON.parse(data);
 
-          // Verifica si se encontró la persona
           if (response.ciudadano_nombre) {
             $("#ciudadano_nombre").val(response.ciudadano_nombre);
             $("#ciudadano_apep").val(response.ciudadano_apep);
@@ -288,49 +304,41 @@ function buscarDNI(ciudadano_doc, tipo_documento) {
             $("#esCPP").val("0");
 
             $("#ciud_mensaje")
+              .attr("class", "alert alert-success py-1 mb-2")
               .text("Ciudadano encontrado")
-              .css("color", "green")
+              .removeClass("d-none")
               .show();
 
-            // Verifica si se recibió la foto del ciudadano
             if (response.ciud_foto) {
-              // Actualiza la imagen con la foto recibida (base64)
               $("#imagen_ciudadano").attr("src", response.ciud_foto);
             }
-
-            // Aquí bloqueamos los otros campos
-            $("#ciudadano_nombre").attr("readonly", "readonly");
-            $("#ciudadano_apep").attr("readonly", "readonly");
-            $("#ciudadano_apem").attr("readonly", "readonly");
-
+            $("#ciudadano_nombre, #ciudadano_apep, #ciudadano_apem").attr("readonly", "readonly");
           } else {
-            // Si no se encuentra a la persona, muestra el mensaje "No encontrado" en rojo
-            $("#ciud_mensaje").text(response.error).css("color", "red").show();
+            $("#ciud_mensaje")
+              .attr("class", "alert alert-danger py-1 mb-2")
+              .text(response.error || "No encontrado")
+              .removeClass("d-none")
+              .show();
             $("#esCarnet").val("0");
-
           }
         } else {
           $("#esCarnet").val("0");
-          // Si no se encuentra a la persona, muestra el mensaje "No encontrado" en rojo
           $("#ciud_mensaje")
+            .attr("class", "alert alert-danger py-1 mb-2")
             .text("Ciudadano no encontrado")
-            .css("color", "red")
+            .removeClass("d-none")
             .show();
         }
       }
     );
-  } else if (tipo_documento === "CPP") {
+  } else if (tipo === "CPP") {
     $.post(
       "../../controller/ciudadano.php?op=consultar_CPP",
-      { ciudadano_doc: ciudadano_doc },
+      { ciudadano_doc: doc },
       function (data) {
-        // Verifica si data no está vacía
         if (data.trim() !== "") {
-          // Parsea la respuesta JSON del servidor
-
           var response = JSON.parse(data);
 
-          // Verifica si se encontró la persona
           if (response.ciudadano_nombre) {
             $("#ciudadano_nombre").val(response.ciudadano_nombre);
             $("#ciudadano_apep").val(response.ciudadano_apep);
@@ -340,39 +348,34 @@ function buscarDNI(ciudadano_doc, tipo_documento) {
             $("#esCarnet").val("0");
 
             $("#ciud_mensaje")
+              .attr("class", "alert alert-success py-1 mb-2")
               .text("Ciudadano encontrado")
-              .css("color", "green")
+              .removeClass("d-none")
               .show();
 
-            // Verifica si se recibió la foto del ciudadano
             if (response.ciud_foto) {
-              // Actualiza la imagen con la foto recibida (base64)
               $("#imagen_ciudadano").attr("src", response.ciud_foto);
             }
-            // Aquí bloqueamos los otros campos
-            $("#ciudadano_nombre").attr("readonly", "readonly");
-            $("#ciudadano_apep").attr("readonly", "readonly");
-            $("#ciudadano_apem").attr("readonly", "readonly");
+            $("#ciudadano_nombre, #ciudadano_apep, #ciudadano_apem").attr("readonly", "readonly");
           } else {
-            // Si no se encuentra a la persona, muestra el mensaje "No encontrado" en rojo
-            $("#ciud_mensaje").text(response.error).css("color", "red").show();
+            $("#ciud_mensaje")
+              .attr("class", "alert alert-danger py-1 mb-2")
+              .text(response.error || "No encontrado")
+              .removeClass("d-none")
+              .show();
             $("#esCPP").val("1");
             $("#esCarnet").val("0");
-            $("#ciudadano_nombre").removeAttr("readonly");
-            $("#ciudadano_apep").removeAttr("readonly");
-            $("#ciudadano_apem").removeAttr("readonly");
+            $("#ciudadano_nombre, #ciudadano_apep, #ciudadano_apem").removeAttr("readonly");
           }
         } else {
-          $("#ciudadano_nombre").removeAttr("readonly");
-          $("#ciudadano_apep").removeAttr("readonly");
-          $("#ciudadano_apem").removeAttr("readonly");
+          $("#ciudadano_nombre, #ciudadano_apep, #ciudadano_apem").removeAttr("readonly");
           $("#esCPP").val("1");
           $("#esCarnet").val("0");
 
-          // Si no se encuentra a la persona, muestra el mensaje "No encontrado" en rojo
           $("#ciud_mensaje")
+            .attr("class", "alert alert-danger py-1 mb-2")
             .text("Ciudadano no encontrado")
-            .css("color", "red")
+            .removeClass("d-none")
             .show();
         }
       }
@@ -903,6 +906,13 @@ function nuevo() {
   $("#ruc_checkbox").val('');
   $("#tipo_admin").val('');
 
+  if (typeof seleccionarTipo === 'function') {
+    seleccionarTipo('DNI');
+  } else {
+    $("#name_select_tipo").text('DNI');
+    $("#ciudadano_doc").attr('maxlength', '8').attr('inputmode', 'numeric').attr('placeholder', 'Ingresa el DNI (8 dígitos)');
+  }
+
   $("#ciudadano_doc").removeAttr("readonly");
   $("#empr_ruc").removeAttr("readonly");
 
@@ -986,6 +996,9 @@ function nuevo() {
   });
 
   $("#modalmantenimiento").modal("show");
+  setTimeout(function () {
+    $("#ciudadano_doc").focus().select();
+  }, 150);
 }
 
 

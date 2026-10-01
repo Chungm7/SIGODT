@@ -285,45 +285,108 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
 
     <script>
       function limitabuscadni(input) {
-        let valor = input.value.toString().replace(/\D/g, '');
-        const tipo_documento = document.getElementById('name_select_tipo').innerText.trim();
-        let max_length = 8; // Por defecto, límite de 8 dígitos para DNI
-
-        if (tipo_documento === "CEE" || tipo_documento === "CPP") {
-          max_length = 9;
-        }
-
-        // Limitar el valor al máximo permitido
-        if (valor.length > max_length) {
-          valor = valor.slice(0, max_length);
-        }
-
+        const tipo_documento = (document.getElementById('name_select_tipo')?.innerText || 'DNI').trim();
         const mensaje = document.getElementById("ciud_mensaje");
 
-        // Realizar acciones dependiendo de la longitud del valor
-        if (valor.length === max_length) {
-          resetearCampos();
-          buscarDNI(valor, tipo_documento);
-          mensaje.className = "alert alert-success"; // Estilo de alerta de éxito
-          mensaje.innerHTML = "✅ Buscando información...";
-          mensaje.classList.remove("d-none");
-        } else if (valor.length > 0 && valor.length < max_length) {
-          resetearCampos();
+        if (tipo_documento === "DNI") {
+          let valor = input.value.toString().replace(/\D/g, '');
+          const max_length = 8; // Límite estricto de 8 dígitos solo para DNI
 
-          $("input[name='ciud_sex']").prop("disabled", true);
-          $("#dateMask").removeAttr("readonly");
-          $("#ciud_sex").prop("disabled", false);
+          if (valor.length > max_length) {
+            valor = valor.slice(0, max_length);
+          }
 
-          const faltantes = max_length - valor.length;
-          mensaje.className = "alert alert-info py-1 mb-2";
-          mensaje.innerHTML = `ℹ️ Ingrese ${max_length} dígitos (faltan ${faltantes})`;
-          mensaje.classList.remove("d-none");
+          if (valor.length === max_length) {
+            resetearCampos();
+            buscarDNI(valor, tipo_documento);
+            if (mensaje) {
+              mensaje.className = "alert alert-success py-1 mb-2";
+              mensaje.innerHTML = "✅ Buscando información...";
+              mensaje.classList.remove("d-none");
+            }
+          } else if (valor.length > 0) {
+            resetearCampos();
+            $("input[name='ciud_sex']").prop("disabled", true);
+            $("#dateMask").removeAttr("readonly");
+            $("#ciud_sex").prop("disabled", false);
+
+            const faltantes = max_length - valor.length;
+            if (mensaje) {
+              mensaje.className = "alert alert-info py-1 mb-2";
+              mensaje.innerHTML = `ℹ️ Ingrese 8 dígitos (faltan ${faltantes})`;
+              mensaje.classList.remove("d-none");
+            }
+          } else {
+            resetearCampos();
+            if (mensaje) mensaje.classList.add("d-none");
+          }
+
+          input.value = valor;
         } else {
-          resetearCampos();
-          mensaje.classList.add("d-none"); // Ocultar el mensaje
+          // CEE, CPP u otros documentos de extranjería (longitud variable, sin límite rígido de 8 dígitos)
+          let valor = input.value.toString().replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+          const max_length = 15;
+
+          if (valor.length > max_length) {
+            valor = valor.slice(0, max_length);
+          }
+
+          if (valor.length > 0) {
+            if (mensaje) {
+              mensaje.className = "alert alert-info py-1 mb-2";
+              mensaje.innerHTML = `ℹ️ Presione <b>Enter</b> o la <b>lupa</b> para buscar`;
+              mensaje.classList.remove("d-none");
+            }
+          } else {
+            resetearCampos();
+            if (mensaje) mensaje.classList.add("d-none");
+          }
+
+          input.value = valor;
+        }
+      }
+
+      function ejecutarBusquedaDoc() {
+        const input = document.getElementById("ciudadano_doc");
+        if (!input) return;
+        const tipo_documento = (document.getElementById('name_select_tipo')?.innerText || 'DNI').trim();
+        const valor = input.value.trim();
+        const mensaje = document.getElementById("ciud_mensaje");
+
+        if (!valor) {
+          input.focus();
+          return;
         }
 
-        input.value = valor;
+        if (tipo_documento === "DNI") {
+          if (valor.length !== 8) {
+            if (mensaje) {
+              mensaje.className = "alert alert-warning py-1 mb-2";
+              mensaje.innerHTML = `⚠️ El DNI debe tener 8 dígitos (actual: ${valor.length})`;
+              mensaje.classList.remove("d-none");
+            }
+            input.focus();
+            return;
+          }
+        } else {
+          if (valor.length < 3) {
+            if (mensaje) {
+              mensaje.className = "alert alert-warning py-1 mb-2";
+              mensaje.innerHTML = `⚠️ Ingrese un número de documento válido`;
+              mensaje.classList.remove("d-none");
+            }
+            input.focus();
+            return;
+          }
+        }
+
+        resetearCampos();
+        buscarDNI(valor, tipo_documento);
+        if (mensaje) {
+          mensaje.className = "alert alert-success py-1 mb-2";
+          mensaje.innerHTML = "✅ Buscando información...";
+          mensaje.classList.remove("d-none");
+        }
       }
 
 

@@ -85,7 +85,12 @@
 
                                                 <div class="col-md-12">
                                                     <label>Número de Documento: <span class="tx-danger">*</span></label>
-                                                    <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="9" name="ciudadano_doc" id="ciudadano_doc" class="form-control" placeholder="Ingresa el número de documento" oninput="limitabuscadni(this)" required>
+                                                    <div class="input-group">
+                                                        <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="8" name="ciudadano_doc" id="ciudadano_doc" class="form-control" placeholder="Ingresa el DNI (8 dígitos)" oninput="limitabuscadni(this)" required>
+                                                        <button class="btn btn-outline-secondary" type="button" id="btn_buscar_doc" onclick="ejecutarBusquedaDocAdmin()" title="Buscar documento">
+                                                            <i class="fas fa-search"></i>
+                                                        </button>
+                                                    </div>
                                                     <div>
                                                         <label id="ciud_mensaje" style="display: none; color: green; width: 100%; ">Correcto!</label>
                                                     </div>
@@ -168,15 +173,32 @@
 <script>
     function toggleCheckboxes(checkboxId) {
         const checkboxes = document.querySelectorAll('input[type="checkbox"][name="tipo_documento"]');
-        const columnaCiudadano = document.getElementById('columna_ciudadano');
-
-
         checkboxes.forEach(checkbox => {
             if (checkbox.id !== checkboxId && checkbox.id !== 'ruc_checkbox') {
                 checkbox.checked = false;
             }
         });
 
+        const docInput = document.getElementById('ciudadano_doc');
+        const mensaje = document.getElementById('ciud_mensaje');
+        if (docInput) {
+            if (checkboxId === 'dni_checkbox') {
+                docInput.setAttribute('maxlength', '8');
+                docInput.setAttribute('inputmode', 'numeric');
+                docInput.setAttribute('pattern', '[0-9]*');
+                docInput.setAttribute('placeholder', 'Ingresa el DNI (8 dígitos)');
+            } else {
+                docInput.setAttribute('maxlength', '15');
+                docInput.setAttribute('inputmode', 'text');
+                docInput.removeAttribute('pattern');
+                docInput.setAttribute('placeholder', checkboxId === 'ce_checkbox' ? 'Ingresa Carné de Extranjería' : 'Ingresa Carné CPP');
+            }
+            if (mensaje) mensaje.style.display = 'none';
+            docInput.focus();
+            if (typeof limitabuscadni === 'function' && docInput.value) {
+                limitabuscadni(docInput);
+            }
+        }
     }
 
     function ruc_chek(checkboxId) {
@@ -206,13 +228,11 @@
 
     function limitarADigitosDNI(input) {
         let valor = input.value.toString().replace(/\D/g, ''); // Remover caracteres no numéricos
-        const tipo_documento = document.querySelector('input[name="tipo_documento"]:checked').value;
+        const tipo_documento = (document.querySelector('input[name="tipo_documento"]:checked')?.value || 'DNI');
         let max_length = 8; // Por defecto, límite de 8 dígitos para DNI
 
-        if (tipo_documento === "Carnet de Extranjería") {
-            max_length = 12; // Cambiar el límite a 12 dígitos para Carnet de Extranjería
-        } else if (tipo_documento === "Carne CPP") {
-            max_length = 20; // Cambiar el límite a 20 dígitos para Carne CPP
+        if (tipo_documento === "Carnet de Extranjería" || tipo_documento === "Carne CPP") {
+            max_length = 15;
         }
 
         if (valor.length > max_length) {
@@ -223,49 +243,90 @@
 </script>
 <script>
     function limitabuscadni(input) {
-        let valor = input.value.toString().replace(/\D/g, '');
-        const tipo_documento = document.querySelector('input[name="tipo_documento"]:checked').value;
-        let max_length = 8; // Por defecto, límite de 8 dígitos para DNI
+        const checkedEl = document.querySelector('input[name="tipo_documento"]:checked');
+        const tipo_documento = checkedEl ? checkedEl.value : 'DNI';
 
-        if (tipo_documento === "Carnet de Extranjería") {
-            max_length = 9; // Cambiar el límite a 12 dígitos para Carnet de Extranjería
-        } else if (tipo_documento === "Carne CPP") {
-            max_length = 9; // Cambiar el límite a 20 dígitos para Carne CPP
+        if (tipo_documento === "DNI") {
+            let valor = input.value.toString().replace(/\D/g, '');
+            const max_length = 8;
+
+            if (valor.length > max_length) {
+                valor = valor.slice(0, max_length);
+            }
+
+            if (valor.length === max_length) {
+                resetearCampos();
+                validarCheckCiud();
+                buscarDNI(valor);
+                $("#spinner-ciud").remove();
+            } else if (valor.length > 0) {
+                resetearCampos();
+                validarCheckCiud();
+                $("input[name='ciud_sex']").prop("disabled", true);
+                $("#dateMask").removeAttr("readonly");
+                $("#ciud_sex").prop("disabled", false);
+
+                var faltantes = max_length - valor.length;
+                $("#spinner-ciud").remove();
+                $("#ciud_mensaje").text("Ingrese 8 dígitos (faltan " + faltantes + ")").css("color", "#0054a6").show();
+            } else {
+                resetearCampos();
+                validarCheckCiud();
+                $("#spinner-ciud").remove();
+                $("#ciud_mensaje").hide();
+            }
+            input.value = valor;
+        } else {
+            // Documentos extranjeros (Carnet de Extranjería, CPP)
+            let valor = input.value.toString().replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+            const max_length = 15;
+
+            if (valor.length > max_length) {
+                valor = valor.slice(0, max_length);
+            }
+
+            if (valor.length > 0) {
+                $("#spinner-ciud").remove();
+                $("#ciud_mensaje").text("Presione Enter o la lupa para buscar").css("color", "#0054a6").show();
+            } else {
+                resetearCampos();
+                validarCheckCiud();
+                $("#spinner-ciud").remove();
+                $("#ciud_mensaje").hide();
+            }
+            input.value = valor;
+        }
+    }
+
+    function ejecutarBusquedaDocAdmin() {
+        const input = document.getElementById("ciudadano_doc");
+        if (!input) return;
+        const checkedEl = document.querySelector('input[name="tipo_documento"]:checked');
+        const tipo_documento = checkedEl ? checkedEl.value : 'DNI';
+        const valor = input.value.trim();
+
+        if (!valor) {
+            input.focus();
+            return;
         }
 
-        // Limitar el valor al máximo permitido
-        if (valor.length > max_length) {
-            valor = valor.slice(0, max_length);
-        }
-        // Realizar acciones dependiendo de la longitud del valor
-        if (valor.length === max_length) {
-            resetearCampos();
-            validarCheckCiud();
-            buscarDNI(valor);
-            $("#spinner-ciud").remove();
-        } else if (valor.length > 0 && valor.length < max_length) {
-
-            resetearCampos();
-            validarCheckCiud();
-            $("input[name='ciud_sex']").prop("disabled", true);
-            $("#dateMask").removeAttr("readonly");
-            $("#ciud_sex").prop("disabled", false);
-
-            var faltantes = max_length - valor.length;
-            $("#spinner-ciud").remove();
-            $("#ciud_mensaje").text("Ingrese " + max_length + " dígitos (faltan " + faltantes + ")").css("color", "#0054a6").show();
-
-        }
-        if (valor.length == 0) {
-
-            resetearCampos();
-            validarCheckCiud();
-            $("#spinner-ciud").remove();
-            $("#ciud_mensaje").hide();
-
+        if (tipo_documento === "DNI") {
+            if (valor.length !== 8) {
+                $("#ciud_mensaje").text("El DNI debe tener 8 dígitos (actual: " + valor.length + ")").css("color", "#d63939").show();
+                input.focus();
+                return;
+            }
+        } else {
+            if (valor.length < 3) {
+                $("#ciud_mensaje").text("Ingrese un número de documento válido").css("color", "#d63939").show();
+                input.focus();
+                return;
+            }
         }
 
-        input.value = valor;
+        resetearCampos();
+        validarCheckCiud();
+        buscarDNI(valor);
     }
 
 

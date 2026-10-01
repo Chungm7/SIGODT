@@ -1,5 +1,45 @@
 var ciudadano_id = $("#ciudadano_idx").val();
 
+const formCiudadanosDetalles = document.getElementById("ciudadanosdetalles_form");
+if (formCiudadanosDetalles) {
+  formCiudadanosDetalles.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      if (e.target.tagName.toLowerCase() === "textarea") {
+        return;
+      }
+      e.preventDefault();
+      if (e.target.id === "ciudadano_doc") {
+        if (typeof ejecutarBusquedaDocAdmin === "function") {
+          ejecutarBusquedaDocAdmin();
+        } else if (typeof limitabuscadni === "function") {
+          limitabuscadni(e.target);
+        }
+      }
+    }
+  });
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  var modalMantenimiento = document.getElementById("modalmantenimiento");
+  if (modalMantenimiento) {
+    modalMantenimiento.addEventListener("shown.bs.modal", function () {
+      var docInput = document.getElementById("ciudadano_doc");
+      if (docInput) {
+        docInput.focus();
+        docInput.select();
+      }
+    });
+  }
+});
+
+$(document).on("shown.bs.modal", "#modalmantenimiento", function () {
+  var docInput = document.getElementById("ciudadano_doc");
+  if (docInput) {
+    docInput.focus();
+    docInput.select();
+  }
+});
+
 function init() {
   $("#ciudadanosdetalles_form").on("submit", function (e) {
     detalleEditar(e);
@@ -667,7 +707,14 @@ function nuevo() {
     $("#empr_nombre_comercial").val("");
     $("#esCarnet").val("");
     $("#esCPP").val("");
+    $("#dni_checkbox").prop("checked", true);
+    if (typeof toggleCheckboxes === "function") {
+      toggleCheckboxes("dni_checkbox");
+    }
     $("#modalmantenimiento").modal("show");
+    setTimeout(function () {
+      $("#ciudadano_doc").focus().select();
+    }, 150);
     validarCheckEmpresa();
     validarCheckCiud();
     $("#mensaje_empresa")

@@ -208,3 +208,11 @@ Este documento registra cronológicamente cada una de las modificaciones arquite
 * **Antes:** En el modal de registro de ciudadanos (`registerModal`), el botón *"Guardar"* estaba fuera del formulario sin submit, por lo que presionar `Enter` en cualquier campo no producía ninguna acción. Además, no contaba con consulta a RENIEC/BD, obligando al operador a digitar manualmente todos los datos.
 * **Ahora:** Al presionar `Enter` se avanza automáticamente al siguiente campo del formulario. Si el tipo de documento seleccionado es DNI y se completan los 8 dígitos, el sistema consulta automáticamente a RENIEC/BD y autocompleta primer apellido, segundo apellido, nombres, sexo y fecha de nacimiento. Asimismo, el botón *"Guardar"* incorpora bloqueo y spinner durante la persistencia.
 
+#### H. Autofocus en Modal y Validación Dinámica de Documentos Extranjeros (CEE / CPP)
+* **Antes:** 
+  1. Al presionar el botón *"NUEVO"*, el modal de registro se abría sin enfocar el campo de documento, requiriendo un clic manual del operador para empezar a escribir.
+  2. La función `limitabuscadni` forzaba una longitud rígida para documentos extranjeros o mostraba mensajes de conteo de 8 o 9 dígitos no aplicables, cortando o bloqueando documentos con longitudes distintas.
+* **Ahora:**
+  1. **Autofocus inmediato:** Al abrirse el modal `#modalmantenimiento`, se enfoca y selecciona automáticamente el input `#ciudadano_doc`, permitiendo escribir de inmediato sin usar el ratón. Al alternar entre tipos de documento en el selector, el foco se mantiene en el input.
+  2. **Validación selectiva por tipo de documento:** El límite estricto de 8 dígitos numéricos y el conteo regresivo aplican exclusivamente al tipo `DNI`. Para `CEE` (Carné de Extranjería) y `CPP` (Carné de Permiso Temporal de Permanencia), se admite una longitud dinámica de hasta 15 caracteres alfanuméricos, adaptando `maxlength`, `placeholder` y `inputmode`, y permitiendo la consulta vía `Enter` o botón lupa sin truncar ni restringir documentos extranjeros válidos.
+

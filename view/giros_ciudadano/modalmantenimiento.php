@@ -35,7 +35,10 @@
                                             <li><a class="dropdown-item" href="#" onclick="seleccionarTipo('CEE', event)">CEE</a></li>
                                             <li><a class="dropdown-item" href="#" onclick="seleccionarTipo('CPP', event)">CPP</a></li>
                                         </ul>
-                                        <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="9" name="ciudadano_doc" id="ciudadano_doc" class="form-control" placeholder="Ingresa el número de documento" oninput="limitabuscadni(this)" required>
+                                        <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="8" name="ciudadano_doc" id="ciudadano_doc" class="form-control" placeholder="Ingresa el DNI (8 dígitos)" oninput="limitabuscadni(this)" required>
+                                        <button class="btn btn-outline-secondary" type="button" id="btn_buscar_doc" onclick="ejecutarBusquedaDoc()" title="Buscar documento">
+                                            <i class="fas fa-search"></i>
+                                        </button>
                                     </div>
                                     <label class="form-label required" for="ciudadano_nombre">Nombre: </label>
                                     <div class="input-group mb-2">
@@ -71,8 +74,29 @@
 
                         <script>
                             function seleccionarTipo(tipo, e) {
-                                e.preventDefault();
-                                document.getElementById('name_select_tipo').innerText = tipo;
+                                if (e && e.preventDefault) e.preventDefault();
+                                var btnTipo = document.getElementById('name_select_tipo');
+                                if (btnTipo) btnTipo.innerText = tipo;
+                                var docInput = document.getElementById('ciudadano_doc');
+                                var mensaje = document.getElementById('ciud_mensaje');
+                                if (docInput) {
+                                    if (tipo === 'DNI') {
+                                        docInput.setAttribute('maxlength', '8');
+                                        docInput.setAttribute('inputmode', 'numeric');
+                                        docInput.setAttribute('pattern', '[0-9]*');
+                                        docInput.setAttribute('placeholder', 'Ingresa el DNI (8 dígitos)');
+                                    } else {
+                                        docInput.setAttribute('maxlength', '15');
+                                        docInput.setAttribute('inputmode', 'text');
+                                        docInput.removeAttribute('pattern');
+                                        docInput.setAttribute('placeholder', 'Ingresa el N° de ' + tipo);
+                                    }
+                                    if (mensaje) mensaje.classList.add('d-none');
+                                    docInput.focus();
+                                    if (typeof limitabuscadni === 'function' && docInput.value) {
+                                        limitabuscadni(docInput);
+                                    }
+                                }
                             }
                         </script>
                         <div class="empr_container">
