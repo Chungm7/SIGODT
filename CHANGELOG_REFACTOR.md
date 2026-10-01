@@ -216,3 +216,8 @@ Este documento registra cronológicamente cada una de las modificaciones arquite
   1. **Autofocus inmediato:** Al abrirse el modal `#modalmantenimiento`, se enfoca y selecciona automáticamente el input `#ciudadano_doc`, permitiendo escribir de inmediato sin usar el ratón. Al alternar entre tipos de documento en el selector, el foco se mantiene en el input.
   2. **Validación selectiva por tipo de documento:** El límite estricto de 8 dígitos numéricos y el conteo regresivo aplican exclusivamente al tipo `DNI`. Para `CEE` (Carné de Extranjería) y `CPP` (Carné de Permiso Temporal de Permanencia), se admite una longitud dinámica de hasta 15 caracteres alfanuméricos, adaptando `maxlength`, `placeholder` y `inputmode`, y permitiendo la consulta vía `Enter` o botón lupa sin truncar ni restringir documentos extranjeros válidos.
 
+#### I. Corrección Ortográfica en Menú Principal e Inicio
+* **Antes:** En `view/html/menu.php` y `view/inicio/index.php` existían faltas ortográficas visibles en producción (`"Ciuadanos"`, `"Genarales"`, `"Orden de Derecho de Tramite"`, `"Registrar Ordenes de Giro"`).
+* **Ahora:** Se corrigieron los textos a su ortografía formal con la acentuación correspondiente (`"Ciudadanos"`, `"Generales"`, `"Órdenes de Derecho de Trámite"`, `"Registrar Órdenes de Giro"`).
+
+

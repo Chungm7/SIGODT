@@ -46,7 +46,7 @@
                   <div class="dropend">
                     <a class="dropdown-item dropdown-toggle" href="#sidebar-authentication" data-bs-toggle="dropdown"
                       data-bs-auto-close="outside" role="button" aria-expanded="false">
-                      Orden de Derecho de Tramite 
+                      Órdenes de Derecho de Trámite 
                     </a>
                     <div class="dropdown-menu">
                       <a href="../giros_ciudadano/" class="dropdown-item">
@@ -76,7 +76,7 @@
                   <path d="M7 7m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
                 </svg>
               </span>
-              <span class="nav-link-title" enable>
+              <span class="nav-link-title">
                 Mantenimientos
               </span>
             </a>
@@ -92,7 +92,7 @@
                     
                     <div class="dropdown-menu">
                       <a href="../mnt_ciudadano/" class="dropdown-item">
-                        Ciuadanos
+                        Ciudadanos
                       </a>
                       <a href="../mnt_empresa/" class="dropdown-item">
                         Empresas
@@ -102,7 +102,7 @@
                    <div class="dropend">
                     <a class="dropdown-item dropdown-toggle" href="#sidebar-authentication" data-bs-toggle="dropdown"
                       data-bs-auto-close="outside" role="button" aria-expanded="false">
-                      Genarales
+                      Generales
                     </a>
                     
                     <div class="dropdown-menu">

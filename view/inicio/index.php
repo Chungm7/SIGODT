@@ -26,7 +26,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                 <div class="col-12">
                   <div class="card">
                     <div class="card-header">
-                      <h3 class="card-title">Bienvenido al Sistema de Gestion de Ordenes de Derecho de Tramite de la Municipalidad Provincial de Chiclayo, <?php echo htmlspecialchars($nombre_completo); ?>!</h3>
+                      <h3 class="card-title">Bienvenido al Sistema de Gestión de Órdenes de Derecho de Trámite de la Municipalidad Provincial de Chiclayo, <?php echo htmlspecialchars($nombre_completo); ?>!</h3>
                     </div>
                     <div class="card-body">
                       <p class="text-muted">
@@ -38,8 +38,8 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                         <div class="col-md-4">
                           <div class="card text-center">
                             <div class="card-body">
-                              <h4 class="card-title">Registrar Ordenes de Giro</h4>
-                              <p class="text-muted">Registra y Gestiona las ordenes de Giro.</p>
+                              <h4 class="card-title">Registrar Órdenes de Giro</h4>
+                              <p class="text-muted">Registra y gestiona las órdenes de giro.</p>
                               <a href="../giros_ciudadano" class="btn btn-warning">Registrar Nuevo</a>
                             </div>
                           </div>
