@@ -47,7 +47,10 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                                                     </div>
                                                 </div>
                                                 <div class="text-center mt-3">
-                                                    <button type="submit" class="btn btn-primary">Buscar</button>
+                                                    <button type="submit" id="btnBuscarOrden" class="btn btn-primary">
+                                                        <span id="spinnerBuscar" class="spinner-border spinner-border-sm me-1 d-none" role="status" aria-hidden="true"></span>
+                                                        <i class="fas fa-search me-1" id="iconBuscar"></i><span id="textBuscar">Buscar</span>
+                                                    </button>
                                                 </div>
                                             </form>
                                         </div>
@@ -129,6 +132,16 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                 let ordenGiroId = `${formatearNumero(ordenNumero)}-${ordenAnio}`;
                 console.log("🔍 Buscando orden:", ordenGiroId);
 
+                let btnBuscar = document.getElementById("btnBuscarOrden");
+                let spinnerBuscar = document.getElementById("spinnerBuscar");
+                let iconBuscar = document.getElementById("iconBuscar");
+                let textBuscar = document.getElementById("textBuscar");
+
+                if (btnBuscar) btnBuscar.disabled = true;
+                if (spinnerBuscar) spinnerBuscar.classList.remove("d-none");
+                if (iconBuscar) iconBuscar.classList.add("d-none");
+                if (textBuscar) textBuscar.textContent = "Buscando...";
+
                 fetch("../../controller/ordengiro.php?op=get_orden_giro", {
                     method: "POST",
                     headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -163,6 +176,12 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                 .catch(error => {
                     console.error("🚨 Error en fetch:", error);
                     mostrarError("Ocurrió un error en la búsqueda.");
+                })
+                .finally(() => {
+                    if (btnBuscar) btnBuscar.disabled = false;
+                    if (spinnerBuscar) spinnerBuscar.classList.add("d-none");
+                    if (iconBuscar) iconBuscar.classList.remove("d-none");
+                    if (textBuscar) textBuscar.textContent = "Buscar";
                 });
             });
 

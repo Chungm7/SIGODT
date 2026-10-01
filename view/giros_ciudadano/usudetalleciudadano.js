@@ -1,10 +1,21 @@
 var ciudadano_id = $("#ciudadano_idx").val();
 
-document.getElementById("ciudadanosdetalles_form").addEventListener("keydown", function (e) {
+const formCiudadanosDetalles = document.getElementById("ciudadanosdetalles_form");
+if (formCiudadanosDetalles) {
+  formCiudadanosDetalles.addEventListener("keydown", function (e) {
     if (e.key === "Enter") {
-        e.preventDefault();
+      if (e.target.tagName.toLowerCase() === "textarea") {
+        return;
+      }
+      e.preventDefault();
+      if (e.target.id === "ciudadano_doc" && typeof limitabuscadni === "function") {
+        limitabuscadni(e.target);
+      } else if (e.target.id === "empr_ruc" && typeof limitarbuscarruc === "function") {
+        limitarbuscarruc(e.target);
+      }
     }
-});
+  });
+}
 
 $("#empr_razon_social").on("change", function () {
 
@@ -1183,7 +1194,8 @@ function pagar(tasatciudadano_id, procedciudadano_id, estadotasa) {
     // Capturamos cantidad si existe un input tipo number en la misma fila (o usamos 1)
     var cantidad = $(`input[name="cantidad_${tasatciudadano_id}"]`).val() || 1;
 
-    paymentModal.hide();
+    $('#btn-action').prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Procesando...');
+    $('#btn-cancel').addClass('disabled');
 
     $.post(
       "../../controller/tasa.php?op=Pagar_Orden_Giro",
@@ -1193,6 +1205,9 @@ function pagar(tasatciudadano_id, procedciudadano_id, estadotasa) {
         comentario: comentario
       },
       function (response) {
+        paymentModal.hide();
+        $('#btn-action').prop('disabled', false).html('Aceptar');
+        $('#btn-cancel').removeClass('disabled');
         var data = JSON.parse(response);
         $("#IDpagarGrupo").prop("disabled", false).html("Pagar en Grupo");
         $('#loadingSpinner').hide();
@@ -1302,7 +1317,9 @@ function pagargrupo() {
     $('#btn-action').off('click').on('click', function (e) {
       e.preventDefault();
       var comentario = $('#comentarioInput').val();
-      paymentModal.hide(); // Ocultar el modal
+
+      $('#btn-action').prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Procesando...');
+      $('#btn-cancel').addClass('disabled');
 
       // Enviar la solicitud al backend para procesar el pago en grupo
       $.post(
@@ -1313,6 +1330,9 @@ function pagargrupo() {
           comentario: comentario
         },
         function (response) {
+          paymentModal.hide(); // Ocultar el modal tras recibir respuesta
+          $('#btn-action').prop('disabled', false).html('Aceptar');
+          $('#btn-cancel').removeClass('disabled');
           var data = JSON.parse(response);
 
           // Ocultar el spinner y reactivar el botón "Pagar en grupo"

@@ -54,8 +54,8 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                                                     </select>
                                                 </div>
                                                 <div class="text-center d-flex justify-content-center gap-2">
-                                                    <a href="#" id="filterBtn" class="btn btn-facebook">Filtrar</a>
-                                                    <a href="#" id="resetBtn" class="btn btn-youtube">Limpiar</a>
+                                                    <a href="#" id="filterBtn" class="btn btn-blue">Filtrar</a>
+                                                    <a href="#" id="resetBtn" class="btn btn-danger">Limpiar</a>
                                                 </div>
                                             </form>
                                         </div>

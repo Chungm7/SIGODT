@@ -305,21 +305,20 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
           resetearCampos();
           buscarDNI(valor, tipo_documento);
           mensaje.className = "alert alert-success"; // Estilo de alerta de éxito
-          mensaje.innerHTML = "✅ buscando información...";
+          mensaje.innerHTML = "✅ Buscando información...";
           mensaje.classList.remove("d-none");
-        } else if (valor.length < max_length) {
+        } else if (valor.length > 0 && valor.length < max_length) {
           resetearCampos();
 
           $("input[name='ciud_sex']").prop("disabled", true);
           $("#dateMask").removeAttr("readonly");
           $("#ciud_sex").prop("disabled", false);
 
-          mensaje.className = "alert alert-warning"; // Estilo de alerta de advertencia
-          mensaje.innerHTML = "⏳ Buscando...";
+          const faltantes = max_length - valor.length;
+          mensaje.className = "alert alert-info py-1 mb-2";
+          mensaje.innerHTML = `ℹ️ Ingrese ${max_length} dígitos (faltan ${faltantes})`;
           mensaje.classList.remove("d-none");
-        }
-
-        if (valor.length == 0) {
+        } else {
           resetearCampos();
           mensaje.classList.add("d-none"); // Ocultar el mensaje
         }
@@ -356,9 +355,10 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
           mensaje.className = "alert alert-success";
           mensaje.innerHTML = "✅ RUC válido, buscando información...";
           mensaje.classList.remove("d-none");
-        } else if (valor.length > 0) {
-          mensaje.className = "alert alert-warning";
-          mensaje.innerHTML = "⏳ Buscando...";
+        } else if (valor.length > 0 && valor.length < 11) {
+          const faltantesRuc = 11 - valor.length;
+          mensaje.className = "alert alert-info py-1 mb-2";
+          mensaje.innerHTML = `ℹ️ Ingrese 11 dígitos de RUC (faltan ${faltantesRuc})`;
           mensaje.classList.remove("d-none");
         } else {
           mensaje.classList.add("d-none"); // Ocultar mensaje

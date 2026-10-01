@@ -160,3 +160,45 @@ Este documento registra cronológicamente cada una de las modificaciones arquite
 * **Antes:** La carpeta `controller/TCPDF-main/` (29 MB, 375 archivos) permanecía en el árbol fuente desde el commit inicial (`feat: init repo`). No era referenciada ni invocada por ningún script del sistema, ya que la emisión de comprobantes se realiza íntegramente mediante FPDF (`public/plantilla_reporte.php`).
 * **Ahora:** Se eliminó por completo `controller/TCPDF-main/` del repositorio, liberando 29 MB y reduciendo significativamente el tiempo de clonación y despliegue.
 * **Cómo ajustarlo:** Si en el futuro se requieren capacidades avanzadas de renderizado no soportadas por FPDF, la integración debe realizarse a través de Composer (`composer require tecnickcom/tcpdf` o `dompdf/dompdf`), nunca copiando repositorios manuales dentro de `controller/`.
+
+---
+
+## [Fase P3] — Ergonomía y Experiencia de Usuario (UX/UI)
+**Fecha:** 2026-10-01  
+**Rama:** `dev`  
+**Objetivo:** Optimizar los flujos operativos de ventanilla, consulta y mantenimiento sin alterar el diseño visual de Tabler UI / Bootstrap 5, sin dependencias externas y preservando el 100% de la funcionalidad.
+
+### 1. Archivos Afectados
+* `view/giros_ciudadano/modalmantenimiento.php`
+* `view/admin_giros_ciudadano/modalmantenimiento.php`
+* `view/giros_ciudadano/index.php`
+* `view/giros_ciudadano/usudetalleciudadano.js`
+* `view/consultar_og/index.php`
+* `view/mnt_empresa/index.php`
+
+### 2. Detalle de los Cambios
+
+#### A. Semántica de Inputs Numéricos para Identificadores
+* **Antes:** `ciudadano_doc` usaba `type="number"`, lo cual provocaba la aparición de flechas de incremento (spinners), permitía alterar accidentalmente el DNI al deslizar la rueda del ratón (*mousewheel*) y provocaba pérdida del cero inicial en ciertos navegadores.
+* **Ahora:** Se configuró como `type="text" inputmode="numeric" pattern="[0-9]*" maxlength="9"` en ventanilla ciudadana y administrativa.
+
+#### B. Feedback Visual Progresivo en Consultas DNI y RUC
+* **Antes:** Al digitar el primer carácter se mostraba de inmediato una alerta amarilla `"⏳ Buscando..."`, confundiendo al operador con una falsa lentitud cuando el sistema aún no disparaba la consulta.
+* **Ahora:** Al ingresar entre 1 y 7 dígitos se muestra un mensaje informativo neutral con conteo de dígitos faltantes (`Ingrese 8 dígitos (faltan X)`), reservando el estado de búsqueda activa únicamente al completar la longitud requerida.
+
+#### C. Navegación Ágil por Teclado (`Enter`)
+* **Antes:** `usudetalleciudadano.js` cancelaba globalmente el evento `Enter` con `e.preventDefault()`, obligando al operador a recurrir al ratón tras cada ingreso.
+* **Ahora:** Se permite el salto de línea en áreas de texto (`textarea`) y se evalúa la consulta inmediata si el foco está en los inputs de documento o RUC, previniendo únicamente el envío prematuro del formulario.
+
+#### D. Protección contra Doble Emisión en Pagos
+* **Antes:** En el modal de pago de giros (`modal-payment`), el botón *"Aceptar"* no bloqueaba interacciones durante el vuelo de la petición AJAX, permitiendo que múltiples clics generaran órdenes duplicadas en condiciones de latencia.
+* **Ahora:** El botón entra en estado deshabilitado con spinner (`Procesando...`) y deshabilita el botón cancelar hasta que el servidor emite su respuesta.
+
+#### E. Indicador de Progreso en Consulta de Órdenes de Giro
+* **Antes:** La búsqueda individual de órdenes no ofrecía retroalimentación visual en el botón mientras se construía y transfería el PDF en Base64.
+* **Ahora:** Se incorporó un spinner integrado en el botón *"Buscar"*, deshabilitándolo mientras el documento es generado y descargado en el visor.
+
+#### F. Estandarización de Clases de Interfaz en Mantenimientos
+* **Antes:** Los botones de filtrado y reseteo en empresas usaban clases de marcas sociales (`btn-facebook`, `btn-youtube`).
+* **Ahora:** Se migraron a clases del sistema de diseño (`btn-blue` y `btn-danger`), preservando idéntico color visual sin incurrir en antipatrones de clases.
+

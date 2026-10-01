@@ -35,7 +35,7 @@
                                             <li><a class="dropdown-item" href="#" onclick="seleccionarTipo('CEE', event)">CEE</a></li>
                                             <li><a class="dropdown-item" href="#" onclick="seleccionarTipo('CPP', event)">CPP</a></li>
                                         </ul>
-                                        <input type="number" name="ciudadano_doc" id="ciudadano_doc" class="form-control" placeholder="Ingresa el número de documento" oninput="limitabuscadni(this)" required>
+                                        <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="9" name="ciudadano_doc" id="ciudadano_doc" class="form-control" placeholder="Ingresa el número de documento" oninput="limitabuscadni(this)" required>
                                     </div>
                                     <label class="form-label required" for="ciudadano_nombre">Nombre: </label>
                                     <div class="input-group mb-2">

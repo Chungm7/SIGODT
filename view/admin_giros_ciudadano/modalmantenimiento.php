@@ -85,7 +85,7 @@
 
                                                 <div class="col-md-12">
                                                     <label>Número de Documento: <span class="tx-danger">*</span></label>
-                                                    <input type="number" name="ciudadano_doc" id="ciudadano_doc" class="form-control" placeholder="Ingresa el número de documento" oninput="limitabuscadni(this)" required>
+                                                    <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="9" name="ciudadano_doc" id="ciudadano_doc" class="form-control" placeholder="Ingresa el número de documento" oninput="limitabuscadni(this)" required>
                                                     <div>
                                                         <label id="ciud_mensaje" style="display: none; color: green; width: 100%; ">Correcto!</label>
                                                     </div>
@@ -243,7 +243,7 @@
             validarCheckCiud();
             buscarDNI(valor);
             $("#spinner-ciud").remove();
-        } else if (valor.length < max_length) {
+        } else if (valor.length > 0 && valor.length < max_length) {
 
             resetearCampos();
             validarCheckCiud();
@@ -251,22 +251,17 @@
             $("#dateMask").removeAttr("readonly");
             $("#ciud_sex").prop("disabled", false);
 
-            // Mostrar el mensaje "Buscando..." y agregar el spinner si no existe
-            if ($("#spinner-ciud").length === 0) {
-                var spinner = $("<i>").addClass("fa fa-spinner fa-spin").attr("id", "spinner-ciud");
-                $("#ciud_mensaje").text("Buscando... ").css("color", "grey").append(spinner).show();
-            }
+            var faltantes = max_length - valor.length;
+            $("#spinner-ciud").remove();
+            $("#ciud_mensaje").text("Ingrese " + max_length + " dígitos (faltan " + faltantes + ")").css("color", "#0054a6").show();
 
         }
         if (valor.length == 0) {
 
             resetearCampos();
             validarCheckCiud();
-            // Remover el spinner
-            $("#spinner-ciud").removeClass("fa fa-spinner fa-spin");
-            $("#ciud_mensaje").text("Buscando...").css("color", "green").hide();
-            // Remover el spinner
             $("#spinner-ciud").remove();
+            $("#ciud_mensaje").hide();
 
         }
 
@@ -296,26 +291,17 @@
             $("#spinner").remove();
         }
 
-        if (valor.length < 11) {
+        if (valor.length > 0 && valor.length < 11) {
             $("#empr_razon_social").val('');
             $("#empr_nombre_comercial").val('');
             $("#empr_id").val('');
-            $("#mensaje_empresa").text("Buscando").css("color", "grey").show();
-
-            if ($("#spinner").length === 0) {
-                // Remover spinners anteriores si existen
-                // Agregar el spinner
-                var spinner = $("<i>").addClass("fa fa-spinner fa-spin").attr("id", "spinner");
-                $("#mensaje_empresa").before(spinner);
-            }
-
+            $("#spinner").remove();
+            var faltantesRuc = 11 - valor.length;
+            $("#mensaje_empresa").text("Ingrese 11 dígitos (faltan " + faltantesRuc + ")").css("color", "#0054a6").show();
         }
         if (valor.length == 0) {
-            $("#spinner").removeClass("fa fa-spinner fa-spin");
-            $("#mensaje_empresa").text("Empresa encontrada").css("color", "green").hide();
-            // Remover el spinner
             $("#spinner").remove();
-
+            $("#mensaje_empresa").hide();
         }
         input.value = valor;
     }
