@@ -95,6 +95,8 @@ $(document).ready(function () {
             };
             reader.readAsDataURL(input.files[0]);
         }
+    });
+
     $(document).on("change", "#tido_id", function () {
         const $doc = $("#ciud_numero_documento");
         $("#doc_status").text("");
