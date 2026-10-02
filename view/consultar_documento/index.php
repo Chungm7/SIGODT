@@ -26,7 +26,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                   <a href="../inicio/">SIGODT</a>
                 </li>
                 <li class="breadcrumb-item">
-                  <a href="../inicio/">Reportes</a>
+                  <a href="#">Consultas</a>
                 </li>
                 <li class="breadcrumb-item active">
                   <a href="#">Consultar por Documento</a>

@@ -22,7 +22,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                         <div class="container-xl">
                             <ol class="breadcrumb">
                                 <li class="breadcrumb-item"><a href="../inicio/">SIGODT</a></li>
-                                <li class="breadcrumb-item"><a href="../inicio/">Reportes</a></li>
+                                <li class="breadcrumb-item"><a href="#">Consultas</a></li>
                                 <li class="breadcrumb-item active"><a href="#">Consultar por Número de Orden</a></li>
                             </ol>
                             
