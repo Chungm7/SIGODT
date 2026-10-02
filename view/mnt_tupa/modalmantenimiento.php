@@ -26,14 +26,13 @@
                         <div class="col-md-6 mb-3">
                             <label for="tupa_año" class="form-label fw-semibold">Año de Vigencia <span class="text-danger">*</span></label>
                             <select class="form-select" id="tupa_año" name="tupa_año" required>
-                                <option value="2027">2027</option>
-                                <option value="2026" selected>2026</option>
-                                <option value="2025">2025</option>
-                                <option value="2024">2024</option>
-                                <option value="2023">2023</option>
-                                <option value="2022">2022</option>
-                                <option value="2021">2021</option>
-                                <option value="2020">2020</option>
+                                <?php
+                                $año_actual = (int)date("Y");
+                                for ($y = $año_actual; $y >= 2012; $y--) {
+                                    $selected = ($y === $año_actual) ? 'selected' : '';
+                                    echo "<option value=\"{$y}\" {$selected}>{$y}</option>";
+                                }
+                                ?>
                             </select>
                         </div>
                     </div>
