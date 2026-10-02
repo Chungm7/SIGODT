@@ -127,7 +127,8 @@ switch ($_GET["op"]) {
         break;
     case "eliminar_proced_ciudadano":
         $cantant = $bitacora->get_max_id()[0]["bita_id"];
-        $proced->delete_proced_ciudadano($_POST["proceciudadano_id"], $_POST["orden_giro"]);
+        $orden_giro = isset($_POST["orden_giro"]) && $_POST["orden_giro"] !== "null" ? $_POST["orden_giro"] : null;
+        $proced->delete_proced_ciudadano($_POST["proceciudadano_id"], $orden_giro);
         $bitacora->update_bitacora_grupo($_SESSION["usua_id_SIGODT"], $cantant);
         break;
     case "cambiar_procedencia_proced_ciudadano":
@@ -539,10 +540,11 @@ switch ($_GET["op"]) {
             $sub_array[] = '<button type="button" style="cursor:pointer" onClick="ver(' . $row["procedciudadano_id"] . ');" id="' . $row["procedciudadano_id"] . '" class="btn btn-outline-success btn-icon" data-estado="' . $row["est"] . '"><div><i class="fa fa-file"></i></div></button>';
 
 
+            $og_param = !empty($row["ogciud_id"]) ? "'" . addslashes($row["ogciud_id"]) . "'" : "null";
             if ($row["est"] == 1 || $row["est"] == 2 || $row["est"] == 4 || $est == 9) {
-                $sub_array[] = '<button type="button" style="cursor:pointer" onClick="eliminar('. $row["procedciudadano_id"] .' , ' .  json_encode($est) . ', \'' . json_encode($row["ogciud_id"]) . '\');"  id="' . $row["procedciudadano_id"] . '" class="btn btn-outline-danger btn-icon" ><div><div><i class="fa fa-trash"></i></div></button>';
+                $sub_array[] = '<button type="button" style="cursor:pointer" onClick="eliminar(' . (int)$row["procedciudadano_id"] . ', ' . (int)$est . ', ' . $og_param . ');" id="' . $row["procedciudadano_id"] . '" class="btn btn-outline-danger btn-icon"><div><div><i class="fa fa-trash"></i></div></div></button>';
             } else {
-                $sub_array[] = '<button type="button" style="cursor:pointer" disabled onClick="eliminar(' . $row["procedciudadano_id"] . ' , ' .  json_encode($est) . ',\'' . json_encode($row["ogciud_id"]) . '\');"  id="' . $row["procedciudadano_id"] . '" class="btn btn-outline-danger btn-icon" ><div><div><i class="fa fa-trash"></i></div></button>';
+                $sub_array[] = '<button type="button" style="cursor:pointer" disabled onClick="eliminar(' . (int)$row["procedciudadano_id"] . ', ' . (int)$est . ', ' . $og_param . ');" id="' . $row["procedciudadano_id"] . '" class="btn btn-outline-danger btn-icon"><div><div><i class="fa fa-trash"></i></div></div></button>';
             }
 
             $data[] = $sub_array;
