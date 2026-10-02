@@ -183,28 +183,32 @@ switch ($_GET["op"]) {
         $data = array();
         foreach ($datos as $row) {
             $sub_array = array();
-            $sub_array[] = $row["tasa_nom"];
-            $sub_array[] = empty($row["desc_tasa"]) ? '-' : $row["desc_tasa"];
-            $sub_array[] = empty($row["tasaproced_pos"]) ? '<span style="color: red;">null</span>' : $row["tasaproced_pos"];
-            $sub_array[] = empty($row["tasaproced_monto"]) ? '<span style="color: red;">null</span>' : $row["tasaproced_monto"];
-            $sub_array[] = empty($row["cod_ref"]) ? '<span style="color: red;">null</span>' : str_pad($row["cod_ref"], 5, '0', STR_PAD_LEFT);
-            $sub_array[] = isset($row["is_multiplica"]) 
-                ? ($row["is_multiplica"] == 1 ? 'Sí' : 'No') 
-                : '<span style="color: red;">null</span>';
-            $tupa_estado = $row["tupa_block"];
+            $sub_array[] = '<span class="fw-semibold">' . htmlspecialchars($row["tasa_nom"]) . '</span>';
+            $sub_array[] = empty($row["desc_tasa"]) ? '<span class="text-muted">-</span>' : htmlspecialchars($row["desc_tasa"]);
+            $sub_array[] = empty($row["tasaproced_pos"]) 
+                ? '<span class="badge bg-secondary-lt">Sin orden</span>' 
+                : '<span class="badge bg-blue-lt">#' . $row["tasaproced_pos"] . '</span>';
+            
+            $monto = isset($row["tasaproced_monto"]) && is_numeric($row["tasaproced_monto"])
+                ? 'S/ ' . number_format((float)$row["tasaproced_monto"], 2)
+                : '<span class="badge bg-warning-lt">Sin monto</span>';
+            $sub_array[] = '<span class="fw-bold text-end d-block">' . $monto . '</span>';
 
-            $editButton = '<button type="button" onClick="editar(' . $row["tasaproced_id"] . ');"  id="' . $row["tasaproced_id"] . '" class="btn btn-outline-primary btn-icon"';
-            $deleteButton = '<button type="button" onClick="eliminar(' . $row["tasaproced_id"] . ');"  id="' . $row["tasaproced_id"] . '" class="btn btn-outline-danger btn-icon"';
+            $sub_array[] = empty($row["cod_ref"]) 
+                ? '<span class="badge bg-muted-lt">-</span>' 
+                : '<code>' . str_pad($row["cod_ref"], 5, '0', STR_PAD_LEFT) . '</code>';
 
-            if ($tupa_estado != 0) {
-                // Si el estado no es 1, desactiva los botones
-                $editButton .= ' disabled';
-                $deleteButton .= ' disabled';
-            }
+            $sub_array[] = isset($row["is_multiplica"]) && $row["is_multiplica"] == 1
+                ? '<span class="badge bg-green-lt">Multiplica</span>' 
+                : '<span class="badge bg-blue-lt">Fijo</span>';
+            
+            $tupa_estado = $row["tupa_block"] ?? 0;
 
-            // Cierre de las etiquetas de los botones
-            $editButton .= '><svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></button>';
-            $deleteButton .= '><svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-trash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg></button>';
+            $editDisabled = ($tupa_estado != 0) ? ' disabled title="Documento bloqueado"' : ' title="Editar configuración"';
+            $deleteDisabled = ($tupa_estado != 0) ? ' disabled title="Documento bloqueado"' : ' title="Eliminar tasa del procedimiento"';
+
+            $editButton = '<button type="button" onClick="editar(' . $row["tasaproced_id"] . ');" id="' . $row["tasaproced_id"] . '" class="btn btn-outline-warning btn-icon"' . $editDisabled . '><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></button>';
+            $deleteButton = '<button type="button" onClick="eliminar(' . $row["tasaproced_id"] . ');" id="' . $row["tasaproced_id"] . '" class="btn btn-outline-danger btn-icon"' . $deleteDisabled . '><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg></button>';
 
             $sub_array[] = $editButton;
             $sub_array[] = $deleteButton;
