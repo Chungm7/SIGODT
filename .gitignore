@@ -27,3 +27,6 @@ api/logs/*.log
 # Citizen uploads / PII cached photos
 controller/uploads/ciudadanos/*
 !controller/uploads/ciudadanos/.gitkeep
+
+# Code intelligence / Local indices
+.codegraph/
