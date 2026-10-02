@@ -115,9 +115,6 @@ function nuevoRegistro(){
   $("#empresaForm")[0].reset();
   $("#modal-title").text("Registrar Empresa");
   $("#empresaModal").modal("show");
-  setTimeout(function () {
-    $("#empr_ruc").focus();
-  }, 400);
 }
 
 function editar(id){

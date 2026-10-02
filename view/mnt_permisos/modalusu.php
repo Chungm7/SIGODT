@@ -18,7 +18,7 @@
                     <div class="col-lg-12">
                         <div class="form-group">
                             <label class="form-control-label">N° orden: <span class="tx-danger">*</span></label>
-                            <input class="form-control tx-uppercase" id="tasatramite_pos" type="number" name="tasatramite_pos" required/>
+                            <input class="form-control tx-uppercase" id="tasatramite_pos" type="number" name="tasatramite_pos" data-autofocus required/>
                         </div>
                     </div>
                     <div class="col-lg-12">

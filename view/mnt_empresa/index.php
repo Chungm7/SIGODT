@@ -123,6 +123,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                                         id="empr_ruc"
                                         name="empr_ruc"
                                         class="form-control"
+                                        data-autofocus
                                         required
                                         oninput="this.value = this.value.replace(/\\D/g, '').slice(0,11)">
                                 </div>

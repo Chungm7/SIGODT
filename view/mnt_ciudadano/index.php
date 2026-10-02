@@ -99,7 +99,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Tipo Documento</label>
-                                    <select id="tido_id" name="tido_id" class="form-select" required>
+                                    <select id="tido_id" name="tido_id" class="form-select" data-autofocus required>
                                         <option value="">Seleccione...</option>
                                         <!-- Opciones cargadas dinámicamente -->
                                     </select>

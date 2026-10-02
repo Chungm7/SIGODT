@@ -16,7 +16,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">N° de Orden <span class="form-label-description">Requerido</span></label>
-                            <input class="form-control" id="tasaproced_pos" type="number" name="tasaproced_pos" required />
+                            <input class="form-control" id="tasaproced_pos" type="number" name="tasaproced_pos" data-autofocus required />
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Monto <span class="form-label-description">Requerido</span></label>

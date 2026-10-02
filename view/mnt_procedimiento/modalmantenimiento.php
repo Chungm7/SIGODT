@@ -13,7 +13,7 @@
 
                     <div class="mb-3">
                         <label for="proced_cod" class="form-label">Proced Código <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control text-uppercase" id="proced_cod" name="proced_cod" required />
+                        <input type="text" class="form-control text-uppercase" id="proced_cod" name="proced_cod" data-autofocus required />
                     </div>
 
                     <div class="mb-3">

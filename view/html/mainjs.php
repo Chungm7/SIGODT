@@ -99,4 +99,19 @@
             e.preventDefault();
         }
     });
+
+    // Autofocus automático al abrir cualquier modal: enfoca el primer campo editable
+    $(document).on("shown.bs.modal", ".modal", function () {
+        const $modal = $(this);
+        let $target = $modal.find("[data-autofocus]:visible:not([disabled]):not([readonly]), [autofocus]:visible:not([disabled]):not([readonly])").first();
+        if (!$target.length) {
+            $target = $modal.find("input:visible:not([disabled]):not([readonly]):not([type='hidden']), select:visible:not([disabled]), textarea:visible:not([disabled])").first();
+        }
+        if ($target.length) {
+            $target.focus();
+            if ($target.is("input:text, input[type='number']")) {
+                $target.select();
+            }
+        }
+    });
 </script>

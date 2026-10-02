@@ -247,9 +247,6 @@ function nuevoRegistro() {
     $("#previewFoto").hide().attr("src", "");
     $("#modal-title").text("Registrar Ciudadano");
     $("#registerModal").modal("show");
-    setTimeout(function () {
-        $("#tido_id").focus();
-    }, 400);
 }
 
 function editar(id) {

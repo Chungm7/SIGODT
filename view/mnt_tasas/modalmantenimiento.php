@@ -14,7 +14,7 @@
                     <div class="row">
                         <div class="col-lg-8 mb-3">
                             <label for="tasa_nom" class="form-label">Nombre <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control text-uppercase" id="tasa_nom" name="tasa_nom" required />
+                            <input type="text" class="form-control text-uppercase" id="tasa_nom" name="tasa_nom" data-autofocus required />
                         </div>
 
                         <div class="col-lg-4 mb-3">

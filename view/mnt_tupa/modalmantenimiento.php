@@ -14,7 +14,7 @@
                         <div class="col-lg-12"> <!-- Cambiado a col-lg-12 mt-3 -->
                             <div class="form-group">
                                 <label for="tupa_nom" class="form-control-label">Nombre: <span class="tx-danger">*</span></label>
-                                <input class="form-control tx-uppercase" id="tupa_nom" type="text" name="tupa_nom" required />
+                                <input class="form-control tx-uppercase" id="tupa_nom" type="text" name="tupa_nom" data-autofocus required />
                             </div>
                         </div>
                         <div class="col-lg-12 mt-3"> <!-- Cambiado a col-lg-12 mt-3 -->
