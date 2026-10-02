@@ -63,8 +63,8 @@ A continuación se detalla cada una de las vistas presentes en la carpeta [`view
 - **`view/admin_giros_ciudadano/index.php` (Gestión Administrativa de Giros):**
   - Vista para supervisores y administradores de recaudación.
   - Permite auditar órdenes de cualquier dependencia, ver montos globales e invocar el modal `modaleditcomentario.php` para corregir o agregar observaciones justificatorias en órdenes ya generadas.
-- **`view/working/index.php` (Módulo en Construcción):**
-  - Pantalla con ilustración vectorial que informa a los usuarios que el submódulo de *Registros Trabajadores* se encuentra en fase de desarrollo.
+- **`view/working/index.php` (Módulo Deprecado / Retirado):**
+  - Módulo previamente planificado para *Registros Trabajadores*, retirado de la navegación por obsolescencia funcional.
 
 ---
 

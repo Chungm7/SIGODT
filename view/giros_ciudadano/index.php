@@ -23,8 +23,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
               <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="../inicio/">SIGODT</a></li>
                 <li class="breadcrumb-item"><a href="../inicio/">Procesos</a></li>
-                <li class="breadcrumb-item"><a href="../inicio/">Orden de Derecho de tramiten</a></li>
-                <li class="breadcrumb-item active"><a href="#">Registros Ciudadanos</a></li>
+                <li class="breadcrumb-item active"><a href="#">Órdenes de Derecho de Trámite</a></li>
               </ol>
               <input type="hidden" name="usua_dni_SIGODT" id="usua_dni_SIGODT"
                 value="<?php echo $_SESSION["usua_dni_SIGODT"]; ?>" />

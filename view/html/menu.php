@@ -40,25 +40,9 @@
               </span>
             </a>
             <div class="dropdown-menu">
-              <div class="dropdown-menu-columns">
-                <div class="dropdown-menu-column">
-
-                  <div class="dropend">
-                    <a class="dropdown-item dropdown-toggle" href="#sidebar-authentication" data-bs-toggle="dropdown"
-                      data-bs-auto-close="outside" role="button" aria-expanded="false">
-                      Órdenes de Derecho de Trámite 
-                    </a>
-                    <div class="dropdown-menu">
-                      <a href="../giros_ciudadano/" class="dropdown-item">
-                        Registros Ciudadanos
-                      </a>
-                      <a href="../working/" class="dropdown-item">
-                        Registros Trabajadores
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <a href="../giros_ciudadano/" class="dropdown-item">
+                Órdenes de Derecho de Trámite
+              </a>
             </div>
           </li>
           <li class="nav-item dropdown">
