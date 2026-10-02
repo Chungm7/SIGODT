@@ -77,7 +77,8 @@ switch ($_GET["op"]) {
         echo json_encode([
             "success" => true,
             "message" => "Procedimiento registrado correctamente.",
-            "codigo" => $procedCodigo
+            "codigo" => $procedCodigo,
+            "procedciudadano_id" => (int)$procedciudadanoID
         ]);
         exit;
 

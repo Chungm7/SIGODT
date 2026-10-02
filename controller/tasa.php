@@ -481,15 +481,15 @@ switch ($_GET["op"]) {
                     // For the first row
                     if ($row["est"] == 2) {
                         // If the first occurrence is "Pagado," mark all subsequent "Pendiente" checkboxes as checked
-                        $checkbox = "<input type='checkbox' class='form-check-input' name='detallecheck[]' value='" . $row["tasatciud_id"] . "' data-estado='" . $row["est"] . "' disabled>";
+                        $checkbox = "<input type='checkbox' class='form-check-input' name='detallecheck[]' value='" . $row["tasatciud_id"] . "' data-estado='" . $row["est"] . "' data-monto='" . $row["tasaproced_monto"] . "' disabled>";
                     } else {
                         // For other states or when handling "Pendiente" after "Pagado," show a checkbox accordingly
                         $checked = "";
-                        $checkbox = "<input type='checkbox' class='form-check-input' name='detallecheck[]' value='" . $row["tasatciud_id"] . "' data-estado='" . $row["est"] . "' disabled $checked>";
+                        $checkbox = "<input type='checkbox' class='form-check-input' name='detallecheck[]' value='" . $row["tasatciud_id"] . "' data-estado='" . $row["est"] . "' data-monto='" . $row["tasaproced_monto"] . "' disabled $checked>";
                     }
                 } else {
                     // For other rows
-                    $checkbox = ($datos[0]["est"] !== 3) ? "<input type='checkbox' class='form-check-input' name='detallecheck[]' value='" . $row["tasatciud_id"] . "' data-estado='" . $row["est"] . "' disabled checked>" : "<input type='checkbox' class='form-check-input' name='detallecheck[]' value='" . $row["tasatciud_id"] . "' data-estado='" . $row["est"] . "' disabled>";
+                    $checkbox = ($datos[0]["est"] !== 3) ? "<input type='checkbox' class='form-check-input' name='detallecheck[]' value='" . $row["tasatciud_id"] . "' data-estado='" . $row["est"] . "' data-monto='" . $row["tasaproced_monto"] . "' disabled checked>" : "<input type='checkbox' class='form-check-input' name='detallecheck[]' value='" . $row["tasatciud_id"] . "' data-estado='" . $row["est"] . "' data-monto='" . $row["tasaproced_monto"] . "' disabled>";
                 }
             } else {
                 if ($tcampo === 3) {
@@ -507,7 +507,7 @@ switch ($_GET["op"]) {
                 $checkedCheckbox = ($row["est"] !== 3) ? "checked" : "";
                 $checkedCheckbox = ($row["est"] !== 0) ? "checked" : "";
 
-                $checkbox = "<input type='checkbox' class='form-check-input' name='detallecheck[]' value='" . $row["tasatciud_id"] . "' data-estado='" . $row["est"] . "' $disabledCheckbox $checkedCheckbox>";
+                $checkbox = "<input type='checkbox' class='form-check-input' name='detallecheck[]' value='" . $row["tasatciud_id"] . "' data-estado='" . $row["est"] . "' data-monto='" . $row["tasaproced_monto"] . "' $disabledCheckbox $checkedCheckbox>";
             }
 
             $sub_array[] = $checkbox;

@@ -172,13 +172,32 @@ function detalleEditar(e) {
         $("#detalle_data").DataTable().ajax.reload();
         $("#modalmantenimiento").modal("hide");
 
-        Swal.fire({
-          title: "Correcto!",
-          text: `Se Registró Correctamente.\nCódigo: ${res.codigo}`,
-          icon: "success",
-          confirmButtonText: "Aceptar",
-          timer: 4000
-        });
+        if (res.procedciudadano_id) {
+          const Toast = Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 2500,
+            timerProgressBar: true
+          });
+          Toast.fire({
+            icon: "success",
+            title: `Registrado: ${res.codigo}`
+          });
+
+          // Encadenar apertura directa del modal de tasas
+          setTimeout(function () {
+            ver(res.procedciudadano_id);
+          }, 350);
+        } else {
+          Swal.fire({
+            title: "¡Correcto!",
+            text: `Se Registró Correctamente.\nCódigo: ${res.codigo}`,
+            icon: "success",
+            confirmButtonText: "Aceptar",
+            timer: 4000
+          });
+        }
       } else {
         Swal.fire({
           title: "Error!",
@@ -233,6 +252,11 @@ $(document).ready(function () {
 
     // Actualizar el nombre del trámite en el encabezado del modal
     $("#nombreproced").text("Nombre del Trámite: " + nombreproced);
+  });
+
+  // Calculo en vivo del total de tasas seleccionadas
+  $(document).on("change input", "#tasaListContainer input[type='checkbox'], #tasaListContainer input[type='number']", function () {
+    calcularTotalTasas();
   });
 });
 
@@ -710,6 +734,33 @@ function cargardata_reload(proced_id) {
     // Puedes realizar acciones adicionales si deseas, como mostrar un mensaje de error personalizado
   }
 }
+function calcularTotalTasas() {
+  let total = 0;
+  let seleccionadas = 0;
+  let totalDisponibles = 0;
+
+  $("#tasaListContainer .list-group-item").each(function () {
+    const $checkbox = $(this).find("input[type='checkbox']");
+    if ($checkbox.length && $checkbox.data("estado") == 1) {
+      totalDisponibles++;
+      if ($checkbox.prop("checked")) {
+        const monto = parseFloat($checkbox.data("monto")) || 0;
+        const $cantInput = $(this).find("input[type='number']");
+        const cantidad = $cantInput.length ? (parseInt($cantInput.val()) || 1) : 1;
+        total += monto * cantidad;
+        seleccionadas++;
+      }
+    }
+  });
+
+  if (totalDisponibles > 1) {
+    $("#IDpagarGrupo").html(
+      `<i class="fa fa-dollar mr-2"></i> Girar Seleccionadas (${seleccionadas}) - S/ ${total.toFixed(2)}`
+    );
+    $("#IDpagarGrupo").prop("disabled", seleccionadas === 0);
+  }
+}
+
 function listarTasas(proceciudadano_id) {
   // Muestra un spinner dentro del contenedor de tasas
   $("#tasaListContainer").html(
@@ -766,9 +817,10 @@ function listarTasas(proceciudadano_id) {
       $("#tasaListContainer").html(html);
       $("#IDpagarGrupo").attr("data-procedciudadano_id", proceciudadano_id);
 
-      // Mostrar "Girar en Grupo" solo cuando exista mas de 1 tasa
+      // Mostrar "Girar en Grupo" solo cuando exista mas de 1 tasa y calcular total inicial
       if (response.aaData && response.aaData.length > 1) {
         $("#IDpagarGrupo").show();
+        calcularTotalTasas();
       } else {
         $("#IDpagarGrupo").hide();
       }
@@ -1561,9 +1613,10 @@ function ver(tamiteciudadano_id) {
   $("#modalAlert").hide();
   $("#modalSpinner").show();
 
-  // Establece el estado
-  var estado = parseInt($("#" + tamiteciudadano_id).data("estado"));
-  $("#estado_procedimiento").val(estado);
+  // Establece el estado inicial de forma segura
+  var estadoDom = $("#" + tamiteciudadano_id).data("estado");
+  var estado = typeof estadoDom !== "undefined" ? parseInt(estadoDom) : 1;
+  $("#estado_procedimiento").val(isNaN(estado) ? 1 : estado);
 
   // Cargar la tabla de tasas (según tu lógica)
 
@@ -1578,6 +1631,9 @@ function ver(tamiteciudadano_id) {
     success: function (data) {
       if (data && data.length > 0) {
         var item = data[0];
+        if (typeof item.est !== "undefined" && item.est !== null) {
+          $("#estado_procedimiento").val(parseInt(item.est));
+        }
         // Actualiza el header del modal
         var codigo = item.procedciudadano_cod;
         var nombre = item.proced_nom;
