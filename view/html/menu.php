@@ -91,7 +91,7 @@
                     
                     <div class="dropdown-menu">
                       <a href="../mnt_tupa/" class="dropdown-item">
-                        TUPA
+                        Documentos
                       </a>
                       <a href="../mnt_procedimiento/" class="dropdown-item">
                         Procedimientos
