@@ -511,39 +511,49 @@ switch ($_GET["op"]) {
 
         $data = [];
         foreach ($datos as $r) {
-            if ($r["ciud_estado"] === "A") {
-                $estadoClass = "green";
-                $estadoTexto = "Activo";
-                $iconCambio  = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" stroke="orange" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon dropdown-item-icon"><path stroke="none" d="M0 0h24v24H0z"/><path d="M18 6L6 18M6 6l12 12"/></svg> Inactivar';
-            } else {
-                $estadoClass = "red";
-                $estadoTexto = "Inactivo";
-                $iconCambio  = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" stroke="green" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon dropdown-item-icon"><path stroke="none" d="M0 0h24v24H0z"/><path d="M5 12l5 5L20 7"/></svg> Activar';
-            }
+            $isActivo = ($r["ciud_estado"] === "A");
+            $estadoBadge = $isActivo 
+                ? '<span class="badge bg-success-lt">Activo</span>' 
+                : '<span class="badge bg-danger-lt">Inactivo</span>';
 
-            $acciones = '
-            <div class="dropdown">
-             <a href="#" class="btn dropdown-toggle" data-bs-toggle="dropdown">
-                         <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-nut"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19 6.84a2.007 2.007 0 0 1 1 1.754v6.555c0 .728 -.394 1.4 -1.03 1.753l-6 3.844a1.995 1.995 0 0 1 -1.94 0l-6 -3.844a2.006 2.006 0 0 1 -1.03 -1.752v-6.557c0 -.728 .394 -1.399 1.03 -1.753l6 -3.582a2.049 2.049 0 0 1 2 0l6 3.582h-.03z" /><path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /></svg>
-                    </a>
-              <div class="dropdown-menu">
-                <a class="dropdown-item" href="#" onclick="editar(' . $r["ciud_id"] . ', \'' . addslashes($r["ciud_nombre"] . ' ' . $r["ciud_primer_apellido"]) . '\')">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon dropdown-item-icon" width="24" height="24" stroke="orange" fill="none" stroke-width="2"><path stroke="none" d="M0 0h24v24H0z"/><path d="M4 20h4l10.5 -10.5a1.5 1.5 0 1 0 -4 -4L4 16v4z"/></svg> Editar
-                </a>
-                <a class="dropdown-item" href="#" onclick="cambiarEstado(' . $r["ciud_id"] . ', \'' . $r["ciud_estado"] . '\')">
-                  ' . $iconCambio . '
-                </a>
-              </div>
-            </div>';
+            $btnEditar = '<button type="button" class="btn btn-outline-primary btn-icon" onclick="editar(' . $r["ciud_id"] . ')" title="Editar ciudadano">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
+                    <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
+                    <path d="M16 5l3 3" />
+                </svg>
+            </button>';
+
+            $btnEstado = $isActivo
+                ? '<button type="button" class="btn btn-outline-warning btn-icon" onclick="cambiarEstado(' . $r["ciud_id"] . ', \'A\')" title="Inactivar ciudadano">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user-x" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                        <path d="M6 21v-2a4 4 0 0 1 4 -4h4" />
+                        <path d="M17 21l5 -5" />
+                        <path d="M22 21l-5 -5" />
+                    </svg>
+                   </button>'
+                : '<button type="button" class="btn btn-outline-success btn-icon" onclick="cambiarEstado(' . $r["ciud_id"] . ', \'I\')" title="Activar ciudadano">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user-check" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                        <path d="M6 21v-2a4 4 0 0 1 4 -4h4" />
+                        <path d="M16 19l2 2l4 -4" />
+                    </svg>
+                   </button>';
+
+            $acciones = '<div class="d-flex gap-1 justify-content-center">' . $btnEditar . $btnEstado . '</div>';
 
             $data[] = [
                 $r["ciud_id"],
-                $r["tipo_documento"],
-                $r["ciud_numero_documento"],
-                $r["ciud_primer_apellido"],
-                $r["ciud_segundo_apellido"],
-                $r["ciud_nombre"],
-                "<span class='badge bg-{$estadoClass} text-{$estadoClass}-fg'>{$estadoTexto}</span>",
+                '<span class="badge bg-blue-lt fw-bold">' . htmlspecialchars($r["tipo_documento"] ?? 'DNI') . '</span>',
+                htmlspecialchars($r["ciud_numero_documento"]),
+                htmlspecialchars($r["ciud_primer_apellido"]),
+                htmlspecialchars($r["ciud_segundo_apellido"] ?? ''),
+                htmlspecialchars($r["ciud_nombre"]),
+                $estadoBadge,
                 $acciones
             ];
         }
