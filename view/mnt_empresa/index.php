@@ -143,15 +143,15 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button class="btn btn-success" onclick="guardar()">Guardar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-success" id="btnGuardarEmpresa" onclick="guardar()">Guardar</button>
                     </div>
                 </div>
             </div>
         </div>
 
         <?php require_once("../html/mainjs.php"); ?>
-        <script src="empresa.js"></script>
+        <script src="empresa.js?v=<?php echo filemtime('empresa.js'); ?>"></script>
     </body>
 
     </html>

@@ -84,4 +84,19 @@
             }
         });
     });
+
+    // Prevención global: no permitir guardar ni enviar formularios al presionar Enter en modales
+    $(document).on("keydown", ".modal input, .modal select, .modal button, .modal .btn", function (e) {
+        if (e.key === "Enter" || e.keyCode === 13) {
+            // Permitir saltos de línea normales en textareas
+            if (e.target && e.target.tagName && e.target.tagName.toLowerCase() === "textarea") {
+                return;
+            }
+            // Permitir selección de opciones en buscadores de Select2
+            if ($(e.target).hasClass("select2-search__field")) {
+                return;
+            }
+            e.preventDefault();
+        }
+    });
 </script>

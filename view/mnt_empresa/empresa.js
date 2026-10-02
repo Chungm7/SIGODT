@@ -75,6 +75,39 @@ $(document).ready(function () {
     $("#select-estado").val("todos");
     listar_todos();
   });
+
+  $(document).on("keydown", "#empresaForm input", function (e) {
+    if (e.key === "Enter" || e.keyCode === 13) {
+      e.preventDefault();
+      const inputId = $(this).attr("id");
+
+      if (inputId === "empr_ruc") {
+        $("#empr_razon_social").focus().select();
+        return;
+      }
+
+      if (inputId === "empr_razon_social") {
+        $("#empr_nombre_comercial").focus().select();
+        return;
+      }
+
+      if (inputId === "empr_nombre_comercial") {
+        $("#empr_direccion").focus().select();
+        return;
+      }
+
+      if (inputId === "empr_direccion") {
+        return;
+      }
+    }
+  });
+
+  $(document).on("keydown", "#btnGuardarEmpresa", function (e) {
+    if (e.key === "Enter" || e.keyCode === 13) {
+      e.preventDefault();
+      return false;
+    }
+  });
 });
 
 function nuevoRegistro(){
@@ -82,6 +115,9 @@ function nuevoRegistro(){
   $("#empresaForm")[0].reset();
   $("#modal-title").text("Registrar Empresa");
   $("#empresaModal").modal("show");
+  setTimeout(function () {
+    $("#empr_ruc").focus();
+  }, 400);
 }
 
 function editar(id){

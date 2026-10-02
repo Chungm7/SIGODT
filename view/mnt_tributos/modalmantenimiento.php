@@ -20,7 +20,7 @@
                 </table>
             </div>
             <div class="modal-footer">
-                <button name="action" onclick="registrardetalle()" class="btn btn-primary">
+                <button type="button" name="action" onclick="registrardetalle()" class="btn btn-primary">
                     <i class="fa fa-check"></i> Guardar
                 </button>
                 <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">

@@ -164,9 +164,20 @@ $(document).ready(function () {
             }
 
             if (inputId === "ciud_fecha_nac") {
-                $("#btnGuardarCiudadano").focus();
+                $("#ciud_foto_file").focus();
                 return;
             }
+
+            if (inputId === "ciud_foto_file") {
+                return;
+            }
+        }
+    });
+
+    $(document).on("keydown", "#btnGuardarCiudadano", function (e) {
+        if (e.key === "Enter" || e.keyCode === 13) {
+            e.preventDefault();
+            return false;
         }
     });
 });
