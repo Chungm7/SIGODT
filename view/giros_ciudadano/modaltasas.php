@@ -88,7 +88,7 @@
 
                     </div>
                     <button id="IDpagarGrupo" onclick="pagargrupo()"
-                        class="btn btn-primary tx-12 tx-uppercase pd-y-10 pd-x-20">
+                        class="btn btn-primary tx-12 tx-uppercase pd-y-10 pd-x-20" style="display: none;">
                         <i class="fa fa-dollar mr-2"></i> Girar en Grupo
                     </button>
                 </div>
@@ -99,9 +99,9 @@
             </div>
             <!-- Footer -->
             <div class="modal-footer">
-                <button type="reset" name="action" value="add" onclick="recargarTabla()"
-                    class="btn btn-outline-primary tx-11 tx-uppercase pd-y-12 pd-x-25" data-bs-dismiss="modal">
-                    <i class="fa fa-check"></i> Aceptar
+                <button type="button" onclick="recargarTabla()"
+                    class="btn btn-secondary tx-12 pd-y-10 pd-x-20" data-bs-dismiss="modal">
+                    <i class="fa fa-times me-1"></i> Cerrar
                 </button>
             </div>
         </div>

@@ -525,19 +525,19 @@ switch ($_GET["op"]) {
             if ($row["est"] == 1) {
                 if ($tcampo === 2) {
                     if ($i == 0) {
-                        $pago_button = '<button type="button" onClick="pagar(' . $row["tasatciud_id"] . ',' . $_POST["proceciudadano_id"] . ');"  id="' . $row["tasatciud_id"] . '" class="btn btn-outline-primary btn-icon">' . $icon_class . '</button>';
+                        $pago_button = '<button type="button" onClick="pagar(' . $row["tasatciud_id"] . ',' . $_POST["proceciudadano_id"] . ');" id="' . $row["tasatciud_id"] . '" class="btn btn-outline-primary btn-icon" title="Emitir Orden de Giro">' . $icon_class . '</button>';
                     } else {
                         $pago_button = '';
                     }
                 } else if ($tcampo === 3) {
                     $pago_button = '';
                 } else {
-                    $pago_button = '<button type="button" onClick="pagar(' . $row["tasatciud_id"] . ',' . $_POST["proceciudadano_id"] . ',' . $_POST["est"] . ');"  id="' . $row["tasatciud_id"] . '" class="btn btn-outline-primary btn-icon">' . $icon_class . '</button>';
+                    $pago_button = '<button type="button" onClick="pagar(' . $row["tasatciud_id"] . ',' . $_POST["proceciudadano_id"] . ',' . $_POST["est"] . ');" id="' . $row["tasatciud_id"] . '" class="btn btn-outline-primary btn-icon" title="Emitir Orden de Giro">' . $icon_class . '</button>';
                 }
             } else if ($row["est"] !== 3 || $row["est"] !== 0 || $row["est"] !== 6) {
                 if ($tcampo === 2) {
                     if ($i == 0) {
-                        $pago_button = '<button type="button" onClick="imprimir(' . $row["tasatciud_id"] . ');"  id="' . $row["tasatciud_id"] . '" class="btn btn-outline-danger btn-icon"><svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-printer"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" /><path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /></svg>  </button>';
+                        $pago_button = '<button type="button" onClick="imprimir(' . $row["tasatciud_id"] . ');" id="' . $row["tasatciud_id"] . '" class="btn btn-outline-danger btn-icon" title="Imprimir Comprobante"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-printer"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" /><path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /></svg></button>';
                     } else {
                         $pago_button = '';
                     }

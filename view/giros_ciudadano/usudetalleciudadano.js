@@ -765,6 +765,13 @@ function listarTasas(proceciudadano_id) {
 
       $("#tasaListContainer").html(html);
       $("#IDpagarGrupo").attr("data-procedciudadano_id", proceciudadano_id);
+
+      // Mostrar "Girar en Grupo" solo cuando exista mas de 1 tasa
+      if (response.aaData && response.aaData.length > 1) {
+        $("#IDpagarGrupo").show();
+      } else {
+        $("#IDpagarGrupo").hide();
+      }
     },
     error: function (xhr, status, error) {
       console.error("Error al cargar tasas:", error);
@@ -1243,11 +1250,21 @@ function pagar(tasatciudadano_id, procedciudadano_id, estadotasa) {
           listarGiros(procedciudadano_id);
 
           Swal.fire({
-            title: "Orden de Giro Exitosa",
-            text: "Espere a la validación del pago.",
+            title: "¡Orden de Giro Exitosa!",
+            text: "¿Desea imprimir el comprobante térmico ahora?",
             icon: "success",
-            confirmButtonText: "Aceptar",
-            confirmButtonColor: "#5cb85c"
+            showCancelButton: true,
+            confirmButtonText: '<i class="fa fa-print me-1"></i> Imprimir Ticket',
+            cancelButtonText: '<i class="fa fa-times me-1"></i> Cerrar',
+            confirmButtonColor: "#206bc4",
+            cancelButtonColor: "#6c757d",
+            focusConfirm: true
+          }).then((result) => {
+            if (result.isConfirmed) {
+              imprimir(tasatciudadano_id);
+            }
+            $("#modaltasas").modal("hide");
+            recargarTabla();
           });
         }
       }
@@ -1364,21 +1381,34 @@ function pagargrupo() {
               // window.location.href = "tu-pagina-de-error.php";
             });
           } else if (data.success) {
-            // Si el backend indica éxito
-            Swal.fire({
-              title: "Orden de Giro Exitosa",
-              text: "Espere a la validación del pago.",
-              icon: "success",
-              confirmButtonText: "Aceptar",
-              confirmButtonColor: "#5cb85c"
-            });
-
-            // Recargar las tablas y mostrar éxito
+            // Recargar las tablas y datos
             $("#detalle_data").DataTable().ajax.reload();
             $("#data_tasa").DataTable().ajax.reload();
             getdataload();
             listarTasas(procedciudadano_id);
             listarGiros(procedciudadano_id);
+
+            Swal.fire({
+              title: "¡Orden de Giro Exitosa!",
+              text: "¿Desea imprimir los comprobantes térmicos ahora?",
+              icon: "success",
+              showCancelButton: true,
+              confirmButtonText: '<i class="fa fa-print me-1"></i> Imprimir Tickets',
+              cancelButtonText: '<i class="fa fa-times me-1"></i> Cerrar',
+              confirmButtonColor: "#206bc4",
+              cancelButtonColor: "#6c757d",
+              focusConfirm: true
+            }).then((result) => {
+              if (result.isConfirmed) {
+                redirect_by_post(
+                  "../../controller/rc.php?op=imprimir",
+                  { tasatciudadano_id: tasatciud_id.join(",") },
+                  true
+                );
+              }
+              $("#modaltasas").modal("hide");
+              recargarTabla();
+            });
           }
         }).fail(function (xhr, status, error) {
           // Si la llamada AJAX falla
