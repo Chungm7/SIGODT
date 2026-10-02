@@ -6,7 +6,7 @@ class tupa extends Conectar
     {
         $conectar = parent::conexion();
         parent::set_names();
-        $sql = "INSERT INTO sc_giros.tm_tupa(tupa_nom,tupa_año,est) VALUES (?,?,1, ?);";
+        $sql = "INSERT INTO sc_giros.tm_tupa(tupa_nom, tupa_año, est, tipo_doc) VALUES (?, ?, 1, ?);";
         $sql = $conectar->prepare($sql);
         $sql->bindValue(1, $tupa_nom);
         $sql->bindValue(2, $tupa_año);
