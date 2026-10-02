@@ -169,32 +169,32 @@ switch ($_GET["op"]) {
             $sub_array[] = $fecha;
 
             $obligatorio = $row["proced_tipocampo"];
-
             if ($obligatorio == "1") {
-                $sub_array[] = '<span title="Cuando no son obligatorios, se pagan uno por uno dejando libre cuál pagar primero.">NO Obligatorios</span>';
+                $sub_array[] = '<span class="badge bg-secondary-lt" title="No obligatorios: se pagan de forma independiente.">No Obligatorios</span>';
             } else if ($obligatorio == "2") {
-                $sub_array[] = '<span title="Cuando son obligatorios, todas  las tasas se pagan en orden de prioridad, sin saltearse.">Obligatorios</span>';
+                $sub_array[] = '<span class="badge bg-blue-lt" title="Obligatorios: se pagan en estricto orden de prioridad.">Obligatorios</span>';
             } else {
-                $sub_array[] = '<span title="Obligatorio sin unidad: se deben pagar todas las tasas en un solo pago.">Obligatorios (Sin Unidad)</span>';
+                $sub_array[] = '<span class="badge bg-warning-lt" title="Obligatorio sin unidad: pago conjunto de tasas.">Obligatorios (Sin Unidad)</span>';
             }
 
             $administrado_tipo = $row["proced_administradotipo"];
             if ($administrado_tipo == "C") {
-                $sub_array[] = 'Ciudadano';
+                $sub_array[] = '<span class="badge bg-azure-lt">Ciudadano</span>';
             } else if ($administrado_tipo == "E") {
-                $sub_array[] = 'Ciudadano  y Empresa';
+                $sub_array[] = '<span class="badge bg-purple-lt">Ciudadano y Empresa</span>';
             } else {
-                $sub_array[] = 'Ambos Pero Empresa es opcional';
-            }
-            $administrado_indv = $row["proced_tipoindvasc"];
-            if ($administrado_indv == "V") {
-                $sub_array[] = 'Vehiculo';
-            } else {
-                $sub_array[] = 'Ciudadano';
+                $sub_array[] = '<span class="badge bg-teal-lt">Ambos (Empresa opcional)</span>';
             }
 
-            $sub_array[] = '<button type="button" onClick="editar(' . $row["proced_id"] . ');"  id="' . $row["proced_id"] . '" class="btn btn-outline-warning btn-icon"><div><i class="fa fa-edit"></i></div></button>';
-            $sub_array[] = '<button type="button" onClick="eliminar(' . $row["proced_id"] . ');"  id="' . $row["proced_id"] . '" class="btn btn-outline-danger btn-icon"><svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-trash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg> </button>';
+            $administrado_indv = $row["proced_tipoindvasc"];
+            if ($administrado_indv == "V") {
+                $sub_array[] = '<span class="badge bg-orange-lt">Vehículo</span>';
+            } else {
+                $sub_array[] = '<span class="badge bg-cyan-lt">Ciudadano</span>';
+            }
+
+            $sub_array[] = '<button type="button" onClick="editar(' . $row["proced_id"] . ');" id="' . $row["proced_id"] . '" class="btn btn-outline-warning btn-icon" title="Editar"><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg></button>';
+            $sub_array[] = '<button type="button" onClick="eliminar(' . $row["proced_id"] . ');" id="' . $row["proced_id"] . '" class="btn btn-outline-danger btn-icon" title="Eliminar"><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg></button>';
             $data[] = $sub_array;
         }
 
