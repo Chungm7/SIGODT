@@ -641,7 +641,7 @@ function recargarTabla(event) {
     return;
   }
 
-  const spinner = '<i class="fa fa-spinner fa-spin"></i>'; // Spinner de carga
+  const spinner = '<span class="spinner-border spinner-border-sm" role="status"></span>';
 
   // Mostrar spinner de carga y deshabilitar el botón 
   button.disabled = true;
@@ -661,7 +661,7 @@ function recargarTabla(event) {
 
   setTimeout(() => {
     button.disabled = false;
-    button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+    button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="22" height="22" viewBox="0 0 24 24"
                            stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                            <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />

@@ -242,8 +242,8 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                     <div class="card-header d-flex justify-content-between align-items-center py-2">
                       <h3 class="card-title fw-bold mb-0">Listado de Procedimientos Abiertos</h3>
                       <div class="card-actions">
-                        <button type="button" class="btn btn-sm btn-icon btn-outline-secondary" id="btnRecargar" title="Actualizar listado" onclick="recargarTabla(event)">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <button type="button" class="btn btn-icon btn-outline-secondary" id="btnRecargar" title="Actualizar listado" onclick="recargarTabla(event)">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="22" height="22" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                             <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
                             <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
