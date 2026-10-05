@@ -69,8 +69,11 @@ $isMntActive = (strpos($currentPage, '/mnt_') !== false);
               </span>
             </a>
             <div class="dropdown-menu">
-              <a href="../giros_ciudadano/" class="dropdown-item <?php echo $isProcesosActive ? 'active' : ''; ?>">
+              <a href="../giros_ciudadano/" class="dropdown-item <?php echo (strpos($currentPage, '/giros_ciudadano/') !== false) ? 'active' : ''; ?>">
                 Órdenes de Derecho de Trámite
+              </a>
+              <a href="../admin_giros_ciudadano/" class="dropdown-item <?php echo (strpos($currentPage, '/admin_giros_ciudadano/') !== false) ? 'active' : ''; ?>">
+                Auditoría de Órdenes de Giro
               </a>
             </div>
           </li>

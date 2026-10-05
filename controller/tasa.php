@@ -233,35 +233,35 @@ switch ($_GET["op"]) {
 
             // Determinar el estado y el color
             $estado = '';
-            $color = '';
+            $color_barra = '';
             switch ($row["est"]) {
                 case 0:
                     $estado = "Anulado";
-                    $color = "#dc3545"; // Rojo
+                    $color_barra = 'danger';
                     break;
                 case 1:
                     $estado = "Pendiente";
-                    $color = "#ffc107"; // Amarillo
+                    $color_barra = 'warning';
                     break;
                 case 2:
                     $estado = "Girado";
-                    $color = "#28a745"; // Verde
+                    $color_barra = 'success';
                     break;
                 case 3:
                     $estado = "Improcedente";
-                    $color = "#dc3545"; // Rojo
+                    $color_barra = 'danger';
                     break;
                 case 4:
                     $estado = "Pagado";
-                    $color = "#007bff"; // Azul
+                    $color_barra = 'primary';
                     break;
                 case 5:
                     $estado = "Completado";
-                    $color = "#6f42c1"; // Morado
+                    $color_barra = 'purple';
                     break;
                 default:
                     $estado = "Extornado";
-                    $color = "#000000"; // Negro
+                    $color_barra = 'secondary';
                     break;
             }
 
@@ -275,30 +275,26 @@ switch ($_GET["op"]) {
 
             $sub_array[] = $row["tasa_nom"];
             $sub_array[] = 'S/  ' . $row["tasaproced_monto"];
-            $estado_html = '<div style="background-color: ' . $color . '; display: flex; align-items: center; justify-content: center; height: 5px; text-align: center; color: white; border-radius: 12px; box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1); padding: 15px 10px;">' . $estado . ' </div>';
+            $estado_html = '<span class="badge bg-' . $color_barra . ' text-' . $color_barra . '-fg">' . $estado . '</span>';
             $sub_array[] = $estado_html;
 
             // Configuración del botón "Pagar" o "Cancelar Pago"
-            $icon_class = ($row["est"] == 2) ? "fa fa-times" : "fa fa-money"; // Cambiar el icono según el estado
             $pago_button = '';
+            $coin_svg = '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-coin" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M14.8 9a2 2 0 0 0 -1.8 -1h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1 -1.8 -1" /><path d="M12 7v10" /></svg>';
+            $cancel_svg = '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg>';
+            $print_svg = '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-printer" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" /><path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /></svg>';
 
             if ($row["est"] == 1) {
-                $pago_button = '<button type="button" onClick="pagar(' . $row["tasatciud_id"] . ',' . $_POST["proceciudadano_id"] . ');"  id="' . $row["tasatciud_id"] . '" class="btn btn-outline-primary btn-icon"><div><i class="' . $icon_class . '"></i></div></button>';
+                $pago_button = '<button type="button" onClick="pagar(' . (int)$row["tasatciud_id"] . ',' . (int)$_POST["proceciudadano_id"] . ');" id="' . (int)$row["tasatciud_id"] . '" class="btn btn-outline-primary btn-icon" title="Girar tasa">' . $coin_svg . '</button>';
             } elseif ($row["est"] == 2) {
-                $pago_button = '<button type="button" onClick="cancelarPago(' . $row["tasatciud_id"] . ',' . $_POST["proceciudadano_id"] . ');"  id="' . $row["tasatciud_id"] . '" class="btn btn-outline-primary btn-icon"><div><i class="' . $icon_class . '"></i></div></button>';
+                $pago_button = '<button type="button" onClick="cancelarPago(' . (int)$row["tasatciud_id"] . ',' . (int)$_POST["proceciudadano_id"] . ');" id="' . (int)$row["tasatciud_id"] . '" class="btn btn-outline-danger btn-icon" title="Cancelar giro">' . $cancel_svg . '</button>';
             }
-
-            // Deshabilitar el botón si el estado es "Improcedente" o "Anulado"
-            $disabled_attr = ($row["est"] == 3 || $row["est"] == 0) ? 'disabled' : '';
             $sub_array[] = $pago_button;
 
-            // Botón "Imprimir" con un icono de impresora
             $imprimir_button = '';
-            // Solo mostrar el botón de imprimir si el estado es "Girado"
             if ($row["est"] == 2) {
-                $imprimir_button = '<button type="button" onClick="imprimir(' . $row["tasatciud_id"] . ');"  id="' . $row["tasatciud_id"] . '" class="btn btn-outline-danger btn-icon"><div><i class="fa fa-print"></i></div></button>';
+                $imprimir_button = '<button type="button" onClick="imprimir(' . (int)$row["tasatciud_id"] . ');" id="' . (int)$row["tasatciud_id"] . '" class="btn btn-outline-secondary btn-icon" title="Imprimir tasa">' . $print_svg . '</button>';
             }
-
             $sub_array[] = $imprimir_button;
             $data[] = $sub_array;
         }

@@ -483,10 +483,13 @@ try {
                 $sub_array['estado'] = $estado['estado'];  // Nombre del estado
                 $sub_array['badge'] = $estado['badge'];    // Clase de badge para el color
 
+                $edit_svg = '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-pencil" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" /><path d="M13.5 6.5l4 4" /></svg>';
+                $print_svg = '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-printer" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" /><path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /></svg>';
+
                 // Botones de acción
                 $sub_array['acciones'] = array(
-                    'editar' => '<button type="button" onClick="cambiarcomentario(\'' . (string) $row['ogciud_id'] . '\');"  id="' . (string) $row['ogciud_id'] . '" class="btn btn-ghost-warning btn-sm" title="Editar"><i class="fa fa-edit"></i> Editar</button>',
-                    'imprimir' => '<button type="button" onClick="imprimirGiro(\'' . (string) $row['ogciud_id'] . '\');"  id="' . (string) $row['ogciud_id'] . '" class="btn btn-ghost-danger btn-sm" title="Imprimir"><i class="fa fa-print"></i> Imprimir</button>'
+                    'editar' => '<button type="button" onClick="cambiarcomentario(\'' . (string) $row['ogciud_id'] . '\');" id="' . (string) $row['ogciud_id'] . '" class="btn btn-ghost-warning btn-sm" title="Editar">' . $edit_svg . ' Editar</button>',
+                    'imprimir' => '<button type="button" onClick="imprimirGiro(\'' . (string) $row['ogciud_id'] . '\');" id="' . (string) $row['ogciud_id'] . '" class="btn btn-ghost-danger btn-sm" title="Imprimir">' . $print_svg . ' Imprimir</button>'
                 );
 
                 // Agregar cada orden de giro al array de resultados
@@ -501,6 +504,9 @@ try {
         case "listargiros_total":
             $datos = $recibo->get_giros_total($_SESSION["usu_depe_id_SIGODT"]);
             $data = array();
+            $edit_svg20 = '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-pencil" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" /><path d="M13.5 6.5l4 4" /></svg>';
+            $print_svg20 = '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-printer" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" /><path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /></svg>';
+
             foreach ($datos as $row) {
                 $sub_array = array();
                 $sub_array[] = $row["ogciud_id"];
@@ -515,16 +521,15 @@ try {
 
                 // Verifica si el estado es igual a 1 para habilitar o deshabilitar el botón de edición de comentario
                 if ($row["orden_est"] == 1) {
-                    $sub_array[] = '<button type="button" style="cursor:pointer" onClick="cambiarcomentario(\'' . (string) $row['ogciud_id'] . '\');"  id="' . (string) $row['ogciud_id'] . '" class="btn btn-outline-warning btn-icon"><div><i class="fa fa-edit"></i></div></button>';
+                    $sub_array[] = '<button type="button" onClick="cambiarcomentario(\'' . (string) $row['ogciud_id'] . '\');" id="' . (string) $row['ogciud_id'] . '" class="btn btn-outline-warning btn-icon" title="Editar comentario">' . $edit_svg20 . '</button>';
                 } else {
-                    $sub_array[] = '<button type="button"  disabled class="btn btn-outline-warning btn-icon"><div><i class="fa fa-edit"></i></div></button>';
+                    $sub_array[] = '<button type="button" disabled class="btn btn-outline-secondary btn-icon" title="Editar comentario">' . $edit_svg20 . '</button>';
                 }
                 if ($row["orden_est"] != 0) {
-                    $sub_array[] = '<button type="button"style="cursor:pointer" onClick="imprimirGiro(\'' . (string) $row['ogciud_id'] . '\');"  id="' . (string) $row['ogciud_id'] . '" class="btn btn-outline-danger btn-icon"><div><i class="fa fa-print"></i></div></button>';
+                    $sub_array[] = '<button type="button" onClick="imprimirGiro(\'' . (string) $row['ogciud_id'] . '\');" id="' . (string) $row['ogciud_id'] . '" class="btn btn-outline-danger btn-icon" title="Imprimir orden">' . $print_svg20 . '</button>';
                 } else {
-                    $sub_array[] = '<button type="button" disabled class="btn btn-outline-warning btn-icon"><div><i class="fa fa-print"></i></div></button>';
+                    $sub_array[] = '<button type="button" disabled class="btn btn-outline-secondary btn-icon" title="Imprimir orden">' . $print_svg20 . '</button>';
                 }
-
 
                 $data[] = $sub_array;
             }
@@ -555,37 +560,37 @@ function obtenerEstado($estadoInput)
         case 0:
             return [
                 'estado' => 'Anulado',
-                'badge' => 'bg-red-lt' // Rojo
+                'badge' => 'badge bg-danger text-danger-fg'
             ];
         case 1:
             return [
                 'estado' => 'Pendiente',
-                'badge' => 'bg-yellow-lt' // Amarillo
+                'badge' => 'badge bg-warning text-warning-fg'
             ];
         case 2:
             return [
                 'estado' => 'Girado',
-                'badge' => 'bg-green-lt' // Verde
+                'badge' => 'badge bg-success text-success-fg'
             ];
         case 3:
             return [
                 'estado' => 'Improcedente',
-                'badge' => 'bg-red-lt' // Rojo
+                'badge' => 'badge bg-danger text-danger-fg'
             ];
         case 4:
             return [
                 'estado' => 'Pagado',
-                'badge' => 'bg-blue-lt' // Azul
+                'badge' => 'badge bg-primary text-primary-fg'
             ];
         case 5:
             return [
-                'estado' => 'Completado',
-                'badge' => 'bg-purple-lt' // Morado
+                'estado' => 'Usado',
+                'badge' => 'badge bg-purple text-purple-fg'
             ];
         default:
             return [
                 'estado' => 'Extornado',
-                'badge' => 'bg-orange-lt' // Naranja
+                'badge' => 'badge bg-secondary text-secondary-fg'
             ];
     }
 }

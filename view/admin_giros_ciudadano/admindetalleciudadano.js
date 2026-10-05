@@ -79,7 +79,7 @@ function detalleEditar(e) {
       // Bloquear el botón de guardar y mostrar una animación de carga
       $("#btnguardar").prop("disabled", true);
       $("#btnguardar").html(
-        '<i class="fa fa-spinner fa-spin"></i> Procesando...'
+        '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Procesando...'
       );
 
       var formData = new FormData($("#ciudadanosdetalles_form")[0]);
@@ -115,7 +115,7 @@ function detalleEditar(e) {
 
           // Desbloquear el botón de guardar y restaurar su contenido original
           $("#btnguardar").prop("disabled", false);
-          $("#btnguardar").html('<i class="fa fa-check"></i> Guardar');
+          $("#btnguardar").html('<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check me-1" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10"/></svg> Guardar');
 
           $("#detalle_data").DataTable().ajax.reload();
           $("#modalmantenimiento").modal("hide");
@@ -131,7 +131,7 @@ function detalleEditar(e) {
         error: function (xhr, status, error) {
           // En caso de error, también desbloqueamos el botón y restauramos su contenido original
           $("#btnguardar").prop("disabled", false);
-          $("#btnguardar").html('<i class="fa fa-check"></i> Guardar');
+          $("#btnguardar").html('<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check me-1" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10"/></svg> Guardar');
 
           // Aquí puedes manejar el error de acuerdo a tus necesidades
           console.error("Error en la solicitud AJAX:", status, error);
@@ -491,37 +491,43 @@ function cargardata() {
   proced_id = 0;
 }
 function recargarTabla() {
-  var button = document.querySelector(".btn-group button");
-  var spinner = '<i class="fa fa-spinner fa-spin"></i>'; // Spinner de carga
+  var button = document.getElementById("btnRecargar") || document.querySelector(".card-actions button") || document.querySelector(".btn-group button");
+  var spinner = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+  var refreshIcon = '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="22" height="22" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -5v5h5" /><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 5v-5h-5" /></svg>';
+
   $.post("../../controller/api_reload.php", function (data, status) {
     console.log(data);
   });
 
   // Mostrar spinner de carga
-  button.disabled = true;
-  button.innerHTML = spinner;
+  if (button) {
+    button.disabled = true;
+    button.innerHTML = spinner;
+  }
 
   // Ejecutar cargardata_reload dentro de un try...catch
   try {
-    procediminto_id = $("#proced_id").val();
+    var procediminto_id = $("#proced_id").val();
     if (
       typeof procediminto_id !== "undefined" &&
       procediminto_id !== null &&
       procediminto_id !== ""
     ) {
-      procediminto_id = $("#proced_id").val();
       cargardata_reload(procediminto_id);
-      console.log("recargand");
+    } else if ($.fn.DataTable.isDataTable("#detalle_data")) {
+      $("#detalle_data").DataTable().ajax.reload();
     }
   } catch (error) {
     console.error("Error al ejecutar cargardata_reload:", error);
   }
 
-  // Restaurar el botón después de un tiempo (simulado)
+  // Restaurar el botón después de un tiempo
   setTimeout(function () {
-    button.disabled = false;
-    button.innerHTML = '<i class="fa fa-refresh"></i>';
-  }, 1000);
+    if (button) {
+      button.disabled = false;
+      button.innerHTML = refreshIcon;
+    }
+  }, 800);
 }
 function cargardata_reload(proced_id) {
   try {
@@ -844,9 +850,12 @@ function cambiarcomentario(ogciud_id) {
 }
 
 function tablaGiros(procedciudadano_id) {
+  if ($.fn.DataTable.isDataTable("#data_ordenes")) {
+    $("#data_ordenes").DataTable().destroy();
+  }
   $("#data_ordenes").DataTable({
     aProcessing: true,
-    aServerSide: true,
+    aServerSide: false,
     dom: "Bfrtip",
     searching: false,
     ordering: false,
@@ -854,9 +863,16 @@ function tablaGiros(procedciudadano_id) {
     ajax: {
       url: "../../controller/rc.php?op=listargiros",
       type: "post",
-      data: { procedciudadano_id: procedciudadano_id }
+      data: { procedciudadano_id: procedciudadano_id },
+      dataSrc: ""
     },
-
+    columns: [
+      { data: "ogciud_id", className: "text-center fw-bold" },
+      { data: "fecha", className: "text-center" },
+      { data: "ogciud_comentario" },
+      { data: "acciones.editar", className: "text-center" },
+      { data: "acciones.imprimir", className: "text-center" }
+    ],
     bDestroy: true,
     responsive: true,
     iDisplayLength: 10,
@@ -1048,9 +1064,10 @@ function pagargrupo() {
     });
   } else {
     // Deshabilitar el botón "Pagar todo" y mostrar un indicador de carga
+    var girarGrupoHtml = '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-coin me-1" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M14.8 9a2 2 0 0 0 -1.8 -1h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1 -1.8 -1" /><path d="M12 7v10" /></svg> <span>Girar en Grupo</span>';
     $("#IDpagarGrupo")
       .prop("disabled", true)
-      .html('<i class="fa fa-spinner fa-spin"></i> Procesando...');
+      .html('<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Procesando...');
 
     // Pedir al usuario que ingrese un comentario
     Swal.fire({
@@ -1088,7 +1105,7 @@ function pagargrupo() {
             });
 
             // Habilitar nuevamente el botón "Girar en Grupo"
-            $("#IDpagarGrupo").prop("disabled", false).html("Girar en Grupo");
+            $("#IDpagarGrupo").prop("disabled", false).html(girarGrupoHtml);
           }
         });
 
@@ -1096,7 +1113,7 @@ function pagargrupo() {
         $("#data_tasa").DataTable().ajax.reload();
       } else {
         // Si el usuario cancela, habilitar nuevamente el botón "Girar en Grupo"
-        $("#IDpagarGrupo").prop("disabled", false).html("Girar en Grupo");
+        $("#IDpagarGrupo").prop("disabled", false).html(girarGrupoHtml);
       }
     });
   }

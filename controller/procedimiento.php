@@ -431,20 +431,27 @@ switch ($_GET["op"]) {
             $fecha_formateada = date("Y-m-d H:i:s", strtotime($row["fechacrea"]));
             $sub_array[] = $fecha_formateada;
 
-            $estado_html = '<div style="background-color: ' . $color . '; display: flex; align-items: center; justify-content: center; height: 5px; text-align: center; color: white; border-radius: 12px; box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1); padding: 15px 10px;">' . $estado . ' </div>';
+            // Estado como badge nativo Tabler
+            $estado_html = '<span class="badge bg-' . $color_barra . ' text-' . $color_barra . '-fg">' . $estado . '</span>';
             $sub_array[] = $estado_html;
 
-            $progress_bar_html = '<div class="progress mg-b-20" style="font-size: 13px;display: flex; align-items: center;text-align: center; margin-block:20px;">
-                    <div class="progress-bar bg-' . $color_barra . ' wd-35p" role="progressbar" aria-valuenow="80" style="width:' . $porcentaje . '%"; aria-valuemin="0" aria-valuemax="100">' . $porcentaje . '%</div>
-                    </div>';
+            // Barra de progreso Tabler
+            $progress_bar_html = '<div class="d-flex align-items-center justify-content-center gap-2"><div class="progress progress-sm flex-fill" style="min-width: 60px;"><div class="progress-bar bg-' . $color_barra . '" style="width:' . $porcentaje . '%" role="progressbar" aria-valuenow="' . $porcentaje . '" aria-valuemin="0" aria-valuemax="100"></div></div><span class="text-secondary small fw-bold">' . $porcentaje . '%</span></div>';
             $sub_array[] = $progress_bar_html;
 
-            $procedencia_button = ($row["est"] == 3) ? '<button type="button" onClick="setProcedencia(' . $row["proceciudadano_id"] . ');" id="' . $row["proceciudadano_id"] . '" class="btn btn-outline-success btn-icon"><div><i class="fa fa-check"></i></div></button>' : '<button type="button" onClick="setProcedencia(' . $row["proceciudadano_id"] . ');" id="' . $row["proceciudadano_id"] . '" class="btn btn-outline-danger btn-icon"><div><i class="fa fa-ban"></i></div></button>';
+            $check_svg = '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg>';
+            $ban_svg = '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-ban" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M5.7 5.7l12.6 12.6" /></svg>';
+            $procedencia_button = ($row["est"] == 3) ? '<button type="button" onClick="setProcedencia(' . (int)$row["proceciudadano_id"] . ');" id="' . (int)$row["proceciudadano_id"] . '" class="btn btn-outline-success btn-icon" title="Habilitar trámite">' . $check_svg . '</button>' : '<button type="button" onClick="setProcedencia(' . (int)$row["proceciudadano_id"] . ');" id="' . (int)$row["proceciudadano_id"] . '" class="btn btn-outline-danger btn-icon" title="Marcar improcedente">' . $ban_svg . '</button>';
             $sub_array[] = $procedencia_button;
 
-            $sub_array[] = '<button type="button" onClick="editar(' . $row["proceciudadano_id"] . ');"  id="' . $row["proceciudadano_id"] . '" class="btn btn-outline-warning btn-icon"><div><i class="fa fa-edit"></i></div></button>';
-            $sub_array[] = '<button type="button" onClick="eliminar(' . $row["proceciudadano_id"] . ');"  id="' . $row["proceciudadano_id"] . '" class="btn btn-outline-danger btn-icon" ><div><div><i class="fa fa-trash"></i></div></button>';
-            $sub_array[] = '<button type="button" onClick="ver(' . $row["proceciudadano_id"] . ');"  id="' . $row["proceciudadano_id"] . '" class="btn btn-outline-success btn-icon"><div><i class="fa fa-file"></i></div></button>';
+            $edit_svg = '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-pencil" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" /><path d="M13.5 6.5l4 4" /></svg>';
+            $sub_array[] = '<button type="button" onClick="editar(' . (int)$row["proceciudadano_id"] . ');" id="' . (int)$row["proceciudadano_id"] . '" class="btn btn-outline-warning btn-icon" title="Editar trámite">' . $edit_svg . '</button>';
+
+            $trash_svg = '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>';
+            $sub_array[] = '<button type="button" onClick="eliminar(' . (int)$row["proceciudadano_id"] . ');" id="' . (int)$row["proceciudadano_id"] . '" class="btn btn-outline-danger btn-icon" title="Eliminar trámite">' . $trash_svg . '</button>';
+
+            $file_svg = '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-invoice" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M9 12h6" /><path d="M9 16h6" /></svg>';
+            $sub_array[] = '<button type="button" onClick="ver(' . (int)$row["proceciudadano_id"] . ');" id="' . (int)$row["proceciudadano_id"] . '" class="btn btn-outline-success btn-icon" data-estado="' . $row["est"] . '" title="Ver tasas y liquidación">' . $file_svg . '</button>';
 
             $data[] = $sub_array;
         }

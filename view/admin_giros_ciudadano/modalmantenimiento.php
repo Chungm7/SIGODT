@@ -1,8 +1,10 @@
-<div id="modalmantenimiento" class="modal fade" data-backdrop="static" data-keyboard="false">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content bd-0">
-            <div class="modal-header pd-y-20 pd-x-25">
-                <h6 id="lbltitulo" class="tx-12 mg-b-0 tx-uppercase tx-inverse tx-bold">Nuevo Registro</h6>
+<!-- Modal para registrar/editar administrado (Ciudadano / Empresa) en Administración -->
+<div id="modalmantenimiento" class="modal modal-blur fade" tabindex="-1" aria-labelledby="lbltitulo" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content shadow">
+            <div class="modal-header">
+                <h5 id="lbltitulo" class="modal-title fw-bold">Nuevo Registro</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <!-- Formulario Mantenimiento -->
@@ -16,173 +18,180 @@
                     <input type="hidden" name="menor_edad" id="menor_edad" />
                     <input type="hidden" name="esCarnet" id="esCarnet" />
                     <input type="hidden" name="esCPP" id="esCPP" />
-                    <div class="form-group">
-                        <div id="accordion" class="accordion" role="tablist" aria-multiselectable="true">
-                            <div class="card seccion-1">
-                                <div class="card-header d-flex justify-content-between" role="tab" id="headingOne">
-                                    <h6 class="mg-b-0" style="width: 100%;">
-                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne" class="tx-gray-800 transition">
-                                            DATOS CIUDADANO
-                                            <span class="estado-icono" style="width: 20%; ">
-                                                <i class="fa fa-check" style="color:green;"></i>
+                    <input type="hidden" name="empr_giro" id="empr_giro" />
+
+                    <!-- Contenedor Ciudadano -->
+                    <div class="ciud_container">
+                        <div class="row g-3">
+                            <div class="col-lg-8">
+                                <label class="form-label required">Documento de Identidad:</label>
+                                <div class="input-group mb-2">
+                                    <button class="btn dropdown-toggle" id="name_select_tipo" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        DNI
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#" onclick="seleccionarTipoAdmin('DNI', event)">DNI</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="seleccionarTipoAdmin('CEE', event)">CEE</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="seleccionarTipoAdmin('CPP', event)">CPP</a></li>
+                                    </ul>
+                                    <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="8" name="ciudadano_doc" id="ciudadano_doc" class="form-control" placeholder="Ingresa el DNI (8 dígitos)" oninput="limitabuscadni(this)" required>
+                                    <button class="btn btn-outline-secondary" type="button" id="btn_buscar_doc" onclick="ejecutarBusquedaDocAdmin()" title="Buscar documento">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                            <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
+                                            <path d="M21 21l-6 -6" />
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <label class="form-label required" for="ciudadano_nombre">Nombres:</label>
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                            <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                                            <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+                                        </svg>
+                                    </span>
+                                    <input class="form-control text-uppercase" id="ciudadano_nombre" type="text" name="ciudadano_nombre" readonly required>
+                                </div>
+
+                                <div class="row g-2">
+                                    <div class="col-md-6 mb-2">
+                                        <label class="form-label required" for="ciudadano_apep">Apellido Paterno:</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-id" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M3 4m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v10a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z" />
+                                                <path d="M9 10m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                                                <path d="M15 8l2 0" />
+                                                <path d="M15 12l2 0" />
+                                                <path d="M7 16l10 0" />
+                                            </svg>
                                             </span>
-                                            <span class="estado-icono" style="width: 20%; ">
-                                                <i class="fa fa-close" style="color:red;"></i>
-                                            </span>
-                                        </a>
-
-                                    </h6>
-                                </div><!-- card-header -->
-                                <div id="collapseOne" class="collapse show" role="tabpanel" aria-labelledby="headingOne">
-                                    <div class="card-block pd-20">
-                                        <div style="background-color: #f3f6f8; padding: 10px; border: 1px solid #ccc; border-radius: 10px;">
-                                            <div class="row">
-                                                <div class="col-md-8">
-                                                    <label>Tipo de Documento:</label>
-                                                    <div class="checkbox-container" style="padding-left: 20px;">
-                                                        <div class="checkbox-wrapper-46">
-                                                            <input type="checkbox" id="dni_checkbox" class="inp-cbx" name="tipo_documento" value="DNI" onchange="toggleCheckboxes('dni_checkbox')">
-                                                            <label for="dni_checkbox" class="cbx">
-                                                                <span><svg viewBox="0 0 12 10" height="10px" width="12px">
-                                                                        <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
-                                                                    </svg></span>
-                                                                <span>DNI</span>
-                                                            </label>
-                                                        </div>
-                                                        <div class="checkbox-wrapper-46">
-                                                            <input type="checkbox" id="ce_checkbox" class="inp-cbx" name="tipo_documento" value="Carnet de Extranjería" onchange="toggleCheckboxes('ce_checkbox')">
-                                                            <label for="ce_checkbox" class="cbx">
-                                                                <span><svg viewBox="0 0 12 10" height="10px" width="12px">
-                                                                        <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
-                                                                    </svg></span>
-                                                                <span>CEE</span>
-                                                            </label>
-                                                        </div>
-                                                        <div class="checkbox-wrapper-46">
-                                                            <input type="checkbox" id="cpp_checkbox" class="inp-cbx" name="tipo_documento" value="Carne CPP" onchange="toggleCheckboxes('cpp_checkbox')">
-                                                            <label for="cpp_checkbox" class="cbx">
-                                                                <span><svg viewBox="0 0 12 10" height="10px" width="12px">
-                                                                        <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
-                                                                    </svg></span>
-                                                                <span>Carné CPP</span>
-                                                            </label>
-                                                        </div>
-                                                        <div class="checkbox-wrapper-46">
-                                                            <input type="checkbox" id="ruc_checkbox" class="inp-cbx" name="tipo_documento" value="RUC" onchange="ruc_chek('ruc_checkbox')">
-                                                            <label for="ruc_checkbox" class="cbx">
-                                                                <span><svg viewBox="0 0 12 10" height="10px" width="12px">
-                                                                        <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
-                                                                    </svg></span>
-                                                                <span>RUC</span>
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-4 d-flex justify-content-center align-items-center" style="right: 50px;">
-                                                    <!-- Aquí puedes poner tu imagen -->
-                                                    <img id="imagen_ciudadano" src="../../public/img/perfil.jpeg" alt="Imagen" style="max-width: 150px; max-height: 150px;">
-                                                </div>
-
-                                                <div class="col-md-12">
-                                                    <label>Número de Documento: <span class="tx-danger">*</span></label>
-                                                    <div class="input-group">
-                                                        <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="8" name="ciudadano_doc" id="ciudadano_doc" class="form-control" placeholder="Ingresa el DNI (8 dígitos)" oninput="limitabuscadni(this)" required>
-                                                        <button class="btn btn-outline-secondary" type="button" id="btn_buscar_doc" onclick="ejecutarBusquedaDocAdmin()" title="Buscar documento">
-                                                            <i class="fas fa-search"></i>
-                                                        </button>
-                                                    </div>
-                                                    <div>
-                                                        <label id="ciud_mensaje" style="display: none; color: green; width: 100%; ">Correcto!</label>
-                                                    </div>
-
-
-                                                    <label class="form-control-label" for="ciudadano_nombre">Nombre: <span class="tx-danger">*</span></label>
-
-
-                                                    <input class="form-control tx-uppercase" style="margin-bottom: 10px" id="ciudadano_nombre" type="text" name="ciudadano_nombre" readonly required />
-                                                    <div class="row" style="margin-top: 10px">
-                                                        <div class="col-md-6" style="margin-bottom: 10px">
-                                                            <label class="form-control-label" for="ciudadano_apep">Apellido Paterno: <span class="tx-danger">*</span></label>
-                                                            <input class="form-control tx-uppercase" id="ciudadano_apep" type="text" name="ciudadano_apep" readonly required />
-                                                        </div>
-                                                        <div class="col-md-6" style="margin-bottom: 10px">
-                                                            <label class="form-control-label" for="ciudadano_apem">Apellido Materno: <span class="tx-danger">*</span></label>
-                                                            <input class="form-control tx-uppercase" id="ciudadano_apem" type="text" name="ciudadano_apem" readonly required />
-                                                        </div>
-                                                    </div>
-
-                                                </div>
-                                            </div>
-                                        </div><!-- card-block -->
-                                    </div><!-- collapseOne -->
-                                </div><!-- card -->
-                                <style>
-                                    .disabled-link {
-                                        pointer-events: none;
-                                        color: gray;
-                                    }
-                                </style>
-                                <div class="card seccion-2" id="section_empresa">
-                                    <div class="card-header" role="tab" id="headingTwo">
-                                        <h6 class="mg-b-0">
-                                            <a id="accordionLink" class="collapsed tx-gray-800 transition" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                                DATOS DE EMPRESA
-                                                <span class="estado-icono-empr" style="width: 20%;">
-                                                    <i class="fa fa-check" style="color:green;"></i>
-                                                </span>
-                                                <span class="estado-icono-empr" style="width: 20%;">
-                                                    <i class="fa fa-close" style="color:red;"></i>
-                                                </span>
-                                            </a>
-                                        </h6>
+                                            <input class="form-control text-uppercase" id="ciudadano_apep" type="text" name="ciudadano_apep" readonly required>
+                                        </div>
                                     </div>
-                                    <div id="collapseTwo" class="collapse" role="tabpanel" aria-labelledby="headingTwo">
-                                        <div class="card-block pd-20">
-                                            <div style="background-color: #f3f5ff; padding: 10px; border: 1px solid #ccc; border-radius: 10px;">
-                                                <div class="row">
-                                                    <div class="col-md-12">
-                                                        <label>Número de RUC: <span class="tx-danger">*</span></label>
-                                                        <input type="text" name="empr_ruc" id="empr_ruc" class="form-control" placeholder="Ingresa el RUC" oninput="limitarbuscarruc(this)">
-                                                        <label id="mensaje_empresa" style="display: none; color: green;">Correcto!</label>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <label class="form-control-label" for="empr_razon_social">Razon Social: <span class="tx-danger">*</span></label>
-                                                        <input class="form-control tx-uppercase" id="empr_razon_social" type="text" name="empr_razon_social" readonly />
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <label class="form-control-label" for="empr_nombre_comercial">Nombre Comercial: <span class="tx-danger">*</span></label>
-                                                        <input class="form-control tx-uppercase" id="empr_nombre_comercial" type="text" name="empr_nombre_comercial" readonly />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div><!-- card-block -->
-                                    </div><!-- collapse -->
-                                </div><!-- card -->
-                            </div><!-- accordion -->
+                                    <div class="col-md-6 mb-2">
+                                        <label class="form-label required" for="ciudadano_apem">Apellido Materno:</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-id" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M3 4m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v10a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z" />
+                                                <path d="M9 10m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                                                <path d="M15 8l2 0" />
+                                                <path d="M15 12l2 0" />
+                                                <path d="M7 16l10 0" />
+                                            </svg>
+                                            </span>
+                                            <input class="form-control text-uppercase" id="ciudadano_apem" type="text" name="ciudadano_apem" readonly required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4 d-flex flex-column align-items-center justify-content-center">
+                                <div class="text-center p-2 border rounded bg-light">
+                                    <img id="imagen_ciudadano" src="../../public/img/perfil.jpeg" alt="Fotografía" class="rounded img-fluid" style="width: 140px; height: 140px; object-fit: cover;">
+                                    <div class="text-secondary small mt-1">Fotografía RENIEC</div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div id="ciud_mensaje" class="alert d-none py-1 mb-0" role="alert"></div>
+                            </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="submit" name="action" value="add" id="btnguardar" class="btn btn-outline-primary tx-11 tx-uppercase pd-y-12 pd-x-25 tx-mont tx-medium"><i class="fa fa-check"></i> Guardar</button>
-                        <button type="reset" class="btn btn-outline-secondary tx-11 tx-uppercase pd-y-12 pd-x-25 tx-mont tx-medium" aria-label="Close" aria-hidden="true" data-dismiss="modal"><i class="fa fa-close"></i> Cancelar</button>
+
+                    <!-- Toggle Persona Jurídica / RUC -->
+                    <div class="mt-3">
+                        <label class="form-check form-switch mb-0">
+                            <input class="form-check-input" type="checkbox" id="ruc_checkbox" onchange="toggleEmpresaSeccion(this)">
+                            <span class="form-check-label fw-bold">¿Asociar a Persona Jurídica / Empresa (RUC)?</span>
+                        </label>
                     </div>
+
+                    <!-- Contenedor Empresa -->
+                    <div class="empr_container mt-3" id="seccion_empresa" style="display: none;">
+                        <div class="hr-text text-primary fw-bold">Datos de la Empresa / Persona Jurídica</div>
+
+                        <div class="row g-2">
+                            <div class="col-md-6 mb-2">
+                                <label id="label_ruc" class="form-label required">Número de RUC:</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-building" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                            <path d="M3 21l18 0" />
+                                            <path d="M9 8l1 0" />
+                                            <path d="M9 12l1 0" />
+                                            <path d="M9 16l1 0" />
+                                            <path d="M14 8l1 0" />
+                                            <path d="M14 12l1 0" />
+                                            <path d="M14 16l1 0" />
+                                            <path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16" />
+                                        </svg>
+                                    </span>
+                                    <input type="text" name="empr_ruc" id="empr_ruc" class="form-control" placeholder="Ingresa el RUC (11 dígitos)" oninput="limitarbuscarruc(this)">
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-2">
+                                <label id="label_empr_razon_social" class="form-label">Razón Social:</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-briefcase" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                            <path d="M3 7m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />
+                                            <path d="M8 7v-2a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v2" />
+                                            <path d="M12 12l0 .01" />
+                                            <path d="M3 13a20 20 0 0 0 18 0" />
+                                        </svg>
+                                    </span>
+                                    <input type="text" id="empr_razon_social" name="empr_razon_social" class="form-control" placeholder="Razón Social" readonly>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 mb-2">
+                                <label class="form-label">Nombre Comercial:</label>
+                                <input type="text" id="empr_nombre_comercial" name="empr_nombre_comercial" class="form-control" placeholder="Nombre Comercial" readonly>
+                            </div>
+
+                            <div class="col-12">
+                                <div id="mensaje_empresa" class="alert d-none py-1 mb-0" role="alert"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button type="submit" name="action" value="add" id="btnguardar" class="btn btn-primary d-inline-flex align-items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check me-1" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M5 12l5 5l10 -10" />
+                        </svg>
+                        <span>Guardar</span>
+                    </button>
+                </div>
             </form>
         </div>
     </div>
 </div>
 
 <script>
-    function toggleCheckboxes(checkboxId) {
-        const checkboxes = document.querySelectorAll('input[type="checkbox"][name="tipo_documento"]');
-        checkboxes.forEach(checkbox => {
-            if (checkbox.id !== checkboxId && checkbox.id !== 'ruc_checkbox') {
-                checkbox.checked = false;
-            }
-        });
-
-        const docInput = document.getElementById('ciudadano_doc');
-        const mensaje = document.getElementById('ciud_mensaje');
+    function seleccionarTipoAdmin(tipo, e) {
+        if (e && e.preventDefault) e.preventDefault();
+        var btnTipo = document.getElementById('name_select_tipo');
+        if (btnTipo) btnTipo.innerText = tipo;
+        var docInput = document.getElementById('ciudadano_doc');
+        var mensaje = document.getElementById('ciud_mensaje');
         if (docInput) {
-            if (checkboxId === 'dni_checkbox') {
+            if (tipo === 'DNI') {
                 docInput.setAttribute('maxlength', '8');
                 docInput.setAttribute('inputmode', 'numeric');
                 docInput.setAttribute('pattern', '[0-9]*');
@@ -191,9 +200,12 @@
                 docInput.setAttribute('maxlength', '15');
                 docInput.setAttribute('inputmode', 'text');
                 docInput.removeAttribute('pattern');
-                docInput.setAttribute('placeholder', checkboxId === 'ce_checkbox' ? 'Ingresa Carné de Extranjería' : 'Ingresa Carné CPP');
+                docInput.setAttribute('placeholder', 'Ingresa el N° de ' + tipo);
             }
-            if (mensaje) mensaje.style.display = 'none';
+            if (mensaje) {
+                mensaje.classList.add('d-none');
+                mensaje.innerText = '';
+            }
             docInput.focus();
             if (typeof limitabuscadni === 'function' && docInput.value) {
                 limitabuscadni(docInput);
@@ -201,211 +213,101 @@
         }
     }
 
-    function ruc_chek(checkboxId) {
-        const checkbox = document.getElementById(checkboxId);
-
-        const accordionLink = document.getElementById('accordionLink');
-
+    function toggleEmpresaSeccion(checkbox) {
+        var seccion = document.getElementById('seccion_empresa');
+        if (!seccion) return;
         if (checkbox.checked) {
-            accordionLink.classList.remove('disabled-link');
+            seccion.style.display = 'block';
+            var rucInput = document.getElementById('empr_ruc');
+            if (rucInput) rucInput.focus();
         } else {
-            accordionLink.classList.add('disabled-link');
-
+            seccion.style.display = 'none';
+            $('#empr_ruc').val('');
+            $('#empr_razon_social').val('');
+            $('#empr_nombre_comercial').val('');
+            $('#empr_id').val('');
+            $('#mensaje_empresa').addClass('d-none').text('');
+        }
+        if (typeof validarCheckEmpresa === 'function') {
+            validarCheckEmpresa();
         }
     }
 
-
-    function limitarADigitosDocumento(input) {
-        let valor = input.value.toString().replace(/\D/g, ''); // Remover caracteres no numéricos
-
-        const max_length = 11; // Por defecto, límite de 11 dígitos para RUC
-
-        if (valor.length > max_length) {
-            valor = valor.slice(0, max_length); // Truncar el valor si excede el límite
-        }
-        input.value = valor;
-    }
-
-    function limitarADigitosDNI(input) {
-        let valor = input.value.toString().replace(/\D/g, ''); // Remover caracteres no numéricos
-        const tipo_documento = (document.querySelector('input[name="tipo_documento"]:checked')?.value || 'DNI');
-        let max_length = 8; // Por defecto, límite de 8 dígitos para DNI
-
-        if (tipo_documento === "Carnet de Extranjería" || tipo_documento === "Carne CPP") {
-            max_length = 15;
-        }
-
-        if (valor.length > max_length) {
-            valor = valor.slice(0, max_length); // Truncar el valor si excede el límite
-        }
-        input.value = valor;
-    }
-</script>
-<script>
     function limitabuscadni(input) {
-        const checkedEl = document.querySelector('input[name="tipo_documento"]:checked');
-        const tipo_documento = checkedEl ? checkedEl.value : 'DNI';
-
-        if (tipo_documento === "DNI") {
-            let valor = input.value.toString().replace(/\D/g, '');
-            const max_length = 8;
-
-            if (valor.length > max_length) {
-                valor = valor.slice(0, max_length);
-            }
-
-            if (valor.length === max_length) {
-                resetearCampos();
-                validarCheckCiud();
-                buscarDNI(valor);
-                $("#spinner-ciud").remove();
-            } else if (valor.length > 0) {
-                resetearCampos();
-                validarCheckCiud();
-                $("input[name='ciud_sex']").prop("disabled", true);
-                $("#dateMask").removeAttr("readonly");
-                $("#ciud_sex").prop("disabled", false);
-
-                var faltantes = max_length - valor.length;
-                $("#spinner-ciud").remove();
-                $("#ciud_mensaje").text("Ingrese 8 dígitos (faltan " + faltantes + ")").css("color", "#0054a6").show();
-            } else {
-                resetearCampos();
-                validarCheckCiud();
-                $("#spinner-ciud").remove();
-                $("#ciud_mensaje").hide();
-            }
+        var btnTipo = document.getElementById('name_select_tipo');
+        var tipo = btnTipo ? btnTipo.innerText.trim() : 'DNI';
+        if (tipo === 'DNI') {
+            var valor = input.value.replace(/\D/g, '');
+            if (valor.length > 8) valor = valor.slice(0, 8);
             input.value = valor;
-        } else {
-            // Documentos extranjeros (Carnet de Extranjería, CPP)
-            let valor = input.value.toString().replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-            const max_length = 15;
-
-            if (valor.length > max_length) {
-                valor = valor.slice(0, max_length);
-            }
-
-            if (valor.length > 0) {
-                $("#spinner-ciud").remove();
-                $("#ciud_mensaje").text("Presione Enter o la lupa para buscar").css("color", "#0054a6").show();
+            if (valor.length === 8) {
+                ejecutarBusquedaDocAdmin();
             } else {
-                resetearCampos();
-                validarCheckCiud();
-                $("#spinner-ciud").remove();
-                $("#ciud_mensaje").hide();
+                $('#ciud_mensaje').addClass('d-none').text('');
             }
+        } else {
+            var valor = input.value.replace(/[^a-zA-Z0-9]/g, '');
+            if (valor.length > 15) valor = valor.slice(0, 15);
             input.value = valor;
         }
     }
 
     function ejecutarBusquedaDocAdmin() {
-        const input = document.getElementById("ciudadano_doc");
-        if (!input) return;
-        const checkedEl = document.querySelector('input[name="tipo_documento"]:checked');
-        const tipo_documento = checkedEl ? checkedEl.value : 'DNI';
-        const valor = input.value.trim();
+        var docInput = document.getElementById('ciudadano_doc');
+        if (!docInput) return;
+        var btnTipo = document.getElementById('name_select_tipo');
+        var tipo = btnTipo ? btnTipo.innerText.trim() : 'DNI';
+        var valor = docInput.value.trim();
 
         if (!valor) {
-            input.focus();
+            docInput.focus();
             return;
         }
 
-        if (tipo_documento === "DNI") {
-            if (valor.length !== 8) {
-                $("#ciud_mensaje").text("El DNI debe tener 8 dígitos (actual: " + valor.length + ")").css("color", "#d63939").show();
-                input.focus();
-                return;
-            }
-        } else {
-            if (valor.length < 3) {
-                $("#ciud_mensaje").text("Ingrese un número de documento válido").css("color", "#d63939").show();
-                input.focus();
-                return;
-            }
+        if (tipo === 'DNI' && valor.length !== 8) {
+            $('#ciud_mensaje')
+                .removeClass('d-none alert-success')
+                .addClass('alert-danger')
+                .text('El DNI debe tener 8 dígitos (actual: ' + valor.length + ')');
+            docInput.focus();
+            return;
         }
 
-        resetearCampos();
-        validarCheckCiud();
-        buscarDNI(valor);
+        resetearCamposCiudadano();
+        if (typeof buscarDNI === 'function') {
+            buscarDNI(valor);
+        }
     }
 
-
-    function resetearCampos() {
-        $("#ciudadano_nombre").val('');
-        $("#ciudadano_apep").val('');
-        $("#ciudadano_apem").val('');
-        $("#ciud_id").val('');
-        $("#imagen_ciudadano").attr("src", '../../public/img/perfil.jpeg');
+    function resetearCamposCiudadano() {
+        $('#ciudadano_nombre').val('');
+        $('#ciudadano_apep').val('');
+        $('#ciudadano_apem').val('');
+        $('#ciud_id').val('');
+        $('#imagen_ciudadano').attr('src', '../../public/img/perfil.jpeg');
+        $('#ciud_mensaje').addClass('d-none').text('');
     }
-
 
     function limitarbuscarruc(input) {
-
-        let valor = input.value.toString().replace(/\D/g, '');
-        if (valor.length > 11) {
-            valor = valor.slice(0, 11);
-        } else if (valor.length == 11) {
-            $("#empr_razon_social").val('');
-            $("#empr_nombre_comercial").val('');
-            $("#empr_id").val('');
-            buscaRUC();
-            $("#spinner").remove();
-        }
-
-        if (valor.length > 0 && valor.length < 11) {
-            $("#empr_razon_social").val('');
-            $("#empr_nombre_comercial").val('');
-            $("#empr_id").val('');
-            $("#spinner").remove();
-            var faltantesRuc = 11 - valor.length;
-            $("#mensaje_empresa").text("Ingrese 11 dígitos (faltan " + faltantesRuc + ")").css("color", "#0054a6").show();
-        }
-        if (valor.length == 0) {
-            $("#spinner").remove();
-            $("#mensaje_empresa").hide();
-        }
+        var valor = input.value.replace(/\D/g, '');
+        if (valor.length > 11) valor = valor.slice(0, 11);
         input.value = valor;
-    }
 
-    function limitartel(input) {
-        let valor = input.value.toString().replace(/\D/g, '');
-        if (valor.length > 9) {
-            valor = valor.slice(0, 9);
+        if (valor.length === 11) {
+            $('#empr_razon_social').val('');
+            $('#empr_nombre_comercial').val('');
+            $('#empr_id').val('');
+            if (typeof buscaRUC === 'function') {
+                buscaRUC();
+            }
+        } else if (valor.length > 0) {
+            var faltantes = 11 - valor.length;
+            $('#mensaje_empresa')
+                .removeClass('d-none alert-success')
+                .addClass('alert-info')
+                .text('Ingrese 11 dígitos (faltan ' + faltantes + ')');
+        } else {
+            $('#mensaje_empresa').addClass('d-none').text('');
         }
-        input.value = valor;
-    }
-</script>
-<script>
-    function limitarADigitosDocumento(input) {
-        let valor = input.value.toString().replace(/\D/g, ''); // Remover caracteres no numéricos
-
-        var max_length = 11; // Por defecto, límite de 8 dígitos para DNI
-
-
-        if (valor.length > max_length) {
-            valor = valor.slice(0, max_length); // Truncar el valor si excede el límite
-        }
-        input.value = valor;
-    }
-
-    function limitarADigitosDNI(input) {
-        let valor = input.value.toString().replace(/\D/g, ''); // Remover caracteres no numéricos
-        var tipo_documento = $("input[name='tipo_documento']:checked").val();
-        var max_length = 8; // Por defecto, límite de 8 dígitos para DNI
-
-        if (tipo_documento === "Carnet de Extranjería") {
-            max_length = 12; // Cambiar el límite a 12 dígitos para Carnet de Extranjería
-
-        }
-
-        if (tipo_documento === "Carne CPP") {
-            max_length = 20; // Cambiar el límite a 12 dígitos para Carnet de Extranjería
-
-        }
-
-        if (valor.length > max_length) {
-            valor = valor.slice(0, max_length); // Truncar el valor si excede el límite
-        }
-        input.value = valor;
     }
 </script>
