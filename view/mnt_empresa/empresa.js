@@ -46,9 +46,11 @@ function listar_todos() {
                 sPrevious: "Anterior"
             }
         },
+        autoWidth: false,
         columnDefs: [
-            { className: "text-center align-middle", targets: [0, 1, 5, 6] },
-            { className: "align-middle", targets: [2, 3, 4] }
+            { className: "text-center align-middle text-nowrap", targets: [0, 1, 5, 6] },
+            { className: "align-middle", targets: [2, 3] },
+            { className: "align-middle text-wrap", targets: [4] }
         ]
     });
 }

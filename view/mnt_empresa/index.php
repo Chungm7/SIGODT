@@ -68,7 +68,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                 </div>
 
                 <div class="table-responsive">
-                  <table id="tabla-empresa" class="table card-table table-vcenter text-nowrap datatable" style="width:100%;">
+                  <table id="tabla-empresa" class="table card-table table-vcenter datatable" style="width:100%;">
                     <thead>
                       <tr>
                         <th class="w-1">ID</th>
