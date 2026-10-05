@@ -307,8 +307,6 @@ function buscarDNI(ciudadano_doc) {
           console.log(data);
           var response = JSON.parse(data);
           console.log(response);
-          var $iconoCheck = $(".estado-icono .fa-check");
-          var $iconoClose = $(".estado-icono .fa-close");
           // Verifica si se encontró la persona
           if (response.ciudadano_nombre) {
             $("#ciudadano_nombre").val(response.ciudadano_nombre);
@@ -390,21 +388,18 @@ function buscaRUC() {
               .text("Empresa encontrada")
               .css("color", "green")
               .show();
-            $("#spinner").removeClass("fa fa-spinner fa-spin");
             validarCheckEmpresa();
           } else {
             $("#mensaje_empresa")
               .text("Empresa no encontrada")
               .css("color", "red")
               .show();
-            $("#spinner").removeClass("fa fa-spinner fa-spin");
           }
         } else {
           $("#mensaje_empresa")
             .text("Empresa no encontrada")
             .css("color", "red")
             .show();
-          $("#spinner").removeClass("fa fa-spinner fa-spin");
         }
       }
     }
@@ -412,34 +407,11 @@ function buscaRUC() {
 }
 
 function validarCheckEmpresa() {
-  var empr_id = $("#empr_id").val();
-
-  var $iconoCheck = $(".estado-icono-empr .fa-check");
-  var $iconoClose = $(".estado-icono-empr .fa-close");
-
-  if (empr_id !== "") {
-    $iconoCheck.show();
-    $iconoClose.hide();
-  } else {
-    $iconoCheck.hide();
-    $iconoClose.show();
-  }
+  // Verificación de estado de empresa seleccionada
 }
+
 function validarCheckCiud() {
-  var ciudadano_nombre = $("#ciudadano_nombre").val();
-  var ciud_id = $("#ciud_id").val();
-  console.log(ciudadano_nombre);
-  var $iconoCheck = $(".estado-icono .fa-check");
-  var $iconoClose = $(".estado-icono .fa-close");
-  if (ciudadano_nombre !== "" && ciud_id !== "") {
-    // Todos los campos tienen valores, mostrar el ícono de check y ocultar el de close
-    $iconoCheck.show();
-    $iconoClose.hide();
-  } else {
-    // Al menos uno de los campos está vacío, mostrar el ícono de close y ocultar el de check
-    $iconoCheck.hide();
-    $iconoClose.show();
-  }
+  // Verificación de estado de ciudadano seleccionado
 }
 function cargardata() {
   if ($.fn.DataTable.isDataTable("#detalle_data")) {

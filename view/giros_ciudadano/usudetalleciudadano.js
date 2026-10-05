@@ -143,7 +143,7 @@ function detalleEditar(e) {
   }
 
   // Bloquear el botón y mostrar animación de carga
-  $("#btnguardar").prop("disabled", true).html('<i class="fa fa-spinner fa-spin"></i> Procesando...');
+  $("#btnguardar").prop("disabled", true).html('<span class="spinner-border spinner-border-sm me-1" role="status"></span> Procesando...');
 
   let formData = new FormData($("#ciudadanosdetalles_form")[0]);
   formData.append("tipo_proced", "ciudadano");
@@ -166,7 +166,7 @@ function detalleEditar(e) {
     processData: false,
     success: function (response) {
       let res = JSON.parse(response);
-      $("#btnguardar").prop("disabled", false).html('<i class="fa fa-check"></i> Guardar');
+      $("#btnguardar").prop("disabled", false).html('<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check me-1" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg> Guardar');
 
       if (res.success) {
         $("#detalle_data").DataTable().ajax.reload();
@@ -209,7 +209,7 @@ function detalleEditar(e) {
       }
     },
     error: function (xhr, status, error) {
-      $("#btnguardar").prop("disabled", false).html('<i class="fa fa-check"></i> Guardar');
+      $("#btnguardar").prop("disabled", false).html('<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check me-1" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg> Guardar');
       console.error("Error en la solicitud AJAX:", status, error);
     }
   });
@@ -755,7 +755,7 @@ function calcularTotalTasas() {
 
   if (totalDisponibles > 1) {
     $("#IDpagarGrupo").html(
-      `<i class="fa fa-dollar mr-2"></i> Girar Seleccionadas (${seleccionadas}) - S/ ${total.toFixed(2)}`
+      `<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-coin me-1" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M14.8 9a2 2 0 0 0 -1.8 -1h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1 -1.8 -1" /><path d="M12 7v10" /></svg> Girar Seleccionadas (${seleccionadas}) - S/ ${total.toFixed(2)}`
     );
     $("#IDpagarGrupo").prop("disabled", seleccionadas === 0);
   }
@@ -764,8 +764,8 @@ function calcularTotalTasas() {
 function listarTasas(proceciudadano_id) {
   // Muestra un spinner dentro del contenedor de tasas
   $("#tasaListContainer").html(
-    '<div id="tablaSpinner" style="text-align: center; padding: 20px;">' +
-    '<i class="fa fa-spinner fa-spin" style="font-size: 24px;"></i>' +
+    '<div id="tablaSpinner" class="text-center py-4">' +
+    '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div>' +
     '</div>'
   );
 
@@ -1137,26 +1137,26 @@ function listarGiros(procedciudadano_id) {
           <div class="list-group-item">
             <div class="row align-items-center">
               <div class="col-auto">
-                <i class="fa fa-dollar-sign fa-2x text-success"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-receipt-2 text-success" width="32" height="32" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2" /><path d="M14 8h-2.5a1.5 1.5 0 0 0 0 3h1a1.5 1.5 0 0 1 0 3h-2.5m2 0v1.5m0 -9v1.5" /></svg>
               </div>
               <div class="col">
                 <div class="text-truncate">
                   <strong>Orden de Giro: ${giros.ogciud_id}</strong><br>
                   <small>N° Recibo: ${giros.recibo_nro}</small><br>
                   <small>Obvs: ${giros.ogciud_comentario}</small><br>
-                  <div class="text-secondary small">
-                    <i class="fa fa-calendar-alt"></i> ${giros.fecha}
+                  <div class="text-secondary small d-flex align-items-center mt-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" /><path d="M16 3v4" /><path d="M8 3v4" /><path d="M4 11h16" /><path d="M11 15h1" /><path d="M12 15v3" /></svg> ${giros.fecha}
                   </div>
                   <!-- Aquí agregamos el badge del estado -->
-                  <span class="badge ${giros.badge}">${giros.estado}</span>
+                  <div class="mt-1"><span class="badge ${giros.badge}">${giros.estado}</span></div>
                 </div>
               </div>
               <div class="col-auto">
-                <button class="btn btn-ghost-warning" onclick="cambiarcomentario('${giros.ogciud_id}')" title="Editar">
-                  <i class="fa fa-edit"></i> 
+                <button class="btn btn-ghost-warning btn-icon" onclick="cambiarcomentario('${giros.ogciud_id}')" title="Editar">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" /><path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" /><path d="M16 5l3 3" /></svg>
                 </button>
-                <button class="btn btn-ghost-danger" onclick="imprimirGiro('${giros.ogciud_id}')" title="Imprimir">
-                  <i class="fa fa-print"></i> 
+                <button class="btn btn-ghost-danger btn-icon" onclick="imprimirGiro('${giros.ogciud_id}')" title="Imprimir">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-printer" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" /><path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /></svg>
                 </button>
               </div>
             </div>
@@ -1306,8 +1306,8 @@ function pagar(tasatciudadano_id, procedciudadano_id, estadotasa) {
             text: "¿Desea imprimir el comprobante térmico ahora?",
             icon: "success",
             showCancelButton: true,
-            confirmButtonText: '<i class="fa fa-print me-1"></i> Imprimir Ticket',
-            cancelButtonText: '<i class="fa fa-times me-1"></i> Cerrar',
+            confirmButtonText: "Imprimir Ticket",
+            cancelButtonText: "Cerrar",
             confirmButtonColor: "#206bc4",
             cancelButtonColor: "#6c757d",
             focusConfirm: true
@@ -1379,7 +1379,7 @@ function pagargrupo() {
     // Deshabilitar el botón "Pagar en grupo" y mostrar el spinner
     $("#IDpagarGrupo")
       .prop("disabled", true)
-      .html('<i class="fa fa-spinner fa-spin"></i> Procesando...');
+      .html('<span class="spinner-border spinner-border-sm me-1" role="status"></span> Procesando...');
 
     // Mostrar el modal de pago (se usa el mismo modal para ingresar comentario)
     var modalEl = document.getElementById('modal-payment');
@@ -1445,8 +1445,8 @@ function pagargrupo() {
               text: "¿Desea imprimir los comprobantes térmicos ahora?",
               icon: "success",
               showCancelButton: true,
-              confirmButtonText: '<i class="fa fa-print me-1"></i> Imprimir Tickets',
-              cancelButtonText: '<i class="fa fa-times me-1"></i> Cerrar',
+              confirmButtonText: "Imprimir Tickets",
+              cancelButtonText: "Cerrar",
               confirmButtonColor: "#206bc4",
               cancelButtonColor: "#6c757d",
               focusConfirm: true
@@ -1758,14 +1758,14 @@ function getdataload() {
       var iconHtml = "";
       var todayColor = "";
       if (diferencia > 0) {
-        iconHtml = '<i class="fa fa-arrow-up"></i>';
-        todayColor = "#2cb5a0"; // Verde: aumento
+        iconHtml = '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-up d-inline" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M18 11l-6 -6" /><path d="M6 11l6 -6" /></svg>';
+        todayColor = "#2fb344"; // Verde Tabler: aumento
       } else if (diferencia < 0) {
-        iconHtml = '<i class="fa fa-arrow-down"></i>';
-        todayColor = "#ff9510"; // Naranja/rojo: disminución
+        iconHtml = '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-down d-inline" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M18 13l-6 6" /><path d="M6 13l6 6" /></svg>';
+        todayColor = "#d63939"; // Rojo Tabler: disminución
       } else {
-        iconHtml = '<i class="fa fa-minus"></i>';
-        todayColor = "#0866c6"; // Neutro
+        iconHtml = '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-minus d-inline" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l14 0" /></svg>';
+        todayColor = "#206bc4"; // Neutro Tabler
       }
 
       var formattedPercent = Math.abs(diffPercent).toFixed(1) + '%';
