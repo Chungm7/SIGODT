@@ -502,18 +502,18 @@ switch ($_GET["op"]) {
                     break;
                 case 4:
                     $estado = "Pagado";
-                    $color = "#007bff"; // Azul
-                    $color_barra = 'primary ';
+                    $color = "#007bff";
+                    $color_barra = 'primary';
                     break;
                 case 5:
                     $estado = "Usado";
-                    $color = "#6f42c1"; // Morado
+                    $color = "#6f42c1";
                     $color_barra = 'purple';
                     break;
                 default:
                     $estado = "Extornado";
-                    $color = "#000000"; // Negro
-                    $color_barra = 'warning';
+                    $color = "#6c757d";
+                    $color_barra = 'secondary';
                     break;
             }
 
@@ -523,29 +523,26 @@ switch ($_GET["op"]) {
             $sub_array[] = $row["ciudadano_dni"];
             $sub_array[] = $row["nombre_completo"];
             $fecha_formateada = date("Y-m-d H:i:s", strtotime($row["fechacrea"]));
-
-            // Luego, puedes agregar $fecha_formateada a tu $sub_array
             $sub_array[] = $fecha_formateada;
 
-            // Estado
-            $estado_html = '<div style="background-color: ' . $color . '; display: flex; align-items: center; justify-content: center; height: 5px; text-align: center; color: white; border-radius: 12px; box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1); padding: 15px 10px;">' . $estado . ' </div>';
+            // Estado como badge nativo Tabler
+            $estado_html = '<span class="badge bg-' . $color_barra . ' text-' . $color_barra . '-fg">' . $estado . '</span>';
             $sub_array[] = $estado_html;
 
-            // Barra de progreso
-            $progress_bar_html = '<div class="progress mg-b-20" style="display: flex; align-items: center;text-align: center; margin-block:20px;">
-                        <div class="progress-bar bg-' . $color_barra . ' wd-35p" role="progressbar" aria-valuenow="80" style="width:' . $porcentaje . '%"; aria-valuemin="0" aria-valuemax="100">' . $porcentaje . '%</div>
-                        </div>';
+            // Barra de progreso Tabler
+            $progress_bar_html = '<div class="d-flex align-items-center justify-content-center gap-2"><div class="progress progress-sm flex-fill" style="min-width: 60px;"><div class="progress-bar bg-' . $color_barra . '" style="width:' . $porcentaje . '%" role="progressbar" aria-valuenow="' . $porcentaje . '" aria-valuemin="0" aria-valuemax="100"></div></div><span class="text-secondary small fw-bold">' . $porcentaje . '%</span></div>';
             $sub_array[] = $progress_bar_html;
 
+            // Botón Ver Tasas con Tabler SVG
+            $sub_array[] = '<button type="button" onClick="ver(' . $row["procedciudadano_id"] . ');" id="' . $row["procedciudadano_id"] . '" class="btn btn-outline-success btn-icon" data-estado="' . $row["est"] . '" title="Ver tasas y liquidación"><svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M9 17h6" /><path d="M9 13h6" /></svg></button>';
 
-            $sub_array[] = '<button type="button" style="cursor:pointer" onClick="ver(' . $row["procedciudadano_id"] . ');" id="' . $row["procedciudadano_id"] . '" class="btn btn-outline-success btn-icon" data-estado="' . $row["est"] . '"><div><i class="fa fa-file"></i></div></button>';
-
+            $trash_svg = '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>';
 
             $og_param = !empty($row["ogciud_id"]) ? "'" . addslashes($row["ogciud_id"]) . "'" : "null";
             if ($row["est"] == 1 || $row["est"] == 2 || $row["est"] == 4 || $est == 9) {
-                $sub_array[] = '<button type="button" style="cursor:pointer" onClick="eliminar(' . (int)$row["procedciudadano_id"] . ', ' . (int)$est . ', ' . $og_param . ');" id="' . $row["procedciudadano_id"] . '" class="btn btn-outline-danger btn-icon"><div><div><i class="fa fa-trash"></i></div></div></button>';
+                $sub_array[] = '<button type="button" onClick="eliminar(' . (int)$row["procedciudadano_id"] . ', ' . (int)$est . ', ' . $og_param . ');" id="' . $row["procedciudadano_id"] . '" class="btn btn-outline-danger btn-icon" title="Eliminar trámite">' . $trash_svg . '</button>';
             } else {
-                $sub_array[] = '<button type="button" style="cursor:pointer" disabled onClick="eliminar(' . (int)$row["procedciudadano_id"] . ', ' . (int)$est . ', ' . $og_param . ');" id="' . $row["procedciudadano_id"] . '" class="btn btn-outline-danger btn-icon"><div><div><i class="fa fa-trash"></i></div></div></button>';
+                $sub_array[] = '<button type="button" disabled onClick="eliminar(' . (int)$row["procedciudadano_id"] . ', ' . (int)$est . ', ' . $og_param . ');" id="' . $row["procedciudadano_id"] . '" class="btn btn-outline-danger btn-icon" title="Eliminar trámite">' . $trash_svg . '</button>';
             }
 
             $data[] = $sub_array;
