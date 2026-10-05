@@ -195,7 +195,7 @@ class empresa extends conectar
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function list_empresa($search = "", $start = 0, $length = 10, $order_column = "0", $order_dir = "desc", $estado = "A")
+    public function list_empresa($search = "", $start = 0, $length = 10, $order_column = "0", $order_dir = "desc", $estado = "todos")
     {
         $conectar = parent::conexion();
         parent::set_names();
@@ -218,18 +218,26 @@ class empresa extends conectar
                 empr_nombre_comercial,
                 empr_estado,
                 empr_direccion
-            FROM public.tb_empresa
-            WHERE empr_estado = ?";
+            FROM public.tb_empresa";
 
-        $params = [$estado];
+        $params = [];
+        $where = [];
+
+        if ($estado !== "todos" && !empty($estado)) {
+            $where[] = "empr_estado = ?";
+            $params[] = $estado;
+        } else {
+            $where[] = "empr_estado IN ('A', 'I')";
+        }
+
         if ($search !== "") {
-            $sql .= " AND (
-            empr_ruc ILIKE ? OR
-            empr_razon_social ILIKE ? OR
-            empr_direccion ILIKE ? OR
-            empr_nombre_comercial ILIKE ? OR
-            (empr_razon_social || ' ' || empr_nombre_comercial) ILIKE ?
-        )";
+            $where[] = "(
+                empr_ruc ILIKE ? OR
+                empr_razon_social ILIKE ? OR
+                empr_direccion ILIKE ? OR
+                empr_nombre_comercial ILIKE ? OR
+                (empr_razon_social || ' ' || empr_nombre_comercial) ILIKE ?
+            )";
             $like = "%{$search}%";
             $params[] = $like;
             $params[] = $like;
@@ -238,8 +246,12 @@ class empresa extends conectar
             $params[] = $like;
         }
 
+        if (!empty($where)) {
+            $sql .= " WHERE " . implode(" AND ", $where);
+        }
+
         $sql .= " ORDER BY {$order_col} {$order_dir}
-              LIMIT ? OFFSET ?";
+                  LIMIT ? OFFSET ?";
         $params[] = intval($length);
         $params[] = intval($start);
 
@@ -248,23 +260,35 @@ class empresa extends conectar
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function get_total_empresa($search = "")
+    public function get_total_empresa($search = "", $estado = "todos")
     {
         $conectar = parent::conexion();
         parent::set_names();
 
         $sql = "SELECT COUNT(*) AS total
-            FROM public.tb_empresa
-            WHERE empr_estado <> 'I'";
+            FROM public.tb_empresa";
         $params = [];
+        $where = [];
+
+        if ($estado !== "todos" && !empty($estado)) {
+            $where[] = "empr_estado = ?";
+            $params[] = $estado;
+        } else {
+            $where[] = "empr_estado IN ('A', 'I')";
+        }
+
         if ($search !== "") {
-            $sql .= " AND (
-            empr_ruc ILIKE ? OR
-            empr_razon_social ILIKE ? OR
-            empr_nombre_comercial ILIKE ? OR
-            (empr_razon_social || ' ' || empr_nombre_comercial) ILIKE ?
-        )";
-            $params = array_fill(0, 4, "%{$search}%");
+            $where[] = "(
+                empr_ruc ILIKE ? OR
+                empr_razon_social ILIKE ? OR
+                empr_nombre_comercial ILIKE ? OR
+                (empr_razon_social || ' ' || empr_nombre_comercial) ILIKE ?
+            )";
+            $params = array_merge($params, array_fill(0, 4, "%{$search}%"));
+        }
+
+        if (!empty($where)) {
+            $sql .= " WHERE " . implode(" AND ", $where);
         }
 
         $stmt = $conectar->prepare($sql);
@@ -350,6 +374,18 @@ class empresa extends conectar
         parent::set_names();
         $sql = "UPDATE public.tb_empresa
                 SET empr_estado    = 'I',
+                    empr_updated_at = now()
+                WHERE empr_id = ?";
+        $stmt = $conectar->prepare($sql);
+        return $stmt->execute([$empr_id]);
+    }
+
+    public function activar($empr_id)
+    {
+        $conectar = parent::conexion();
+        parent::set_names();
+        $sql = "UPDATE public.tb_empresa
+                SET empr_estado    = 'A',
                     empr_updated_at = now()
                 WHERE empr_id = ?";
         $stmt = $conectar->prepare($sql);
