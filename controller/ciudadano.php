@@ -548,7 +548,7 @@ switch ($_GET["op"]) {
 
             $data[] = [
                 $r["ciud_id"],
-                '<span class="badge bg-blue-lt fw-bold">' . htmlspecialchars($r["tipo_documento"] ?? 'DNI') . '</span>',
+                htmlspecialchars($r["tipo_documento"] ?? 'DNI'),
                 htmlspecialchars($r["ciud_numero_documento"]),
                 htmlspecialchars($r["ciud_primer_apellido"]),
                 htmlspecialchars($r["ciud_segundo_apellido"] ?? ''),
