@@ -26,13 +26,13 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
               <div class="page-header d-print-none mb-3">
                 <div class="row align-items-center">
                   <div class="col">
-                    <ol class="breadcrumb breadcrumb-arrows mb-1" aria-label="breadcrumbs">
+                    <ol class="breadcrumb breadcrumb-arrows mb-3" aria-label="breadcrumbs">
                       <li class="breadcrumb-item"><a href="../inicio/">SIGODT</a></li>
                       <li class="breadcrumb-item"><a href="#">Procesos</a></li>
                       <li class="breadcrumb-item active" aria-current="page">Órdenes de Derecho de Trámite</li>
                     </ol>
                     <h2 class="page-title">Gestión de Órdenes de Giro</h2>
-                    <div class="text-muted mt-1">Emisión, liquidación y control de trámites por administrado</div>
+                    <div class="text-muted mt-2">Emisión, liquidación y control de trámites por administrado</div>
                   </div>
                 </div>
               </div>
@@ -182,22 +182,13 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                 <div class="col-12 col-md-8 col-xl-10">
 
                   <div class="card shadow-sm">
-                    <div class="card-header d-flex justify-content-between align-items-center py-2">
+                    <div class="card-header py-2">
                       <h3 class="card-title fw-bold mb-0">Registrar Orden de Derecho de Trámite</h3>
-                      <div class="card-actions">
-                        <button type="button" class="btn btn-icon btn-outline-secondary" id="btnRecargar" title="Recargar tabla" onclick="recargarTabla(event)">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
-                            <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
-                          </svg>
-                        </button>
-                      </div>
                     </div>
 
                     <div class="card-body">
                       <!-- Filtros normativos en cascada -->
-                      <div class="row g-3 align-items-end mb-3">
+                      <div class="row g-3 align-items-start mb-3">
                         <div class="col-12 col-md-5">
                           <label for="area_id" class="form-label fw-bold">Área / Dependencia: <span class="text-danger">*</span></label>
                           <select class="form-select select2" name="area_id" id="area_id" data-placeholder="Seleccione un área...">
@@ -206,27 +197,30 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                         </div>
 
                         <div class="col-12 col-md-5">
-                          <label for="proced_id" class="form-label fw-bold">Procedimiento: <span class="text-danger">*</span></label>
+                          <label for="proced_id" class="form-label fw-bold">
+                            Procedimiento: <span class="text-danger">*</span>
+                            <span class="form-label-description">
+                              <a href="#" id="print_button" onclick="imprimirInformacion()" class="text-muted d-inline-flex align-items-center" title="Ver requisitos">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-checklist me-1" width="14" height="14" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                  <path d="M3.5 5.5l1.5 1.5l2.5 -2.5" />
+                                  <path d="M3.5 11.5l1.5 1.5l2.5 -2.5" />
+                                  <path d="M3.5 17.5l1.5 1.5l2.5 -2.5" />
+                                  <path d="M11 6l9 0" />
+                                  <path d="M11 12l9 0" />
+                                  <path d="M11 18l9 0" />
+                                </svg>
+                                ¿Requisitos?
+                              </a>
+                            </span>
+                          </label>
                           <select class="form-select select2" name="proced_id" id="proced_id" data-placeholder="Seleccione un procedimiento...">
                             <option value="" label="Seleccione"></option>
                           </select>
-                          <div class="mt-1">
-                            <a href="#" id="print_button" onclick="imprimirInformacion()" class="text-muted small d-inline-flex align-items-center">
-                              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-checklist me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M3.5 5.5l1.5 1.5l2.5 -2.5" />
-                                <path d="M3.5 11.5l1.5 1.5l2.5 -2.5" />
-                                <path d="M3.5 17.5l1.5 1.5l2.5 -2.5" />
-                                <path d="M11 6l9 0" />
-                                <path d="M11 12l9 0" />
-                                <path d="M11 18l9 0" />
-                              </svg>
-                              ¿Requisitos de este procedimiento?
-                            </a>
-                          </div>
                         </div>
 
                         <div class="col-12 col-md-2">
+                          <label class="form-label d-none d-md-block">&nbsp;</label>
                           <button class="btn btn-primary w-100 d-inline-flex align-items-center justify-content-center" id="add_button" onclick="nuevo()">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus me-1" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -242,8 +236,16 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                       <div id="cardDetalleProcedimiento"></div>
 
                       <!-- Tabla de procedimientos abiertos -->
-                      <div class="d-flex align-items-center justify-content-between mb-2 mt-3">
-                        <h4 class="card-title fw-bold mb-0">Listado de Procedimientos Abiertos</h4>
+                      <div class="d-flex align-items-center justify-content-between mb-2 mt-4">
+                        <div class="d-flex align-items-center gap-2">
+                          <h4 class="card-title fw-bold mb-0">Listado de Procedimientos Abiertos</h4>
+                          <button type="button" class="btn btn-sm btn-icon btn-outline-secondary" id="btnRecargar" title="Actualizar listado" onclick="recargarTabla(event)">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                              <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
+                              <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
+                            </svg>
+                          </button>
                       </div>
 
                       <div class="table-responsive">

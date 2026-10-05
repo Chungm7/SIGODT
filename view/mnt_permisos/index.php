@@ -28,13 +28,13 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
               <div class="page-header d-print-none mb-3">
                 <div class="row align-items-center">
                   <div class="col">
-                    <ol class="breadcrumb breadcrumb-arrows mb-1" aria-label="breadcrumbs">
+                    <ol class="breadcrumb breadcrumb-arrows mb-3" aria-label="breadcrumbs">
                       <li class="breadcrumb-item"><a href="../inicio/">SIGODT</a></li>
                       <li class="breadcrumb-item"><a href="#">Mantenimientos</a></li>
                       <li class="breadcrumb-item active" aria-current="page">Permisos por Área</li>
                     </ol>
                     <h2 class="page-title">Asignación de Usuarios por Área</h2>
-                    <div class="text-muted mt-1">Gestión y control de personal autorizado por dependencia municipal</div>
+                    <div class="text-muted mt-2">Gestión y control de personal autorizado por dependencia municipal</div>
                   </div>
                 </div>
               </div>

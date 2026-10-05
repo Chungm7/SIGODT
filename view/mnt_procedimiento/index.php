@@ -26,13 +26,13 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                             <div class="page-header d-print-none mb-3">
                                 <div class="row align-items-center">
                                     <div class="col">
-                                        <ol class="breadcrumb breadcrumb-arrows mb-1" aria-label="breadcrumbs">
+                                        <ol class="breadcrumb breadcrumb-arrows mb-3" aria-label="breadcrumbs">
                                             <li class="breadcrumb-item"><a href="../inicio/">SIGODT</a></li>
                                             <li class="breadcrumb-item"><a href="#">Mantenimientos</a></li>
                                             <li class="breadcrumb-item active" aria-current="page">Procedimientos</li>
                                         </ol>
                                         <h2 class="page-title">Gestión de Procedimientos</h2>
-                                        <div class="text-muted mt-1">Catálogo oficial de procedimientos administrativos y servicios prestados en exclusividad</div>
+                                        <div class="text-muted mt-2">Catálogo oficial de procedimientos administrativos y servicios prestados en exclusividad</div>
                                     </div>
                                     <div class="col-auto ms-auto d-print-none">
                                         <button id="btnnuevoproced" class="btn btn-primary d-inline-flex align-items-center">
