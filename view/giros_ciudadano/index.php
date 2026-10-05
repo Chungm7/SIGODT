@@ -234,40 +234,42 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
 
                       <!-- Detalle del procedimiento seleccionado (cargado dinámicamente) -->
                       <div id="cardDetalleProcedimiento"></div>
+                    </div>
+                  </div>
 
-                      <!-- Tabla de procedimientos abiertos -->
-                      <div class="d-flex align-items-center justify-content-between mb-2 mt-4">
-                        <div class="d-flex align-items-center gap-2">
-                          <h4 class="card-title fw-bold mb-0">Listado de Procedimientos Abiertos</h4>
-                          <button type="button" class="btn btn-sm btn-icon btn-outline-secondary" id="btnRecargar" title="Actualizar listado" onclick="recargarTabla(event)">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                              <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
-                              <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
-                            </svg>
-                          </button>
+                  <!-- Tarjeta 2: Listado de Procedimientos Abiertos -->
+                  <div class="card shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center py-2">
+                      <h3 class="card-title fw-bold mb-0">Listado de Procedimientos Abiertos</h3>
+                      <div class="card-actions">
+                        <button type="button" class="btn btn-sm btn-icon btn-outline-secondary" id="btnRecargar" title="Actualizar listado" onclick="recargarTabla(event)">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
+                            <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
+                          </svg>
+                        </button>
                       </div>
+                    </div>
 
-                      <div class="table-responsive">
-                        <table id="detalle_data" class="table card-table table-vcenter table-hover datatable" style="width:100%">
-                          <thead>
-                            <tr>
-                              <th class="text-center" style="width: 110px;">Código</th>
-                              <th class="text-center" style="width: 100px;">DNI / Doc</th>
-                              <th>Ciudadano / Razón Social</th>
-                              <th class="text-center" style="width: 140px;">Fecha</th>
-                              <th class="text-center" style="width: 110px;">Estado</th>
-                              <th class="text-center" style="width: 160px;">Progreso del Trámite</th>
-                              <th class="text-center" style="width: 70px;">Tasas</th>
-                              <th class="text-center" style="width: 70px;">Eliminar</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <!-- Datos cargados dinámicamente -->
-                          </tbody>
-                        </table>
-                      </div>
-
+                    <div class="table-responsive">
+                      <table id="detalle_data" class="table card-table table-vcenter table-hover datatable" style="width:100%">
+                        <thead>
+                          <tr>
+                            <th class="text-center" style="width: 110px;">Código</th>
+                            <th class="text-center" style="width: 100px;">DNI / Doc</th>
+                            <th>Ciudadano / Razón Social</th>
+                            <th class="text-center" style="width: 140px;">Fecha</th>
+                            <th class="text-center" style="width: 110px;">Estado</th>
+                            <th class="text-center" style="width: 160px;">Progreso del Trámite</th>
+                            <th class="text-center" style="width: 70px;">Tasas</th>
+                            <th class="text-center" style="width: 70px;">Eliminar</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <!-- Datos cargados dinámicamente -->
+                        </tbody>
+                      </table>
                     </div>
                   </div>
 
