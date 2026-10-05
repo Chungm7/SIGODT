@@ -158,6 +158,8 @@ $isMntActive = (strpos($currentPage, '/mnt_') !== false);
                         Tributos
                       </a>
                     </div> 
+                  </div>
+                  <div class="dropend">
                     <a class="dropdown-item dropdown-toggle" href="#sidebar-authentication" data-bs-toggle="dropdown"
                       data-bs-auto-close="outside" role="button" aria-expanded="false">
                       Permisos
