@@ -3,7 +3,7 @@ $currentPage = $_SERVER['PHP_SELF'] ?? '';
 $isInicioActive = (strpos($currentPage, '/inicio/') !== false);
 $isDashboardActive = (strpos($currentPage, '/dashboard/') !== false);
 $isProcesosActive = (strpos($currentPage, '/giros_ciudadano/') !== false || strpos($currentPage, '/admin_giros_ciudadano/') !== false);
-$isConsultasActive = (strpos($currentPage, '/consultar_documento/') !== false || strpos($currentPage, '/consultar_og/') !== false);
+$isConsultasActive = (strpos($currentPage, '/consultar_documento/') !== false || strpos($currentPage, '/consultar_og/') !== false || strpos($currentPage, '/consultar_mes/') !== false);
 $isMntActive = (strpos($currentPage, '/mnt_') !== false);
 ?>
 <header class="navbar-expand-md">
@@ -100,6 +100,9 @@ $isMntActive = (strpos($currentPage, '/mnt_') !== false);
               </a>
               <a href="../consultar_og/" class="dropdown-item <?php echo (strpos($currentPage, '/consultar_og/') !== false) ? 'active' : ''; ?>">
                 Consulta por Orden de Giro
+              </a>
+              <a href="../consultar_mes/" class="dropdown-item <?php echo (strpos($currentPage, '/consultar_mes/') !== false) ? 'active' : ''; ?>">
+                Auditoría Mensual de Órdenes
               </a>
             </div>
           </li>
