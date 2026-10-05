@@ -97,6 +97,10 @@ function cargardata() {
         "bInfo": true,
         "iDisplayLength": 10,
         "order": [[2, "asc"]],
+        "columnDefs": [
+            { "targets": [2, 4, 5, 6, 7], "className": "text-center" },
+            { "targets": [3], "className": "text-end" }
+        ],
         "language": {
             "sProcessing": "Procesando...",
             "sLengthMenu": "Mostrar _MENU_ registros",
@@ -254,7 +258,7 @@ function listar_tasa(proced_id_param) {
     }
     $('#tasa_data').DataTable({
         "aProcessing": true,
-        "aServerSide": true,
+        "aServerSide": false,
         dom: 'Bfrtip',
         buttons: [],
         "ajax": {
@@ -267,6 +271,9 @@ function listar_tasa(proced_id_param) {
         "bInfo": true,
         "iDisplayLength": 7,
         "order": [[1, "asc"]],
+        "columnDefs": [
+            { "orderable": false, "targets": [0] }
+        ],
         "language": {
             "sProcessing": "Procesando...",
             "sLengthMenu": "Mostrar _MENU_ registros",
@@ -299,12 +306,8 @@ function registrardetalle() {
     var proced_id_val = $('#proced_id').val();
     var tasa_id = [];
 
-    table.rows().every(function () {
-        var cell1 = this.cell(this.index(), 0).node();
-        var chk = $('input', cell1);
-        if (chk.prop("checked")) {
-            tasa_id.push(chk.val());
-        }
+    table.$('input[name="detallecheck[]"]:checked').each(function () {
+        tasa_id.push($(this).val());
     });
 
     if (tasa_id.length === 0) {
@@ -319,7 +322,7 @@ function registrardetalle() {
 
     var formData = new FormData();
     formData.append('proced_id', proced_id_val);
-    formData.append('tasa_id', tasa_id);
+    formData.append('tasa_id', tasa_id.join(','));
 
     $.ajax({
         url: "../../controller/procedimiento.php?op=insert_proced_tasa",

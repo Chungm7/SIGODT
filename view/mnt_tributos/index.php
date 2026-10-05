@@ -115,7 +115,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
         <?php require_once("modalmantenimiento.php"); ?>
         <?php require_once("modaltasamonto.php"); ?>
         <?php require_once("../html/mainjs.php"); ?>
-        <script src="main.js"></script>
+        <script src="main.js?v=<?php echo filemtime('main.js'); ?>"></script>
     </body>
 
     </html>

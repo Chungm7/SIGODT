@@ -249,16 +249,16 @@ switch ($_GET["op"]) {
         break;
 
     case "insert_proced_tasa":
-        $datos = explode(',', $_POST['tasa_id']);
+        $datos = array_filter(array_map('trim', explode(',', $_POST['tasa_id'] ?? '')));
         $data = array();
         foreach ($datos as $row) {
             $sub_array = array();
             $idx = $proced->insert_proced_tasa($_POST["proced_id"], $row);
-            $proced->update_cod_ref();
             $sub_array[] = $idx;
             $data[] = $sub_array;
             $bitacora->update_bitacora($_SESSION["usua_id_SIGODT"]);
         }
+        $proced->update_cod_ref();
 
         echo json_encode($data);
         break;

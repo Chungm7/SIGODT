@@ -508,7 +508,7 @@ class Procedimiento extends Conectar
 
         // Actualizamos el campo cod_ref si cumple las condiciones
         $updateSql = "UPDATE sc_giros.td_tasaproced
-                  SET cod_ref = CONCAT('TP', p.proced_tupa, '|', p.proced_area, '|', tp.proced_id, '|', tp.tasa_id)
+                  SET cod_ref = CONCAT('TP', p.proced_tupa, '|', p.proced_area, '|', sc_giros.td_tasaproced.proced_id, '|', sc_giros.td_tasaproced.tasa_id)
                   FROM sc_giros.tm_procedimiento p
                   WHERE sc_giros.td_tasaproced.proced_id = p.proced_id
                   AND sc_giros.td_tasaproced.est = 1

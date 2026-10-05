@@ -186,21 +186,21 @@ switch ($_GET["op"]) {
             $sub_array[] = '<span class="fw-semibold">' . htmlspecialchars($row["tasa_nom"]) . '</span>';
             $sub_array[] = empty($row["desc_tasa"]) ? '<span class="text-muted">-</span>' : htmlspecialchars($row["desc_tasa"]);
             $sub_array[] = empty($row["tasaproced_pos"]) 
-                ? '<span class="badge bg-secondary-lt">Sin orden</span>' 
-                : '<span class="badge bg-blue-lt">#' . $row["tasaproced_pos"] . '</span>';
+                ? '<span class="text-muted">-</span>' 
+                : htmlspecialchars($row["tasaproced_pos"]);
             
-            $monto = isset($row["tasaproced_monto"]) && is_numeric($row["tasaproced_monto"])
+            $monto = (isset($row["tasaproced_monto"]) && is_numeric($row["tasaproced_monto"]))
                 ? 'S/ ' . number_format((float)$row["tasaproced_monto"], 2)
-                : '<span class="badge bg-warning-lt">Sin monto</span>';
+                : '<span class="text-muted">-</span>';
             $sub_array[] = '<span class="fw-bold text-end d-block">' . $monto . '</span>';
 
             $sub_array[] = empty($row["cod_ref"]) 
-                ? '<span class="badge bg-muted-lt">-</span>' 
-                : '<code>' . str_pad($row["cod_ref"], 5, '0', STR_PAD_LEFT) . '</code>';
+                ? '<span class="text-muted">-</span>' 
+                : htmlspecialchars($row["cod_ref"]);
 
-            $sub_array[] = isset($row["is_multiplica"]) && $row["is_multiplica"] == 1
-                ? '<span class="badge bg-green-lt">Multiplica</span>' 
-                : '<span class="badge bg-blue-lt">Fijo</span>';
+            $sub_array[] = (isset($row["is_multiplica"]) && $row["is_multiplica"] == 1)
+                ? 'Multiplica' 
+                : 'Fijo';
             
             $tupa_estado = $row["tupa_block"] ?? 0;
 

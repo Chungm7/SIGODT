@@ -911,15 +911,13 @@ function mostrarDetalleProcedimiento(data) {
                 <tbody>
         `;
     data.tasas.forEach((tasa, idx) => {
-      let multiplicaBadge = tasa.is_multiplica == 1 
-    ? '<span class="badge bg-blue text-blue-fg">Sí</span>' 
-    : '<span class="badge bg-green text-green-fg">No</span>';
+      let multiplicaText = tasa.is_multiplica == 1 ? 'Sí' : 'No';
       tasasHtml += `
                 <tr>
                     <td>${idx + 1}</td>
                     <td>${tasa.tasa_nom}</td>
                     <td>S/ ${parseFloat(tasa.tasaproced_monto).toFixed(2)}</td>
-                    <td class="text-center">${multiplicaBadge}</td>
+                    <td class="text-center">${multiplicaText}</td>
                     <td>${tasa.desc_tasa || "-"}</td>
                 </tr>
             `;
