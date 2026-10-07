@@ -1,0 +1,15 @@
+.nav-link-icon svg,
+.dropdown-item svg,
+button svg,
+.btn svg,
+.input-icon-addon svg {
+  transition: transform 0.2s ease-in-out !important;
+}
+
+.nav-link:hover .nav-link-icon svg,
+.dropdown-item:hover svg,
+button:hover svg,
+.btn:hover svg,
+.input-icon-addon svg:hover {
+  transform: scale(1.2) !important;
+}

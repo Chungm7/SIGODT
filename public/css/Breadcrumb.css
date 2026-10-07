@@ -1,0 +1,29 @@
+  .breadcrumb {
+      display: flex;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      color: #333;
+      gap: 6px;
+    }
+
+    .breadcrumb a {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .breadcrumb a:hover {
+      text-decoration: underline;
+    }
+
+    .breadcrumb-icon {
+      width: 10px;
+      height: 10px;
+      fill: #999;
+    }
+
+    .breadcrumb span {
+      color: #555;
+    }
+        

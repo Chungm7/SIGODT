@@ -1,0 +1,273 @@
+
+
+        /* Modern report module overrides */
+        :root {
+            --bg-gradient-start: #f7fbfc;
+            --bg-gradient-end: #eef6f9;
+            --card-bg: #ffffff;
+            --muted: #6b7280;
+            --accent: #2563eb;
+            --shadow: 0 10px 30px rgba(16, 24, 40, 0.06);
+        }
+
+        .modern-report {
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+            color: #0f172a;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .modern-report .page-wrapper {
+            padding: 10px 0;
+        }
+
+        .modern-report .card {
+            background: var(--card-bg) !important;
+            border: none !important;
+            border-radius: 12px !important;
+            box-shadow: var(--shadow) !important;
+        }
+
+        .modern-report .card-header {
+            background: transparent;
+            padding: 12px 0 8px 0;
+        }
+
+        .modern-report .ribbon {
+            border-radius: 8px;
+        }
+
+        .modern-report .page-title {
+            font-weight: 700;
+            font-size: 20px;
+            color: #0b1220;
+        }
+
+        .modern-report .rounded-circle.bg-white {
+            box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
+        }
+
+        .modern-report .btn-dark {
+            background: linear-gradient(180deg, #0b1220, #111827);
+            border-color: transparent;
+            box-shadow: 0 6px 18px rgba(16, 24, 40, 0.08);
+            padding: 8px 14px;
+            border-radius: 8px;
+        }
+
+        .modern-report .stat-card {
+            padding: 18px;
+            color: #fff;
+            border-radius: 12px;
+        }
+
+        .modern-report .stat-card .icon-wrap {
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: #fff;
+            color: #0b1220;
+            box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
+        }
+
+        .modern-report table.table thead th {
+            background: #0b1220;
+            color: #fff;
+            border: none;
+        }
+
+        .modern-report table.table tbody td {
+            vertical-align: middle;
+        }
+
+
+
+        @media (max-width: 768px) {
+
+            #graficoEstados,
+            #graficoPropietarios {
+                min-height: 240px;
+            }
+
+            .modern-report .page-title {
+                font-size: 18px;
+            }
+        }
+
+        .modern-report .btn-link-neutral {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .text-muted-small {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .status-badge {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 6px 18px rgba(16, 24, 40, 0.04);
+        }
+
+        .stat-card.owner {
+            background: linear-gradient(135deg, #0f172a, #0b1220);
+        }
+
+        .stat-card.pets {
+            background: linear-gradient(135deg, #0b1220, #1f2937);
+        }
+
+        .stat-card.pending {
+            background: linear-gradient(135deg, #111827, #0b1220);
+        }
+
+        .ribbon::before,
+        .ribbon::after {
+            display: none !important;
+            content: none !important;
+        }
+
+        /* Welcome Header Light Version */
+        .welcome-section {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow) !important;
+        }
+
+        .welcome-section::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.03) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .welcome-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .welcome-text h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            letter-spacing: -0.025em;
+            color: #0f172a;
+        }
+
+        .welcome-text p {
+            color: #64748b;
+            margin-bottom: 0;
+            font-size: 0.875rem;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            padding: 0.625rem 0.51rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            border: 1px solid transparent;
+            position: relative;
+        }
+
+        .btn-inbox {
+            background: #f5f3ff;
+            color: #6366f1;
+            border-color: #ede9fe;
+        }
+
+        .btn-inbox:hover {
+            background: #ede9fe;
+            color: #4f46e5;
+            text-decoration: none;  
+        }
+        .btn-equipo {
+            background: #f3fffb;
+            color: #62c0b0;
+            border-color: #62c0b0;
+        }
+
+        .btn-equipo:hover {
+            background: #e9fef9;
+            color: #46e5cb;
+            text-decoration: none;  
+        }
+        .btn-movimiento {
+            background: #fffbeb;
+            color: #f59e0b;
+            border-color: #f59e0b;
+        }
+
+        .btn-movimiento:hover {
+            background: #fef3c7;
+            color: #d97706;
+            text-decoration: none;  
+        }
+
+        .btn-tickets {
+            background: #fef2f2;
+            color: #ef4444;
+            border-color: #fee2e2;
+        }
+
+        .btn-tickets:hover {
+            background: #fee2e2;
+            color: #dc2626;
+            text-decoration: none;
+        }
+
+        .action-btn .badge-dot {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 2px solid #ffffff;
+        }
+
+        @media (max-width: 991px) {
+            .welcome-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .quick-actions {
+                width: 100%;
+            }
+            .action-btn {
+                flex: 1;
+                justify-content: center;
+            }
+        }

@@ -1,0 +1,208 @@
+    body:not([data-bs-theme="dark"]) .dropdown-item:hover,
+    body:not([data-bs-theme="dark"]) .nav-link:hover {
+        background-color: rgba(0, 0, 0, 0.03);
+        transition: all 0.2s ease-in-out;
+    }
+
+    div.dataTables_filter {
+        display: none !important;
+    }
+
+    th {
+        color: #0054a6 !important;
+    }
+
+    th,
+    td {
+        max-width: 240px !important;
+        white-space: normal;
+        word-break: break-word;
+        overflow-wrap: break-word;
+        vertical-align: middle;
+    }
+
+    .swal2-container {
+        background-color: rgba(0, 0, 0, 0.25) !important;
+        backdrop-filter: blur(2px);
+        -webkit-backdrop-filter: blur(4px);
+      }
+      .swal2-popup {
+        background: rgb(255, 255, 255) !important;
+        box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px !important;
+      }
+    .error-msg {
+        color: red;
+        font-size: 0.9em;
+        margin-top: 4px;
+        display: none;
+    }
+
+    .error-msg.active {
+        display: block;
+    }
+
+    .modal-header {
+        background-color: #252422;
+    }
+
+    div.dt-button-background {
+        display: none !important;
+    }
+    #doc_data,
+    #funcion_data,
+    #solicitud_data,
+    #especialidad_data,
+    #inspector_data,
+    #ul_solicitudes_asignar,
+    #tabla_emision,
+    #jefe_data,
+    #criterio_data {
+      border-collapse: collapse;
+      border: 1px solid rgb(192, 192, 192); /* borde externo general */
+      width: 100%;
+    }
+
+    /* Encabezado */
+    #doc_data thead th,
+    #funcion_data thead th,
+    #solicitud_data thead th,
+    #especialidad_data thead th,
+    #inspector_data thead th,
+    #ul_solicitudes_asignar thead th,
+    #tabla_emision thead th,
+    #jefe_data thead th,
+    #criterio_data thead th {
+      background-color: #f8f9fa;
+      border-top: none !important;
+      border-bottom: 1px solid rgb(192, 192, 192);
+      border-left: none !important;
+      border-right: 1px solid rgb(192, 192, 192);
+      vertical-align: middle;
+      text-align: center;
+    }
+    #doc_data thead th:last-child,
+    #funcion_data thead th:last-child,
+    #solicitud_data thead th:last-child,
+    #especialidad_data thead th:last-child,
+    #inspector_data thead th:last-child,
+    #ul_solicitudes_asignar thead th:last-child,
+    #tabla_emision thead th:last-child,
+    #jefe_data thead th:last-child,
+    #criterio_data thead th:last-child {
+      border-right: none; /* quitar borde derecho en última columna */
+    }
+
+    /* Cuerpo: solo líneas horizontales */
+    #doc_data tbody tr,
+    #funcion_data tbody tr,
+    #solicitud_data tbody tr,
+    #especialidad_data tbody tr,
+    #inspector_data tbody tr,
+    #ul_solicitudes_asignar tbody tr,
+    #tabla_emision tbody tr,
+    #jefe_data tbody tr,
+    #criterio_data tbody tr {
+      border-top: 1px solid rgb(192, 192, 192); /* 👈 línea por fila */
+    }
+
+    #doc_data tbody td ,
+    #funcion_data tbody td,
+    #solicitud_data tbody td,
+    #especialidad_data tbody td,
+    #inspector_data tbody td,
+    #ul_solicitudes_asignar tbody td,
+    #tabla_emision tbody td,
+    #jefe_data tbody td,
+    #criterio_data tbody td {
+      border-top: none !important;
+      border-bottom: none;
+      border-left: none !important;
+      border-right: 1px solid rgb(192, 192, 192);
+      vertical-align: middle;
+      text-align: center;
+      padding: 6px 8px;
+    }
+    #doc_data tbody td:last-child,
+    #funcion_data tbody td:last-child,
+    #solicitud_data tbody td:last-child,
+    #especialidad_data tbody td:last-child,
+    #inspector_data tbody td:last-child,
+    #ul_solicitudes_asignar tbody td:last-child,
+    #tabla_emision tbody td:last-child,
+    #jefe_data tbody td:last-child,
+    #criterio_data tbody td:last-child {
+      border-right: none;
+    }
+
+    .icon-container {
+    background: rgba(13, 110, 253, 0.1);
+    border-radius: 50%;
+    padding: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    }
+
+    .form-select,
+    .form-control {
+    border-radius: 8px;
+    box-shadow: none;
+    transition: all 0.2s ease;
+    }
+
+    .form-select:focus,
+    .form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+    }
+
+    #btnAplicarFiltros svg {
+    margin-right: 4px;
+    vertical-align: middle;
+    }
+
+
+    .icon {
+    flex-shrink: 0;
+    }
+
+    /* Tarjetas de información */
+    .info-card {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 0.9rem 1rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    transition: all 0.25s ease;
+    height: 100%;
+    gap: 0.75rem;
+    }
+
+    .info-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    /* Icono de cada tarjeta */
+    .info-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    }
+
+    /* Etiquetas e información */
+    .info-label {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-bottom: 2px;
+    }
+
+    .info-value {
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: #212529;
+    }
