@@ -18,6 +18,7 @@
 <link href="../../public/css/alerta.css" rel="stylesheet" />
 <link href="../../public/css/botones.css" rel="stylesheet" />
 <link href="../../public/css/loader.css" rel="stylesheet" />
+<link href="../../public/css/emision.css" rel="stylesheet" />
 
 <!-- CSS de Librerías / CDN -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
@@ -102,6 +103,81 @@
 
     .select2-container--default .select2-results__option--highlighted {
         background-color: #0d6efd;
+    }
+
+    /* Modales estilo sisGitse (bg-gradient-dark y cierre blanco) */
+    .modal-header {
+        background: linear-gradient(135deg, #141E30 0%, #243B55 100%) !important;
+        color: #fcfcfc !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        padding: 1rem 1.5rem !important;
+    }
+
+    .modal-header .modal-title,
+    .modal-header h1,
+    .modal-header h2,
+    .modal-header h3,
+    .modal-header h4,
+    .modal-header h5 {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .modal-header .modal-title svg,
+    .modal-header h1 svg,
+    .modal-header h2 svg,
+    .modal-header h3 svg,
+    .modal-header h4 svg,
+    .modal-header h5 svg {
+        color: #ffffff !important;
+        stroke: #ffffff !important;
+    }
+
+    .modal-header .btn-close {
+        filter: invert(1) grayscale(100%) brightness(200%) !important;
+        opacity: 0.85;
+    }
+
+    .modal-header .btn-close:hover {
+        opacity: 1;
+    }
+
+    /* Page Titles estilo sisGitse */
+    .page-title {
+        font-weight: 700 !important;
+        letter-spacing: -0.2px;
+        color: #111827;
+        text-transform: uppercase;
+    }
+
+    /* Encabezados de tabla en azul institucional sisGitse */
+    th {
+        color: #0054a6 !important;
+    }
+
+    /* Inputs redondeados y contenedores de icono estilo sisGitse */
+    .form-select,
+    .form-control {
+        border-radius: 8px !important;
+        transition: all 0.2s ease;
+    }
+
+    .form-select:focus,
+    .form-control:focus {
+        border-color: #0d6efd !important;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15) !important;
+    }
+
+    .icon-container {
+        background: rgba(13, 110, 253, 0.1);
+        border-radius: 50%;
+        padding: 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 </style>
 

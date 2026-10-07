@@ -22,16 +22,29 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
           <div class="page-body">
             <div class="container-xl">
 
-              <!-- Encabezado con breadcrumbs -->
-              <div class="page-header d-print-none mb-3">
-                <div class="row align-items-center">
-                  <div class="col">
-                    <ol class="breadcrumb breadcrumb-arrows mb-3" aria-label="breadcrumbs">
-                      <li class="breadcrumb-item"><a href="../inicio/">SIGODT</a></li>
-                      <li class="breadcrumb-item"><a href="#">Procesos</a></li>
-                      <li class="breadcrumb-item active" aria-current="page">Órdenes de Derecho de Trámite</li>
-                    </ol>
-                    <h2 class="page-title">Gestión de Órdenes de Giro</h2>
+              <!-- Encabezado con breadcrumbs estilo sisGitse -->
+              <nav class="breadcrumb mb-3">
+                <a href="../inicio/">SIGODT</a>
+                <svg class="breadcrumb-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10.1 16.3">
+                  <path fill="currentColor" d="M0,14.4l6.2-6.2L0,1.9L2,0l8.1,8.1L2,16.3L0,14.4z" />
+                </svg>
+                <span class="breadcrumb-item active">Procesos</span>
+                <svg class="breadcrumb-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10.1 16.3">
+                  <path fill="currentColor" d="M0,14.4l6.2-6.2L0,1.9L2,0l8.1,8.1L2,16.3L0,14.4z" />
+                </svg>
+                <span>Órdenes de Derecho de Trámite</span>
+              </nav>
+
+              <!-- Module-card Header estilo sisGitse con page-title y text-muted mt-2 de SIGODT -->
+              <div class="card border-0 mb-3" style="box-shadow: 0 10px 30px rgba(16, 24, 40, 0.06)">
+                <div class="module-card d-flex flex-column flex-md-row align-items-center g-3 px-3 py-2 mb-0">
+                  <!-- Ícono / Animación -->
+                  <div class="text-center mb-3 mb-md-0">
+                    <img src="../../public/static/gif/mensaje.gif" alt="Animación Header" style="width:60px; height:auto;">
+                  </div>
+                  <!-- Contenedor de título y descripción -->
+                  <div class="content-wrapper flex-fill ms-md-3 text-center text-md-start">
+                    <h2 class="page-title mb-1">Gestión de Órdenes de Giro</h2>
                     <div class="text-muted mt-2">Emisión, liquidación y control de trámites por administrado</div>
                   </div>
                 </div>
