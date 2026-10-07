@@ -42,149 +42,10 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
               <input type="hidden" name="usu_depe_id_SIGODT" id="usu_depe_id_SIGODT" value="<?php echo $_SESSION["usu_depe_id_SIGODT"]; ?>" />
               <input type="hidden" name="tupa_id" id="tupa_id" />
 
-              <div class="row g-3">
-                <!-- Barra lateral izquierda: Perfil y Métricas -->
-                <div class="col-12 col-md-4 col-xl-2">
-
-                  <!-- Tarjeta de Perfil Operador -->
-                  <div class="card card-sm mb-2">
-                    <div class="card-body py-2">
-                      <div class="row align-items-center">
-                        <div class="col-auto">
-                          <span class="avatar rounded" style="background-image: url(../../public/img/perfil.jpeg)"></span>
-                        </div>
-                        <div class="col text-truncate">
-                          <div class="fw-bold text-truncate" title="<?php echo $_SESSION['pers_nombre_SIGODT']; ?>"><?php echo $_SESSION['pers_nombre_SIGODT']; ?></div>
-                          <div class="text-secondary small text-truncate"><?php echo $_SESSION['rol_nombre_SIGODT']; ?></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Métricas: Total Órdenes -->
-                  <div class="card card-sm mb-2">
-                    <div class="card-body py-2">
-                      <div class="row align-items-center">
-                        <div class="col-auto">
-                          <span class="bg-primary text-white avatar">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clipboard-list" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                              <path d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />
-                              <path d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" />
-                              <path d="M9 12l.01 0" />
-                              <path d="M13 12l2 0" />
-                              <path d="M9 16l.01 0" />
-                              <path d="M13 16l2 0" />
-                            </svg>
-                          </span>
-                        </div>
-                        <div class="col">
-                          <div class="fw-bold fs-3" id="totalGeneral">0</div>
-                          <div class="text-secondary small">Total Órdenes</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Métricas: Total Hoy -->
-                  <div class="card card-sm mb-2">
-                    <div class="card-body py-2">
-                      <div class="row align-items-center">
-                        <div class="col-auto">
-                          <span class="bg-success text-white avatar">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-sun" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                              <path d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
-                              <path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7" />
-                            </svg>
-                          </span>
-                        </div>
-                        <div class="col">
-                          <div class="fw-bold fs-3" id="totalDia">0</div>
-                          <div class="text-secondary small">Total Hoy</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Métricas: Total Ayer -->
-                  <div class="card card-sm mb-2">
-                    <div class="card-body py-2">
-                      <div class="row align-items-center">
-                        <div class="col-auto">
-                          <span class="bg-warning text-white avatar">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-history" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                              <path d="M12 8l0 4l2 2" />
-                              <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />
-                            </svg>
-                          </span>
-                        </div>
-                        <div class="col">
-                          <div class="fw-bold fs-3" id="totalAyer">0</div>
-                          <div class="text-secondary small">Total Ayer</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Normativa: TUPA Vigente -->
-                  <div class="card card-sm mb-2">
-                    <div class="card-body py-2">
-                      <div class="row align-items-center">
-                        <div class="col-auto">
-                          <span class="bg-purple text-white avatar">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-briefcase" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                              <path d="M3 7m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />
-                              <path d="M8 7v-2a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v2" />
-                              <path d="M12 12l0 .01" />
-                              <path d="M3 13a20 20 0 0 0 18 0" />
-                            </svg>
-                          </span>
-                        </div>
-                        <div class="col text-truncate">
-                          <div class="fw-bold text-truncate" id="tupa_nom">-</div>
-                          <div class="text-secondary small">TUPA Vigente</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Normativa: TUSNE Vigente -->
-                  <div class="card card-sm mb-2">
-                    <div class="card-body py-2">
-                      <div class="row align-items-center">
-                        <div class="col-auto">
-                          <span class="bg-danger text-white avatar">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-text-shield" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                              <path d="M13 3v4a.997 .997 0 0 0 1 1h4" />
-                              <path d="M11 21h-5a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v3.5" />
-                              <path d="M8 9h1" />
-                              <path d="M8 12.994l3 0" />
-                              <path d="M8 16.997l2 0" />
-                              <path d="M21 15.994c0 4 -2.5 6 -3.5 6s-3.5 -2 -3.5 -6c1 0 2.5 -.5 3.5 -1.5c1 1 2.5 1.5 3.5 1.5" />
-                            </svg>
-                          </span>
-                        </div>
-                        <div class="col text-truncate">
-                          <div class="fw-bold text-truncate" id="tusne_nom">-</div>
-                          <div class="text-secondary small">TUSNE Vigente</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
+              <div class="card shadow-sm mb-3">
+                <div class="card-header py-2">
+                  <h3 class="card-title fw-bold mb-0">Registrar Orden de Derecho de Trámite</h3>
                 </div>
-
-                <!-- Columna principal: Selección y Tabla de Procedimientos -->
-                <div class="col-12 col-md-8 col-xl-10">
-
-                  <div class="card shadow-sm">
-                    <div class="card-header py-2">
-                      <h3 class="card-title fw-bold mb-0">Registrar Orden de Derecho de Trámite</h3>
-                    </div>
 
                     <div class="card-body">
                       <!-- Filtros normativos en cascada -->
@@ -272,17 +133,13 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                       </table>
                     </div>
                   </div>
-
                 </div>
               </div>
 
+              <?php require_once("../html/footer.php"); ?>
             </div>
           </div>
-
-          <?php require_once("../html/footer.php"); ?>
         </div>
-      </div>
-    </div>
 
     <?php require_once("modaltasas.php"); ?>
     <?php require_once("modalmantenimiento.php"); ?>
