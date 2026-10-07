@@ -38,9 +38,17 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
               <!-- Module-card Header estilo sisGitse con page-title y text-muted mt-2 de SIGODT -->
               <div class="card border-0 mb-3" style="box-shadow: 0 10px 30px rgba(16, 24, 40, 0.06)">
                 <div class="module-card d-flex flex-column flex-md-row align-items-center g-3 px-3 py-2 mb-0">
-                  <!-- Ícono / Animación -->
-                  <div class="text-center mb-3 mb-md-0">
-                    <img src="../../public/static/gif/mensaje.gif" alt="Animación Header" style="width:60px; height:auto;">
+                  <!-- Ícono vectorial -->
+                  <div class="text-center mb-2 mb-md-0 me-md-2">
+                    <div class="icon-container">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon text-primary icon-tabler icon-tabler-receipt-tax" width="26" height="26" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <line x1="9" y1="14" x2="15" y2="8" />
+                        <circle cx="9.5" cy="8.5" r=".5" fill="currentColor" />
+                        <circle cx="14.5" cy="13.5" r=".5" fill="currentColor" />
+                        <path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2" />
+                      </svg>
+                    </div>
                   </div>
                   <!-- Contenedor de título y descripción -->
                   <div class="content-wrapper flex-fill ms-md-3 text-center text-md-start">
