@@ -1,6 +1,145 @@
 <?php
 class Ordengiro extends conectar
 {
+    /** Typed owner membership, deliberately independent of all state/date filters. */
+    private function nombre_association_sql()
+    {
+        return <<<'SQL'
+WITH source AS (
+    SELECT og.ogciud_id, tt.ciud_id, tt.empr_id, tt.procedciudadano_id,
+           BTRIM(CONCAT_WS(' ', c.ciud_nombre, c.ciud_primer_apellido, c.ciud_segundo_apellido)) AS ciudadano,
+           c.ciud_numero_documento::text AS documento,
+           COALESCE(NULLIF(BTRIM(e.empr_ruc::text), ''), NULLIF(BTRIM(tt.empresa_ruc::text), '')) AS ruc,
+           NULLIF(BTRIM(e.empr_razon_social), '') AS razon,
+           NULLIF(BTRIM(e.empr_nombre_comercial), '') AS comercial,
+           NULLIF(BTRIM(tt.empresa_razon_social), '') AS historica,
+           NULLIF(BTRIM(tt.empresa_ruc::text), '') AS ruc_historico
+    FROM sc_giros.td_ordengirociud og
+    JOIN sc_giros.td_giro_tasa_ciudadano gt ON gt.girot_giro = og.ogciud_id
+    JOIN sc_giros.td_tasatciud ttc ON gt.tasaciud_id = ttc.tasatciud_id
+    JOIN sc_giros.td_procedciudadano tt ON ttc.tasatciud_procedciud = tt.procedciudadano_id
+    JOIN public.tb_ciudadano c ON c.ciud_id = tt.ciud_id
+    LEFT JOIN public.tb_empresa e ON e.empr_id = tt.empr_id
+), entities AS (
+    SELECT 'ciudadano'::text AS entity_type, ciud_id::text AS entity_key,
+           ogciud_id, COALESCE(NULLIF(ciudadano, ''), 'Ciudadano sin nombre') AS nombre,
+           documento
+    FROM source
+    UNION ALL
+    SELECT 'empresa',
+           CASE WHEN ruc IS NOT NULL THEN 'ruc:' || ruc
+                WHEN empr_id IS NOT NULL THEN 'id:' || empr_id::text
+                ELSE 'sin:' || procedciudadano_id::text END,
+           ogciud_id, COALESCE(alias.nombre, razon, comercial, historica, 'Empresa sin razón social'),
+           COALESCE(ruc, CASE WHEN empr_id IS NOT NULL THEN 'Sin RUC · ID ' || empr_id::text
+                             ELSE 'Sin identificar · trámite ' || procedciudadano_id::text END)
+    FROM source
+    CROSS JOIN LATERAL (VALUES (razon), (comercial), (historica)) AS alias(nombre)
+    WHERE empr_id IS NOT NULL OR ruc_historico IS NOT NULL OR historica IS NOT NULL
+), pairs AS (
+    SELECT DISTINCT entity_type, entity_key, ogciud_id FROM entities
+)
+SQL;
+    }
+
+    public static function validar_nombre_input($operation, $input)
+    {
+        if (!is_array($input)) {
+            throw new InvalidArgumentException('Parámetros inválidos.');
+        }
+        $page = filter_var($input['page'] ?? 1, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 1000000000]]);
+        $limit = filter_var($input['limit'] ?? 10, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 100]]);
+        if ($page === false || $limit === false) {
+            throw new InvalidArgumentException('Paginación inválida.');
+        }
+        if ($operation === 'buscar_entidades_nombre') {
+            $search = $input['search'] ?? null;
+            if (!is_string($search) || trim($search) === '' || strlen($search) > 200 || preg_match('//u', $search) !== 1) {
+                throw new InvalidArgumentException('Ingrese un nombre válido (máximo 200 bytes).');
+            }
+            return [trim($search), $page, $limit];
+        }
+        $type = $input['entity_type'] ?? null;
+        $key = $input['entity_key'] ?? null;
+        if (!is_string($key) || strlen($key) > 200 || preg_match('//u', $key) !== 1 ||
+            !(($type === 'ciudadano' && preg_match('/^[1-9][0-9]*$/D', $key)) ||
+              ($type === 'empresa' && (preg_match('/^(id|sin):[1-9][0-9]*$/D', $key) ||
+               (strpos($key, 'ruc:') === 0 && trim(substr($key, 4)) !== '' && substr($key, 4) === trim(substr($key, 4))))))) {
+            throw new InvalidArgumentException('Entidad inválida.');
+        }
+        return [$type, $key, $page, $limit];
+    }
+
+    /** One statement/snapshot supplies total, bounded page and rows, even for empty pages. */
+    private function nombre_page($cte, $selection, $sort, $bindings, $page, $limit, $idColumn)
+    {
+        $sql = $cte . ", selected AS ($selection),
+            settings AS (SELECT CAST(:page AS bigint) AS requested, CAST(:limit AS integer) AS size),
+            totals AS (SELECT COUNT(*) AS total FROM selected),
+            bounds AS (SELECT total, size,
+                GREATEST(1, LEAST(requested, GREATEST(1, (total + size - 1) / size))) AS page
+                FROM totals CROSS JOIN settings),
+            paged AS (SELECT * FROM selected ORDER BY $sort
+                LIMIT (SELECT size FROM bounds) OFFSET (SELECT (page - 1) * size FROM bounds))
+            SELECT bounds.total, bounds.page, paged.* FROM bounds LEFT JOIN paged ON TRUE
+            ORDER BY $sort";
+        $query = parent::conexion()->prepare($sql);
+        foreach ($bindings as $key => $value) {
+            $query->bindValue($key, $value, PDO::PARAM_STR);
+        }
+        $query->bindValue(':page', $page, PDO::PARAM_INT);
+        $query->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $query->execute();
+        $rows = $query->fetchAll(PDO::FETCH_ASSOC);
+        $result = ['data' => [], 'total' => (int)$rows[0]['total'], 'page' => (int)$rows[0]['page'], 'limit' => $limit];
+        foreach ($rows as $row) {
+            if ($row[$idColumn] === null) { continue; }
+            unset($row['total'], $row['page']);
+            $result['data'][] = $row;
+        }
+        return $result;
+    }
+
+    public function buscar_entidades_nombre($search, $page = 1, $limit = 10)
+    {
+        list($search, $page, $limit) = self::validar_nombre_input('buscar_entidades_nombre', compact('search', 'page', 'limit'));
+        $cte = $this->nombre_association_sql() . <<<'SQL'
+, matched AS (
+    SELECT DISTINCT entity_type, entity_key FROM entities WHERE nombre ILIKE :search ESCAPE '!'
+), labels AS (
+    SELECT entity_type, entity_key, MIN(nombre) AS nombre, MIN(documento) AS documento
+    FROM entities GROUP BY entity_type, entity_key
+)
+SQL;
+        $selection = 'SELECT p.entity_type, p.entity_key, l.nombre, l.documento, COUNT(*) AS ordenes
+            FROM pairs p JOIN matched m USING (entity_type, entity_key)
+            JOIN labels l USING (entity_type, entity_key)
+            GROUP BY p.entity_type, p.entity_key, l.nombre, l.documento';
+        $literal = '%' . strtr($search, ['!' => '!!', '%' => '!%', '_' => '!_']) . '%';
+        return $this->nombre_page($cte, $selection, 'nombre, entity_type, entity_key', [':search' => $literal], $page, $limit, 'entity_key');
+    }
+
+    public function historial_entidad($entity_type, $entity_key, $page = 1, $limit = 10)
+    {
+        list($entity_type, $entity_key, $page, $limit) = self::validar_nombre_input('historial_entidad', compact('entity_type', 'entity_key', 'page', 'limit'));
+        $cte = $this->nombre_association_sql() . <<<'SQL'
+, rate_rows AS (
+    SELECT DISTINCT girot_id, girot_giro, importe FROM sc_giros.td_giro_tasa_ciudadano
+), amounts AS (
+    SELECT girot_giro, SUM(importe) AS importe FROM rate_rows GROUP BY girot_giro
+)
+SQL;
+        $selection = "SELECT og.ogciud_id, og.fechacrea, og.est AS orden_est, og.recibo_nro,
+            TO_CHAR(og.fechacrea, 'YYYY-MM-DD') AS fecha,
+            TO_CHAR(og.fechacrea, 'HH24:MI:SS') AS hora, COALESCE(a.importe, 0) AS importe
+            FROM pairs p JOIN sc_giros.td_ordengirociud og ON og.ogciud_id = p.ogciud_id
+            LEFT JOIN amounts a ON a.girot_giro = og.ogciud_id
+            WHERE p.entity_type = :type AND p.entity_key = :key";
+        // The same sort is used inside and outside paged; no ambiguous table aliases there.
+        return $this->nombre_page($cte, $selection, 'fechacrea DESC NULLS LAST, ogciud_id DESC',
+            [':type' => $entity_type, ':key' => $entity_key], $page, $limit, 'ogciud_id');
+    }
+
     public function get_orden_id($orden_id)
     {
         $conectar = parent::conexion();

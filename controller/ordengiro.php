@@ -1,5 +1,51 @@
-
 <?php
+// New read-only operations have their own boundary; legacy handlers remain unchanged.
+$nombreOperation = $_GET['op'] ?? '';
+if (in_array($nombreOperation, ['buscar_entidades_nombre', 'historial_entidad'], true)) {
+    ini_set('display_errors', '0');
+    header('Content-Type: application/json; charset=utf-8');
+    if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
+    if (!isset($_SESSION['usua_id_SIGODT'])) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Sesión no válida. Inicie sesión nuevamente.']);
+        exit;
+    }
+    // Reject malformed input before loading connection configuration or touching the DB.
+    $page = filter_var($_POST['page'] ?? 1, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 1000000000]]);
+    $limit = filter_var($_POST['limit'] ?? 10, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 100]]);
+    $valid = $page !== false && $limit !== false;
+    if ($nombreOperation === 'buscar_entidades_nombre') {
+        $search = $_POST['search'] ?? null;
+        $valid = $valid && is_string($search) && trim($search) !== '' && strlen($search) <= 200 && preg_match('//u', $search) === 1;
+    } else {
+        $type = $_POST['entity_type'] ?? null;
+        $key = $_POST['entity_key'] ?? null;
+        $valid = $valid && is_string($key) && strlen($key) <= 200 && preg_match('//u', $key) === 1 &&
+            (($type === 'ciudadano' && preg_match('/^[1-9][0-9]*$/D', $key)) ||
+             ($type === 'empresa' && (preg_match('/^(id|sin):[1-9][0-9]*$/D', $key) ||
+              (strpos($key, 'ruc:') === 0 && trim(substr($key, 4)) !== '' && substr($key, 4) === trim(substr($key, 4))))));
+    }
+    if (!$valid) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Criterio, entidad o paginación inválidos.']);
+        exit;
+    }
+    ob_start();
+    try {
+        require_once(__DIR__ . '/../config/conexion.php');
+        require_once(__DIR__ . '/../models/OrdenGiro.php');
+        $model = new Ordengiro();
+        $arguments = Ordengiro::validar_nombre_input($nombreOperation, $_POST);
+        $result = call_user_func_array([$model, $nombreOperation], $arguments);
+        ob_end_clean();
+        echo json_encode($result, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+    } catch (Throwable $error) {
+        ob_end_clean();
+        http_response_code(500);
+        echo json_encode(['error' => 'No se pudo realizar la consulta. Intente nuevamente.']);
+    }
+    exit;
+}
 require_once(__DIR__ . "/../base/Response.php");
 require_once(__DIR__ . "/../config/conexion.php");
 require_once(__DIR__ . "/../models/OrdenGiro.php");

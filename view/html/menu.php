@@ -3,7 +3,7 @@ $currentPage = $_SERVER['PHP_SELF'] ?? '';
 $isInicioActive = (strpos($currentPage, '/inicio/') !== false);
 $isDashboardActive = (strpos($currentPage, '/dashboard/') !== false);
 $isProcesosActive = (strpos($currentPage, '/giros_ciudadano/') !== false || strpos($currentPage, '/admin_giros_ciudadano/') !== false);
-$isConsultasActive = (strpos($currentPage, '/consultar_documento/') !== false || strpos($currentPage, '/consultar_og/') !== false || strpos($currentPage, '/consultar_mes/') !== false);
+$isConsultasActive = (strpos($currentPage, '/consultar_nombre/') !== false || strpos($currentPage, '/consultar_documento/') !== false || strpos($currentPage, '/consultar_og/') !== false || strpos($currentPage, '/consultar_mes/') !== false);
 $isMntActive = (strpos($currentPage, '/mnt_') !== false);
 ?>
 <header class="navbar-expand-md">
@@ -97,6 +97,9 @@ $isMntActive = (strpos($currentPage, '/mnt_') !== false);
             <div class="dropdown-menu">
               <a href="../consultar_documento/" class="dropdown-item <?php echo (strpos($currentPage, '/consultar_documento/') !== false) ? 'active' : ''; ?>">
                 Consulta por DNI/RUC/CEE/CPP
+              </a>
+              <a href="../consultar_nombre/" class="dropdown-item <?php echo (strpos($currentPage, '/consultar_nombre/') !== false) ? 'active' : ''; ?>">
+                Consulta por Nombre / Razón Social
               </a>
               <a href="../consultar_og/" class="dropdown-item <?php echo (strpos($currentPage, '/consultar_og/') !== false) ? 'active' : ''; ?>">
                 Consulta por Orden de Giro
