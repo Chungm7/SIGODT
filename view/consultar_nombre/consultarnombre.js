@@ -31,6 +31,14 @@
     td.className = 'text-center text-secondary py-4';
     tbody.appendChild(tr);
   }
+  function entityDocument(row) {
+    // Missing-RUC model labels contain internal IDs; classify by key, not label text.
+    if (row.entity_type === 'empresa') {
+      if (/^(?:id|sin):/.test(row.entity_key)) return 'Sin RUC';
+      return row.documento || 'Sin RUC';
+    }
+    return row.documento || 'Sin documento';
+  }
   function renderEntities(doc, tbody, rows, open) {
     tbody.replaceChildren();
     if (!rows.length) { empty(doc, tbody, 5, 'No se encontraron entidades.'); return; }
@@ -38,7 +46,7 @@
       const tr = doc.createElement('tr');
       cell(doc, tr, row.entity_type === 'ciudadano' ? 'Ciudadano' : 'Empresa');
       cell(doc, tr, row.nombre);
-      cell(doc, tr, (row.documento || 'Sin documento') + ' · ' + row.entity_key);
+      cell(doc, tr, entityDocument(row));
       cell(doc, tr, row.ordenes);
       button(doc, cell(doc, tr), 'Ver historial', () => open(row));
       tbody.appendChild(tr);
@@ -182,7 +190,7 @@
     async function loadHistory(page) {
       get('nombreHistory').hidden = false;
       get('nombreResults').hidden = true;
-      get('historyIdentity').textContent = selected.nombre + ' · ' + (selected.documento || 'Sin documento') + ' · ' + selected.entity_key;
+      get('historyIdentity').textContent = selected.nombre + ' · ' + entityDocument(selected);
       pager('history', history, true);
       empty(doc, get('nombreOrders'), 7, 'Cargando historial…');
       get('nombreHistory').setAttribute('aria-busy', 'true');

@@ -129,6 +129,35 @@ test('names are literal text, typed identities and counts remain distinct', () =
   rows.children[0].children[4].children[0].listeners.click();
   assert.deepEqual(selected, ['1']);
 });
+const documentFixtures = [
+  { entity_type: 'ciudadano', entity_key: '901', documento: '00123', expected: '00123' },
+  { entity_type: 'ciudadano', entity_key: '902', documento: null, expected: 'Sin documento' },
+  { entity_type: 'empresa', entity_key: 'ruc:00123456789', documento: '00123456789', expected: '00123456789' },
+  { entity_type: 'empresa', entity_key: 'id:903', documento: 'Sin RUC · ID 903', expected: 'Sin RUC' },
+  { entity_type: 'empresa', entity_key: 'sin:904', documento: 'Sin identificar · trámite 904', expected: 'Sin RUC' },
+  // A real RUC must not be hidden merely because its text resembles a fallback label.
+  { entity_type: 'empresa', entity_key: 'ruc:Sin RUC · ID 905', documento: 'Sin RUC · ID 905', expected: 'Sin RUC · ID 905' },
+  { entity_type: 'empresa', entity_key: 'ruc:Sin identificar · trámite 906', documento: 'Sin identificar · trámite 906', expected: 'Sin identificar · trámite 906' },
+  { entity_type: 'empresa', entity_key: 'ruc:<img>', documento: '<img>', expected: '<img>' }
+];
+for (const fixture of documentFixtures) test('document-only display and unchanged history routing: ' + fixture.entity_key, async t => {
+  const h = harness(t);
+  const row = { ...fixture, nombre: '<img onerror=alert(1)>', ordenes: 1 };
+  h.input('Alpha'); h.submit();
+  h.respond(0, [row], 1, 1); await flush();
+  const cells = h.get('nombreEntities').children[0].children;
+  assert.equal(cells[2].textContent, fixture.expected);
+  cells[4].children[0].listeners.click();
+  assert.equal(h.get('historyIdentity').textContent, row.nombre + ' · ' + fixture.expected);
+  const parameters = new URLSearchParams(h.requests[1].options.body);
+  assert.equal(parameters.get('entity_type'), fixture.entity_type);
+  assert.equal(parameters.get('entity_key'), fixture.entity_key);
+});
+test('entity table heading names documents and RUC, not internal identity', () => {
+  const page = require('node:fs').readFileSync(require('node:path').join(__dirname, '../view/consultar_nombre/index.php'), 'utf8');
+  assert.ok(page.includes('<th>Documento / RUC</th>'));
+  assert.ok(!page.includes('Documento / Identidad'));
+});
 test('every known order state plus explicit unknown', () => {
   assert.deepEqual(Array.from({ length: 7 }, (_, i) => ui.state(i).label),
     ['Anulado', 'Pendiente', 'Girado', 'Improcedente', 'Pagado', 'Usado', 'Extornado']);

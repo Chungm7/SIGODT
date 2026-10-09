@@ -45,7 +45,7 @@ if (!isset($_SESSION['usua_id_SIGODT'])) {
           <div class="card-header py-2"><h3 id="resultsTitle" class="card-title fw-bold mb-0">Entidades y Total de Órdenes</h3></div>
           <div class="table-responsive">
             <table class="table table-vcenter card-table table-striped table-hover">
-              <thead><tr><th>Tipo</th><th>Nombre / Razón social</th><th>Documento / Identidad</th><th>Total de órdenes</th><th>Acciones</th></tr></thead>
+              <thead><tr><th>Tipo</th><th>Nombre / Razón social</th><th>Documento / RUC</th><th>Total de órdenes</th><th>Acciones</th></tr></thead>
               <tbody id="nombreEntities"></tbody>
             </table>
           </div>
