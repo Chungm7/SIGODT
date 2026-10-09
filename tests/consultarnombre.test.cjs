@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const ui = require('../view/consultar_nombre/consultarnombre.js');
 
 class Element {
-  constructor(tag) { this.tagName = tag; this.children = []; this.textContent = ''; this.listeners = {}; }
+  constructor(tag) { this.tagName = tag; this.children = []; this.textContent = ''; this.value = ''; this.listeners = {}; }
   appendChild(child) { this.children.push(child); return child; }
   replaceChildren(...children) { this.children = children; }
   addEventListener(name, fn) { this.listeners[name] = fn; }
@@ -13,6 +13,110 @@ class Element {
   set innerHTML(value) { throw new Error('Unsafe HTML rendering'); }
 }
 const doc = { createElement: tag => new Element(tag), body: new Element('body') };
+const flush = async () => { for (let i = 0; i < 10; i++) await Promise.resolve(); };
+function harness(t, abort = true) {
+  const elements = new Map();
+  const document = { ...doc, getElementById(id) {
+    if (!elements.has(id)) elements.set(id, new Element('div'));
+    return elements.get(id);
+  } };
+  const get = id => document.getElementById(id);
+  let now = 0, serial = 0;
+  const timers = new Map(), requests = [];
+  const saved = { fetch: global.fetch, setTimeout: global.setTimeout, clearTimeout: global.clearTimeout, AbortController: global.AbortController };
+  global.setTimeout = (fn, delay) => { const id = ++serial; timers.set(id, { fn, at: now + delay }); return id; };
+  global.clearTimeout = id => timers.delete(id);
+  global.fetch = (url, options) => new Promise((resolve, reject) => requests.push({ url, options, resolve, reject }));
+  if (!abort) global.AbortController = undefined;
+  t.after(() => Object.assign(global, saved));
+  ui.mount(document);
+  return { get, requests,
+    tick(ms) { now += ms; for (const [id, timer] of timers) if (timer.at <= now) { timers.delete(id); timer.fn(); } },
+    input(value) { get('nombreSearch').value = value; get('nombreSearch').listeners.input({}); },
+    submit() { get('nombreForm').listeners.submit({ preventDefault() {} }); },
+    respond(index, data = [], page = 1, total = 0) { requests[index].resolve({ ok: true, json: async () => ({ data, page, total, limit: 10 }) }); }
+  };
+}
+test('component cells are empty but missing receipt retains scalar dash', () => {
+  const rows = new Element('tbody');
+  ui.renderEntities(doc, rows, [{ entity_type: 'ciudadano', entity_key: '1' }], () => {});
+  assert.equal(rows.children[0].children[4].textContent, '');
+  ui.renderOrders(doc, rows, [{ ogciud_id: '000123-2026', recibo_nro: null, importe: 1, orden_est: 4 }]);
+  assert.equal(rows.children[0].children[3].textContent, '—');
+  for (const index of [5, 6]) assert.equal(rows.children[0].children[index].textContent, '');
+});
+test('typing burst debounces exactly 400ms and counts trimmed Unicode characters', t => {
+  const h = harness(t);
+  h.input('  😀😀  '); h.tick(400); assert.equal(h.requests.length, 0);
+  h.input('Alp'); h.tick(250); h.input('Alpha'); h.tick(399);
+  assert.equal(h.requests.length, 0);
+  h.tick(1); assert.equal(h.requests.length, 1);
+  assert.equal(new URLSearchParams(h.requests[0].options.body).get('search'), 'Alpha');
+  assert.notEqual(h.get('nombreSearch').disabled, true);
+  h.input('  😀😀😀  '); h.tick(400);
+  assert.equal(h.requests.length, 2);
+  assert.equal(new URLSearchParams(h.requests[1].options.body).get('search'), '😀😀😀');
+});
+test('manual short search is immediate and cancels pending auto request', t => {
+  const h = harness(t);
+  h.input('Alpha'); h.submit(); assert.equal(h.requests.length, 1);
+  h.tick(400); assert.equal(h.requests.length, 1);
+  h.input(' A '); h.submit(); assert.equal(h.requests.length, 2);
+  assert.equal(new URLSearchParams(h.requests[1].options.body).get('search'), 'A');
+  h.tick(400); assert.equal(h.requests.length, 2);
+});
+for (const abort of [true, false]) test('edit immediately invalidates pending responses, abort fallback=' + !abort, async t => {
+  const h = harness(t, abort);
+  h.input('Alpha'); h.submit();
+  h.input('Bravo');
+  if (abort) assert.equal(h.requests[0].options.signal.aborted, true);
+  h.respond(0, [{ nombre: 'Obsolete' }], 1, 1); await flush();
+  assert.doesNotMatch(h.get('nombreMessage').textContent, /1 entidades/);
+  assert.equal(h.get('entitiesPage').textContent, '');
+  assert.equal(h.get('nombreResults')['aria-busy'], 'false');
+  h.tick(400); assert.equal(h.requests.length, 2);
+  h.input(' '); h.requests[1].reject(new Error('AbortError')); await flush();
+  h.tick(400); assert.equal(h.requests.length, 2);
+  assert.equal(h.get('nombreHistory').hidden, true);
+  assert.equal(h.get('historyIdentity').textContent, '');
+  assert.equal(h.get('entitiesNext').disabled, true);
+  assert.doesNotMatch(h.get('nombreMessage').textContent, /AbortError/);
+});
+test('shortening and blank submit clear results and never auto request', async t => {
+  const h = harness(t);
+  h.input('Alpha'); h.submit();
+  h.respond(0, [{ entity_type: 'ciudadano', entity_key: '1', nombre: 'Alpha' }], 1, 1); await flush();
+  h.input('Al'); h.tick(400);
+  assert.equal(h.requests.length, 1);
+  assert.equal(h.get('entitiesPage').textContent, '');
+  assert.match(h.get('nombreMessage').textContent, /3 caracteres/);
+  h.input('   '); h.submit(); h.tick(400);
+  assert.equal(h.requests.length, 1);
+  assert.match(h.get('nombreMessage').textContent, /nombre válido/);
+});
+test('IME composition never auto submits partial text', t => {
+  const h = harness(t);
+  h.get('nombreSearch').listeners.compositionstart();
+  h.input('漢字名'); h.tick(400); h.submit(); assert.equal(h.requests.length, 0);
+  h.get('nombreSearch').listeners.compositionend();
+  h.tick(399); assert.equal(h.requests.length, 0);
+  h.tick(1); assert.equal(h.requests.length, 1);
+});
+test('editing history clears selection, stale history and metadata; changed term resets page', async t => {
+  const h = harness(t);
+  h.input('Alpha'); h.submit();
+  h.respond(0, [{ entity_type: 'ciudadano', entity_key: '1', nombre: 'Alpha' }], 2, 11); await flush();
+  h.get('nombreEntities').children[0].children[4].children[0].listeners.click();
+  h.input('Bravo');
+  if (h.requests[1].options.signal) assert.equal(h.requests[1].options.signal.aborted, true);
+  h.respond(1, [{ ogciud_id: '000123-2026', importe: 1 }], 1, 1); await flush();
+  h.get('historyBack').listeners.click();
+  assert.equal(h.get('historyPage').textContent, '');
+  assert.equal(h.get('entitiesPage').textContent, '');
+  h.tick(400);
+  assert.equal(new URLSearchParams(h.requests[2].options.body).get('page'), '1');
+  assert.equal(new URLSearchParams(h.requests[2].options.body).get('search'), 'Bravo');
+});
 test('names are literal text, typed identities and counts remain distinct', () => {
   const rows = new Element('tbody');
   const selected = [];
@@ -125,7 +229,9 @@ test('mounted search paginates, keeps results on return and ignores late history
     await flush();
     assert.equal(get('entitiesPrev').disabled, true);
     assert.equal(get('entitiesNext').disabled, false);
+    get('nombreSearch').value = 'Uncommitted';
     get('entitiesNext').listeners.click();
+    assert.equal(new URLSearchParams(requests[1].options.body).get('search'), 'Alias');
     assert.equal(new URLSearchParams(requests[1].options.body).get('page'), '2');
     respond(1, { data: [row], total: 11, page: 2, limit: 10 });
     await flush();

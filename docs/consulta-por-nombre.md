@@ -1,12 +1,12 @@
 # Consulta por Nombre / Razón Social
 
-En **Consultas → Consulta por Nombre / Razón Social**, ingrese parte de un nombre de ciudadano, razón social o nombre comercial. La búsqueda no distingue mayúsculas y trata `%`, `_` y `!` como texto literal.
+En **Consultas → Consulta por Nombre / Razón Social**, ingrese parte de un nombre de ciudadano, razón social o nombre comercial. La búsqueda es por subcadena parcial, no aproximada (fuzzy): no distingue mayúsculas y trata `%`, `_` y `!` como texto literal. Al escribir al menos **3 caracteres Unicode**, sin contar espacios exteriores, consulta tras **400 ms** sin cambios. **Buscar / Enter** consulta inmediatamente cualquier texto no vacío, incluso más corto. Durante composición IME espera a que finalice la composición.
 
 1. Revise las entidades y el **total de órdenes** antes de abrir un historial.
 2. Compare documento e identidad: dos personas o empresas con el mismo nombre no necesariamente son la misma entidad.
 3. Seleccione **Ver historial**. Se muestran órdenes de todas las fechas y estados, diez por página, de más reciente a más antigua (ID descendente para fechas iguales).
 4. Use **Ver / Imprimir** para enviar el ID mediante POST al servicio existente, en una pestaña nueva. Los IDs número-año (por ejemplo, `000123-2026`) se envían sin alterar sus ceros iniciales.
-5. **Volver a resultados** conserva la búsqueda, sus filas y su página. Una nueva búsqueda reemplaza los resultados anteriores.
+5. **Volver a resultados** conserva la búsqueda confirmada, sus filas y su página. Al editar se cancelan o invalidan las peticiones anteriores, se limpia el historial/selección y la metadata, y la siguiente búsqueda inicia en página 1. Un texto vacío o de menos de 3 caracteres no dispara consulta automática y muestra una indicación; puede enviar un texto corto con Buscar. El campo permanece editable durante la carga.
 
 ## Identidades y totales
 
@@ -17,6 +17,17 @@ En **Consultas → Consulta por Nombre / Razón Social**, ingrese parte de un no
 - Los alias coincidentes seleccionan claves primero. Después se cuentan **todos** los pares distintos entidad/orden de esas claves, no sólo las filas cuyo nombre coincide. Una orden puede figurar en más de una entidad; no se deben sumar los resultados como total global de órdenes.
 - El historial usa los mismos pares: una fila por orden. El importe es el total de las filas reales de giro-tasa de la orden, deduplicadas por `girot_id`, antes de unir las identidades. Incluye todas sus tasas, no sólo las vinculadas al alias buscado.
 - Estados: Anulado, Pendiente, Girado, Improcedente, Pagado, Usado, Extornado (0–6). Cualquier otro valor muestra **Desconocido** con su código.
+
+## Por qué puede aparecer «—» en Recibo
+
+El historial lee `td_ordengirociud.recibo_nro` directamente y, de forma independiente, `est` como estado (`models/OrdenGiro.php:132–140`). Un recibo nulo o vacío se representa con «—»; no significa por sí solo pendiente, anulado o impago. Los botones y badges ya no agregan ese placeholder de dato ausente.
+
+Trazado estático del flujo existente:
+
+- `view/giros_ciudadano/usudetalleciudadano.js:1271` envía la creación individual a `Pagar_Orden_Giro`; `controller/tasa.php:60–66` llama a `Tasa::Pagar_Order_Giro`. El INSERT de `models/Tasa.php:225–230` establece `est = 1` y **no incluye recibo_nro**. El nombre de esa operación no prueba que exista un recibo ni que el estado de la orden sea Pagado (4).
+- Otro handler, `controller/tasa.php:71–85` (`Pagar_Order_Giro_trabajador`), llama al flujo trabajador, obtiene `valor_recibo` y lo asigna a las órdenes retornadas. `models/Tasa.php:69` llama a `fn_pagar_tasa_trabajador`, `models/Tasa.php:99` a `obtener_valor_recibo`, y `models/Tasa.php:115–119` ejecuta el UPDATE de `recibo_nro`. La búsqueda estática en `view/` no encontró un caller de ese handler trabajador.
+
+Esto explica una vía de creación sin asignación explícita de recibo en PHP, **no diagnostica una orden concreta**: sin consultar datos, defaults/triggers o definiciones de las funciones SQL no se puede confirmar por qué falta su valor almacenado. No se modifica ni se inventa recibo ni lógica de pago.
 
 ## Contrato técnico
 
@@ -42,7 +53,7 @@ php tests/consultar_nombre_test.php
 node --test tests/consultarnombre.test.cjs
 ```
 
-La prueba PHP usa doubles PDO/statement y procesos aislados con sesiones en memoria para comprobar binding literal/tipado, validación, rechazo real del controlador, metadata, filas sintéticas y construcción del SQL. **No ejecuta PostgreSQL**: los checks de estructura y los resultados de doubles no prueban semántica de JOIN, agrupación de RUC/alias, deduplicación de tasas o concordancia real conteo/historial. La suite Node ejecuta renderizado, estados, impresión, paginación y navegación con DOM/fetch sintéticos, incluyendo respuestas tardías; no sustituye una revisión visual en navegador.
+La prueba PHP usa doubles PDO/statement y procesos aislados con sesiones en memoria para comprobar binding literal/tipado, validación, rechazo real del controlador, metadata, filas sintéticas y construcción del SQL. **No ejecuta PostgreSQL**: los checks de estructura y los resultados de doubles no prueban semántica de JOIN, agrupación de RUC/alias, deduplicación de tasas o concordancia real conteo/historial. La suite Node ejecuta renderizado, estados, impresión, paginación y navegación con DOM/fetch sintéticos, incluyendo respuestas tardías, cancelación con y sin AbortController, IME y un reloj falso sin esperas reales para el debounce exacto de 400 ms; no sustituye una revisión visual en navegador.
 
 Pendiente en un entorno autorizado: ejecutar el SQL con fixtures PostgreSQL aisladas y validar nombres/esquema/tipos reales. No se accedió a credenciales ni a una base de datos viva. No hay runner visual de navegador disponible en las herramientas de esta tarea; Tabler, includes compartidos y sesión desplegada requieren aceptación manual.
 

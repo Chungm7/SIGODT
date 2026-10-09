@@ -10,7 +10,8 @@
   }
   function cell(doc, row, text) {
     const td = doc.createElement('td');
-    td.textContent = text == null || text === '' ? '—' : String(text);
+    // Omitted text denotes a component cell; empty scalar values retain their placeholder.
+    if (arguments.length > 2) td.textContent = text == null || text === '' ? '—' : String(text);
     row.appendChild(td);
     return td;
   }
@@ -39,7 +40,7 @@
       cell(doc, tr, row.nombre);
       cell(doc, tr, (row.documento || 'Sin documento') + ' · ' + row.entity_key);
       cell(doc, tr, row.ordenes);
-      button(doc, cell(doc, tr, ''), 'Ver historial', () => open(row));
+      button(doc, cell(doc, tr), 'Ver historial', () => open(row));
       tbody.appendChild(tr);
     });
   }
@@ -54,8 +55,8 @@
       const badge = doc.createElement('span');
       badge.className = 'badge bg-' + status.color + ' text-' + status.color + '-fg';
       badge.textContent = status.label;
-      cell(doc, tr, '').appendChild(badge);
-      button(doc, cell(doc, tr, ''), 'Ver / Imprimir', () => printOrder(doc, row.ogciud_id));
+      cell(doc, tr).appendChild(badge);
+      button(doc, cell(doc, tr), 'Ver / Imprimir', () => printOrder(doc, row.ogciud_id));
       tbody.appendChild(tr);
     });
   }
@@ -79,22 +80,30 @@
   }
   function requestGate() {
     let version = 0;
+    let controller = null;
+    function invalidate() {
+      version += 1;
+      if (controller) controller.abort();
+      controller = null;
+    }
     return {
-      invalidate() { version += 1; },
+      invalidate,
       async run(work) {
-        const token = ++version;
+        invalidate();
+        const token = version;
+        controller = typeof root.AbortController === 'function' ? new root.AbortController() : null;
         try {
-          const data = await work();
+          const data = await work(controller ? controller.signal : undefined);
           return { current: token === version, data };
         }
         catch (error) { return { current: token === version, error }; }
       }
     };
   }
-  async function request(op, parameters) {
+  async function request(op, parameters, signal) {
     const response = await root.fetch('../../controller/ordengiro.php?op=' + op, {
       method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams(parameters).toString(), credentials: 'same-origin'
+      body: new URLSearchParams(parameters).toString(), credentials: 'same-origin', signal
     });
     if (!response.ok) {
       throw new Error(response.status === 401 ? 'Sesión no válida. Inicie sesión nuevamente.' : 'No se pudo realizar la consulta. Intente nuevamente.');
@@ -107,7 +116,10 @@
   }
   function mount(doc) {
     const get = id => doc.getElementById(id);
-    const gate = requestGate();
+    const entityGate = requestGate();
+    const historyGate = requestGate();
+    let timer = null;
+    let composing = false;
     let search = '';
     let selected = null;
     let entities = null;
@@ -122,7 +134,7 @@
       get(prefix + 'Page').textContent = data ? 'Página ' + data.page + ' de ' + Math.max(1, Math.ceil(data.total / data.limit)) + ' · ' + data.total + ' resultados' : '';
     }
     function back() {
-      gate.invalidate();
+      historyGate.invalidate();
       selected = null;
       get('nombreHistory').hidden = true;
       get('nombreResults').hidden = false;
@@ -141,6 +153,7 @@
       message(entities ? entities.total + ' entidades encontradas. Seleccione un historial.' : 'Ingrese un nombre para buscar.');
     }
     async function loadEntities(page) {
+      historyGate.invalidate();
       selected = null;
       get('nombreHistory').hidden = true;
       get('nombreResults').hidden = false;
@@ -148,7 +161,7 @@
       empty(doc, get('nombreEntities'), 5, 'Buscando…');
       get('nombreResults').setAttribute('aria-busy', 'true');
       message('Buscando entidades…');
-      const result = await gate.run(() => request('buscar_entidades_nombre', { search, page, limit: 10 }));
+      const result = await entityGate.run(signal => request('buscar_entidades_nombre', { search, page, limit: 10 }, signal));
       if (!result.current) { return; }
       get('nombreResults').setAttribute('aria-busy', 'false');
       if (result.error) {
@@ -174,9 +187,9 @@
       empty(doc, get('nombreOrders'), 7, 'Cargando historial…');
       get('nombreHistory').setAttribute('aria-busy', 'true');
       message('Cargando historial completo…');
-      const result = await gate.run(() => request('historial_entidad', {
+      const result = await historyGate.run(signal => request('historial_entidad', {
         entity_type: selected.entity_type, entity_key: selected.entity_key, page, limit: 10
-      }));
+      }, signal));
       if (!result.current) { return; }
       get('nombreHistory').setAttribute('aria-busy', 'false');
       if (result.error) {
@@ -190,13 +203,54 @@
       pager('history', history);
       message(history.total + ' órdenes en el historial completo.');
     }
-    get('nombreForm').addEventListener('submit', event => {
-      event.preventDefault();
-      const value = get('nombreSearch').value.trim();
-      if (!value) { gate.invalidate(); back(); message('Ingrese un nombre válido.', true); return; }
+    function cancelTimer() {
+      if (timer !== null) root.clearTimeout(timer);
+      timer = null;
+    }
+    function clearSearch(text) {
+      entityGate.invalidate();
+      historyGate.invalidate();
+      selected = null;
+      entities = null;
+      history = null;
+      get('nombreHistory').hidden = true;
+      get('nombreResults').hidden = false;
+      get('historyIdentity').textContent = '';
+      get('nombreResults').setAttribute('aria-busy', 'false');
+      get('nombreHistory').setAttribute('aria-busy', 'false');
+      empty(doc, get('nombreEntities'), 5, text);
+      get('nombreOrders').replaceChildren();
+      pager('entities', null);
+      pager('history', null);
+      message(text);
+    }
+    function submitSearch(value) {
+      cancelTimer();
       search = value;
       entities = null;
+      history = null;
       loadEntities(1);
+    }
+    function edited() {
+      cancelTimer();
+      const value = get('nombreSearch').value.trim();
+      const eligible = Array.from(value).length >= 3;
+      clearSearch(eligible ? 'Espere un momento o pulse Buscar para consultar.'
+        : 'Ingrese al menos 3 caracteres para buscar automáticamente, o pulse Buscar para un texto más corto.');
+      if (!composing && eligible) {
+        timer = root.setTimeout(() => { timer = null; submitSearch(value); }, 400);
+      }
+    }
+    get('nombreSearch').addEventListener('input', edited);
+    get('nombreSearch').addEventListener('compositionstart', () => { composing = true; edited(); });
+    get('nombreSearch').addEventListener('compositionend', () => { composing = false; edited(); });
+    get('nombreForm').addEventListener('submit', event => {
+      event.preventDefault();
+      cancelTimer();
+      if (composing || event.isComposing) return;
+      const value = get('nombreSearch').value.trim();
+      if (!value) { clearSearch('Ingrese un nombre válido.'); return; }
+      submitSearch(value);
     });
     get('historyBack').addEventListener('click', back);
     ['entities', 'history'].forEach(prefix => {

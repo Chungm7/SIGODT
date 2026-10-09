@@ -34,9 +34,9 @@ if (!isset($_SESSION['usua_id_SIGODT'])) {
               <div class="col-12 col-md-8">
                 <label for="nombreSearch" class="form-label">Nombre del ciudadano o razón social / nombre comercial</label>
                 <input id="nombreSearch" type="text" class="form-control" required autofocus maxlength="200" placeholder="Ingrese parte del nombre" aria-describedby="nombreHelp">
-                <div id="nombreHelp" class="form-hint">Primero se muestran los totales por entidad. Seleccione «Ver historial» para ver sus órdenes.</div>
               </div>
               <div class="col-12 col-md-auto"><button type="submit" class="btn btn-primary w-100">Buscar</button></div>
+              <div class="col-12"><div id="nombreHelp" class="form-hint">Búsqueda parcial automática tras 400 ms, desde 3 caracteres. Buscar o Enter consulta de inmediato. Seleccione «Ver historial» para ver sus órdenes.</div></div>
             </form>
           </div>
         </div>
