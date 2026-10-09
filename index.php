@@ -141,14 +141,14 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
                     "8" => "Los datos son incorrectos",
                     "9" => "La sesión ha expirado",
                     "10" => "Usuario sin dependencia en el SGD",
-                    "11" => "Captcha Invalido"
+                    "11" => "CAPTCHA inválido o expirado. Ingrese el nuevo código."
                   ];
                   echo htmlspecialchars($mensajes[$_GET["m"]] ?? "Error desconocido", ENT_QUOTES, "UTF-8");
                   ?>
                 </div>
               <?php endif; ?>
 
-              <form action="" method="POST" autocomplete="off" novalidate>
+              <form id="loginForm" action="" method="POST" autocomplete="off">
                 <div class="mb-3">
                   <label class="form-label">Usuario</label>
                   <input type="text" class="form-control" name="usu_dni" placeholder="Ingrese su Usuario" oninput="limitarADigitosDNI(this)" required />
@@ -191,7 +191,7 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
 
                         <div class="col-1" style="display: flex; scale: 1; justify-content: space-around;">
                           <button type="button" id="btcap" class="btn btn-primary btn-refresh"
-                            onclick="refreshCaptcha()"
+                            aria-label="Actualizar CAPTCHA"
                             style="width:50px;background: none; color: #0054a6; border: 2px solid #0054a6; cursor: pointer; padding: 0; margin: 0; display: flex; align-items: center; justify-content: center;">
                             <svg style="margin-left: 5px;" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-reload" style="display: block;">
                               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -205,7 +205,10 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
                   </div>
 
                   <input type="text" id="captchaInput" name="captchaInput" class="form-control"
-                        placeholder="Ingrese el captcha" oninput="validateCaptchaInput()" required />
+                        placeholder="Ingrese el captcha" aria-label="Código CAPTCHA" aria-describedby="captchaStatus"
+                        minlength="6" maxlength="6" pattern="[A-Za-z2-9]{6}" required disabled />
+                  <div id="captchaStatus" role="status" aria-live="polite">Cargando CAPTCHA…</div>
+                  <noscript>Active JavaScript para cargar el CAPTCHA e ingresar.</noscript>
 
                   <!-- <div class="hr-text">otros</div>
 
@@ -221,7 +224,7 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
                 <input type="hidden" name="enviar" value="si">
                 <div class="form-footer">
                   <input type="hidden" name="enviar" value="si">
-                  <button type="submit" class="btn btn-primary w-100"><span class="me-2" role="status"></span>Ingresar</button>
+                  <button id="loginSubmit" type="submit" class="btn btn-primary w-100" disabled><span class="me-2" role="status"></span>Ingresar</button>
                 </div>
                 <!-- spinner-border spinner-border-sm
                 <div class="progress progress-sm">
@@ -240,11 +243,7 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
   <script src="public/tabler/js/tabler.min.js?1692870487" defer></script>
   <script src="public/tabler/js/demo.min.js?1692870487" defer></script>
 
-  <script>
-    $('#captchaInput').on('input', function () {
-        this.value = this.value.toUpperCase();
-    });
-  </script>
+  <script src="public/js/login-captcha.js" defer></script>
 
   <script>
       function limitarADigitosRUC(input) {
@@ -263,37 +262,6 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
       }
   </script>
 
-  <script ript type="text/javascript">
-
-    document.addEventListener('DOMContentLoaded', function () {
-      refreshCaptcha();
-    });
-
-    function refreshCaptcha() {
-      fetch('captcha.php?action=generateCaptcha')
-        .then(response => response.json())
-        .then(data => {
-          $('#captchaImage').attr('src', data.captcha);
-        })
-        .catch(error => console.error('Error al generar CAPTCHA:', error));
-    }
-
-    function validateCaptchaInput() {
-      var captchaInput = $('#captchaInput');
-      var captchaContainer = $('#contcap');
-      var refreshIcon = $('#btcap');
-
-      if (captchaInput.val() === "") {
-        captchaInput.addClass('is-invalid').removeClass('is-warning');
-        captchaContainer.css('borderColor', 'red');
-        refreshIcon.css('color', 'red');
-      } else {
-        captchaInput.addClass('is-warning').removeClass('is-invalid');
-        captchaContainer.css('borderColor', '#007bff');
-        refreshIcon.css('color', '#007bff');
-      }
-    }
-  </script>
   <script>
     function limitarADigitosDNI(input) {
       let valor = input.value.replace(/\D/g, '');
