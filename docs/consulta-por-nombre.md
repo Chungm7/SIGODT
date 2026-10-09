@@ -5,7 +5,7 @@ En **Consultas → Consulta por Nombre / Razón Social**, ingrese parte de un no
 1. Revise las entidades y el **total de órdenes** antes de abrir un historial.
 2. Compare documento e identidad: dos personas o empresas con el mismo nombre no necesariamente son la misma entidad.
 3. Seleccione **Ver historial**. Se muestran órdenes de todas las fechas y estados, diez por página, de más reciente a más antigua (ID descendente para fechas iguales).
-4. Use **Ver / Imprimir** para enviar el ID mediante POST al servicio existente, en una pestaña nueva.
+4. Use **Ver / Imprimir** para enviar el ID mediante POST al servicio existente, en una pestaña nueva. Los IDs número-año (por ejemplo, `000123-2026`) se envían sin alterar sus ceros iniciales.
 5. **Volver a resultados** conserva la búsqueda, sus filas y su página. Una nueva búsqueda reemplaza los resultados anteriores.
 
 ## Identidades y totales
@@ -30,6 +30,8 @@ Dos operaciones POST en `controller/ordengiro.php`:
 `page` inicia en 1 (máximo solicitado 1.000.000.000); `limit` entre 1 y 100, por defecto 10. Las respuestas incluyen `data`, `total`, `page`, `limit`; página solicitada fuera del total se ajusta a la última, o 1 si está vacío. Un único statement suministra filas, total y página en el mismo snapshot. Dos peticiones separadas pueden observar cambios concurrentes en los datos.
 
 Sólo estas operaciones nuevas añaden el control explícito de sesión: HTTP 401 JSON sin sesión, 400 para criterio/clave/paginación inválidos antes de cargar la conexión, 500 con mensaje genérico para errores. Consultas parametrizadas; nombre buscado no se interpola en SQL. Las filas del navegador se construyen mediante `textContent`; respuestas antiguas y errores antiguos no sustituyen la vista actual.
+
+La impresión conserva el contrato POST con un único campo `ogciud_id`. La generación en `models/Tasa.php` rellena la secuencia positiva a un mínimo de seis dígitos (no recorta secuencias más largas) y añade `-` más el año de cuatro dígitos. Se conserva también la compatibilidad numérica positiva ya cubierta por la suite existente; esto no confirma la existencia de registros históricos de ese formato. IDs malformados, nulos, objetos o marcado HTML se rechazan antes de construir o enviar el formulario, sin normalizar el texto recibido.
 
 Los handlers anteriores, el shim `controller/orden_giro.php`, consultas mensuales, configuración y esquema no se modifican.
 

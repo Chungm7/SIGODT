@@ -60,7 +60,10 @@
     });
   }
   function printOrder(doc, id) {
-    if (!/^[1-9][0-9]*$/.test(String(id))) { return; }
+    if (typeof id !== 'string' && !(typeof id === 'number' && Number.isSafeInteger(id) && id > 0)) { return; }
+    const value = String(id);
+    // Generated sequences are padded to at least six digits; keep existing numeric IDs compatible.
+    if (value.trim() !== value || !/^(?:[1-9][0-9]*|[0-9]{6,}-[0-9]{4})$/.test(value) || /^0+-/.test(value)) { return; }
     const form = doc.createElement('form');
     form.method = 'post';
     form.action = '../../controller/rc.php?op=imprimirxid';
@@ -68,7 +71,7 @@
     const input = doc.createElement('input');
     input.type = 'hidden';
     input.name = 'ogciud_id';
-    input.value = String(id);
+    input.value = value;
     form.appendChild(input);
     doc.body.appendChild(form);
     form.submit();

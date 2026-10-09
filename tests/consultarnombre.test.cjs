@@ -55,6 +55,44 @@ test('printing uses existing POST new-tab contract without HTML interpolation', 
   ui.printOrder(doc, '<script>');
   assert.equal(doc.body.children.at(-1), form, 'Malformed order IDs do not print');
 });
+test('history print button submits number-year ID unchanged with leading zeros', () => {
+  const document = { createElement: tag => new Element(tag), body: new Element('body') };
+  const rows = new Element('tbody');
+  ui.renderOrders(document, rows, [{ ogciud_id: '000123-2026', importe: '10', orden_est: 1 }]);
+  rows.children[0].children[6].children[0].listeners.click();
+  assert.equal(document.body.children.length, 1);
+  const form = document.body.children[0];
+  assert.equal(form.method, 'post');
+  assert.equal(form.target, '_blank');
+  assert.equal(form.action, '../../controller/rc.php?op=imprimirxid');
+  assert.equal(form.children.length, 1);
+  assert.equal(form.children[0].type, 'hidden');
+  assert.equal(form.children[0].name, 'ogciud_id');
+  assert.equal(form.children[0].value, '000123-2026');
+  assert.ok(form.submitted && form.removed);
+});
+test('printing accepts longer generated sequences and existing numeric compatibility', () => {
+  for (const id of ['1000000-2026', '123', 123]) {
+    const document = { createElement: tag => new Element(tag), body: new Element('body') };
+    ui.printOrder(document, id);
+    assert.equal(document.body.children.length, 1);
+    assert.equal(document.body.children[0].children[0].value, String(id));
+    assert.ok(document.body.children[0].submitted);
+  }
+});
+test('invalid print IDs never construct or submit a form, including coercible objects', () => {
+  const ids = [null, undefined, {}, { toString: () => '000123-2026' },
+    { toString: () => '123' }, ['123'], true, 0, -1, 1.5, NaN, Infinity,
+    Number.MAX_SAFE_INTEGER + 1, '', '0', '0123', '000000-2026', '123-2026',
+    '000123-26', '000123-20260', '000123/2026', '000123-2026-extra',
+    ' 000123-2026', '000123-2026 ', '000123-2026\n', '<script>',
+    '000123-2026"><img src=x>', '１２３４５６-2026'];
+  for (const id of ids) {
+    const document = { createElement() { assert.fail('Invalid IDs must not create elements'); }, body: new Element('body') };
+    ui.printOrder(document, id);
+    assert.equal(document.body.children.length, 0);
+  }
+});
 test('history shows one supplied order row, summed decimal amount and safe unknown state', () => {
   const rows = new Element('tbody');
   ui.renderOrders(doc, rows, [{ ogciud_id: '5', fecha: '2020-01-01', hora: '12:00:00', recibo_nro: '<img>', importe: '32.50', orden_est: '<script>' }]);
