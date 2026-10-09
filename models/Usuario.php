@@ -1,13 +1,22 @@
 <?php
+require_once __DIR__ . '/../helpers/Captcha.php';
 class usuario extends conectar
 {
     public function login()
     {
+        if (!Captcha::consume($_SESSION, $_POST['captchaInput'] ?? null)) {
+            header("Location:" . conectar::ruta() . "index.php?m=11");
+            exit();
+        }
+        $dni = $_POST['usu_dni'] ?? null;
+        $pass = $_POST['usu_pass'] ?? null;
+        if (!is_string($dni) || !is_string($pass)) {
+            header("Location:" . conectar::ruta() . "index.php?m=2");
+            exit();
+        }
         $conectar = parent::conexion();
         parent::set_names();
         if (isset($_POST["enviar"])) {
-            $dni = $_POST["usu_dni"];
-            $pass = $_POST["usu_pass"];
             if (empty($dni) and empty($pass)) {
                 header("Location:" . conectar::ruta() . "index.php?m=2");
                 exit();
