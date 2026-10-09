@@ -90,6 +90,7 @@ function detalleEditar(e) {
       var procedciudadano_id = $("#procedciudadano_id").val();
       formData.append("tipo_proced", tipo_proced);
       formData.append("proced_id", proced_id);
+      formData.set("area_id", $("#area_id").val());
       formData.append("ciud_id", ciud_id);
       if (empr_id == undefined || empr_id.trim() === "") {
         empr_id = "";
@@ -110,6 +111,7 @@ function detalleEditar(e) {
         data: formData,
         contentType: false,
         processData: false,
+        dataType: "json",
         success: function (data) {
           console.log(empr_id);
 
@@ -117,6 +119,10 @@ function detalleEditar(e) {
           $("#btnguardar").prop("disabled", false);
           $("#btnguardar").html('<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check me-1" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10"/></svg> Guardar');
 
+          if (data.success !== true) {
+            Swal.fire({ title: "Error!", text: data.message || "No se pudo registrar el procedimiento.", icon: "error", confirmButtonText: "Aceptar" });
+            return;
+          }
           $("#detalle_data").DataTable().ajax.reload();
           $("#modalmantenimiento").modal("hide");
 
@@ -151,6 +157,15 @@ function detalleEditar(e) {
 var area_id = 0;
 var tupa_id = 0;
 var proced_id = 0;
+var registrationPickerVersion = 0;
+var registrationModalProcedure = null;
+$('#modalmantenimiento').on('hidden.bs.modal', function () {
+  registrationModalProcedure = null;
+});
+$('#proced_id').on('change', function () {
+  registrationPickerVersion++;
+  if (registrationModalProcedure) $('#modalmantenimiento').modal('hide');
+});
 
 $(document).ready(function () {
   $(".select2").select2();
@@ -564,12 +579,12 @@ function cargardata_reload(proced_id) {
   }
 }
 function combo_areas() {
-  $.post("../../controller/area.php?op=combo", function (data) {
+  $.post("../../controller/procedimiento.php?op=registration_areas", function (data) {
     $("#area_id").html(data);
   });
 }
 function combo_tupa() {
-  $.post("../../controller/tupa.php?op=combo", function (data) {
+  $.post("../../controller/tupa.php?op=registration_combo", function (data) {
     $("#tupa_id").html(data);
   });
 }
@@ -633,16 +648,22 @@ function setProcedencia(proceciudadano_id) {
 }
 
 function combo_proced(area_id, tupa_id) {
+  const version = ++registrationPickerVersion;
+  $("#proced_id").html('<option value="">Seleccione</option>').val("").prop("disabled", true);
+  if (registrationModalProcedure) $("#modalmantenimiento").modal("hide");
+  if (!area_id || !tupa_id) return;
   $.ajax({
-    url: "../../controller/procedimiento.php?op=combo",
+    url: "../../controller/procedimiento.php?op=registration_combo",
     type: "POST",
     data: { area_id: area_id, tupa_id: tupa_id },
     dataType: "html",
     success: function (data) {
-      $("#proced_id").html(data);
+      if (version !== registrationPickerVersion) return;
+      $("#proced_id").html(data).prop("disabled", false);
     },
-    error: function (xhr, status, error) {
-      console.error("Error en la solicitud AJAX:", status, error);
+    error: function () {
+      if (version !== registrationPickerVersion) return;
+      Swal.fire({ title: "Error!", text: "No se pudieron cargar los procedimientos.", icon: "error" });
     }
   });
 }
@@ -689,10 +710,28 @@ function nuevo() {
     if (typeof toggleCheckboxes === "function") {
       toggleCheckboxes("dni_checkbox");
     }
-    $("#modalmantenimiento").modal("show");
-    setTimeout(function () {
-      $("#ciudadano_doc").focus().select();
-    }, 150);
+    const version = ++registrationPickerVersion;
+    $.ajax({
+      url: "../../controller/procedimiento.php?op=registration_show",
+      type: "POST",
+      data: { proced_id: procedId, area_id: $("#area_id").val() },
+      dataType: "json",
+      success: function (rows) {
+        if (version !== registrationPickerVersion || procedId !== $("#proced_id").val()) return;
+        if (!rows.length) {
+          Swal.fire({ title: "Error!", text: "El procedimiento ya no está disponible.", icon: "error" });
+          return;
+        }
+        registrationModalProcedure = procedId;
+        $("#btnguardar").prop("disabled", false);
+        $("#modalmantenimiento").modal("show");
+        $("#ciudadano_doc").focus().select();
+      },
+      error: function () {
+        if (version !== registrationPickerVersion) return;
+        Swal.fire({ title: "Error!", text: "No se pudo validar el procedimiento.", icon: "error" });
+      }
+    });
     validarCheckEmpresa();
     validarCheckCiud();
     $("#mensaje_empresa")

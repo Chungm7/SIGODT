@@ -98,6 +98,17 @@ switch ($_GET["op"]) {
         echo json_encode($results);
         break;
 
+    case "registration_combo":
+        $valid = (is_int($_SESSION['usua_id_SIGODT'] ?? null) || is_string($_SESSION['usua_id_SIGODT'] ?? null))
+            && filter_var($_SESSION['usua_id_SIGODT'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) !== false
+            && (is_int($_SESSION['rol_id_SIGODT'] ?? null) || is_string($_SESSION['rol_id_SIGODT'] ?? null))
+            && filter_var($_SESSION['rol_id_SIGODT'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) !== false;
+        $html = "<option value=''>Seleccione</option>";
+        foreach ($valid ? $tupa->get_registration_documents() : [] as $row) {
+            $html .= "<option value='" . (int)$row['tupa_id'] . "'>" . htmlspecialchars($row['tupa_nom'], ENT_QUOTES, 'UTF-8') . "</option>";
+        }
+        echo $html;
+        break;
     case "combo":
         $datos = $tupa->get_tupa();
         if (is_array($datos) == true and count($datos) > 0) {

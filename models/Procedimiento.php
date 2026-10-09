@@ -28,29 +28,75 @@ class Procedimiento extends Conectar
 
 
 
+    public static function registration_id($value)
+    {
+        return (is_int($value) || is_string($value))
+            && filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) !== false;
+    }
+
+    // Shared only by new-trámite selectors, detail and the guarded insertion.
+    private function registration_source()
+    {
+        return " FROM sc_giros.tm_procedimiento p
+            INNER JOIN tb_dependencia a ON a.depe_id = p.proced_area
+            INNER JOIN sc_giros.tm_tupa d ON d.tupa_id = p.proced_tupa
+            WHERE a.depe_estado = 'A' AND a.nior_id != 5
+              AND a.depe_id NOT IN (2,200) AND p.est = 1
+              AND d.est = 2 AND d.tipo_doc IN ('TUPA','TUSNE')
+              AND (:role = 9 OR EXISTS (
+                  SELECT 1 FROM sc_giros.td_areausu tau
+                  WHERE tau.depe_id = a.depe_id AND tau.est = 1 AND tau.pers_id = :person))";
+    }
+
+    public function get_registration_options($person, $role, $area = null, $procedure = null, $document = null)
+    {
+        if ($procedure !== null && $area === null) return [];
+        foreach ([$person, $role] as $id) {
+            if (!self::registration_id($id)) return [];
+        }
+        foreach ([$area, $procedure, $document] as $id) {
+            if ($id !== null && !self::registration_id($id)) return [];
+        }
+        $conectar = parent::conexion();
+        parent::set_names();
+        $sql = 'SELECT DISTINCT p.*, a.depe_id, a.depe_denominacion' . $this->registration_source();
+        $bindings = [':person' => $person, ':role' => $role];
+        foreach ([':area' => [$area, 'p.proced_area'], ':procedure' => [$procedure, 'p.proced_id'], ':document' => [$document, 'p.proced_tupa']] as $key => $filter) {
+            if ($filter[0] !== null) {
+                $sql .= " AND {$filter[1]} = $key";
+                $bindings[$key] = $filter[0];
+            }
+        }
+        $stmt = $conectar->prepare($sql . ' ORDER BY p.proced_nom');
+        foreach ($bindings as $key => $value) $stmt->bindValue($key, $value, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     // 🔹 Método para crear un procedimiento ciudadano
-    public function crearProcedCiud($ciud_id, $proced_id, $empr_id = null, $usu_crea, $empresa_ruc = null, $empresa_razon_social = null)
+    public function crearProcedCiud($ciud_id, $proced_id, $empr_id = null, $usu_crea, $empresa_ruc = null, $empresa_razon_social = null, $role = null, $area = null)
     {
         $conectar = parent::conexion();
         parent::set_names();
 
-        $sql = "INSERT INTO sc_giros.td_procedciudadano (
-                    ciud_id,
-                    proced_id,
-                    empr_id,
-                    usu_crea,
-                    empresa_ruc,
-                    empresa_razon_social
-                ) VALUES (?, ?, ?, ?, ?, ?)
+        foreach ([$ciud_id, $proced_id, $usu_crea, $role, $area] as $id) {
+            if (!self::registration_id($id)) return false;
+        }
+        $sql = "INSERT INTO sc_giros.td_procedciudadano
+                    (ciud_id, proced_id, empr_id, usu_crea, empresa_ruc, empresa_razon_social)
+                SELECT :citizen, p.proced_id, :company, :creator, :ruc, :name"
+                . $this->registration_source()
+                . " AND p.proced_id = :procedure AND p.proced_area = :area
                 RETURNING procedciudadano_id";
 
         $stmt = $conectar->prepare($sql);
-        $stmt->bindParam(1, $ciud_id, PDO::PARAM_INT);
-        $stmt->bindParam(2, $proced_id, PDO::PARAM_INT);
-        $stmt->bindParam(3, $empr_id, PDO::PARAM_INT);
-        $stmt->bindParam(4, $usu_crea, PDO::PARAM_INT);
-        $stmt->bindParam(5, $empresa_ruc, PDO::PARAM_STR);
-        $stmt->bindParam(6, $empresa_razon_social, PDO::PARAM_STR);
+        foreach ([':citizen' => $ciud_id, ':procedure' => $proced_id, ':creator' => $usu_crea,
+                  ':person' => $usu_crea, ':role' => $role, ':area' => $area] as $key => $value) {
+            $stmt->bindValue($key, $value, PDO::PARAM_INT);
+        }
+        $stmt->bindValue(':company', $empr_id, $empr_id === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
+        $stmt->bindValue(':ruc', $empresa_ruc, $empresa_ruc === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+        $stmt->bindValue(':name', $empresa_razon_social, $empresa_razon_social === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
 
         $stmt->execute();
 
@@ -596,7 +642,7 @@ class Procedimiento extends Conectar
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    public function get_procedimiento_detalle($proced_id)
+    public function get_procedimiento_detalle($proced_id, $registration = null)
     {
         $conectar = parent::conexion();
         parent::set_names();
@@ -605,10 +651,16 @@ class Procedimiento extends Conectar
         $sql1 = "SELECT proced_id, proced_cod, proced_nom, fechacrea, est, proced_area, proced_tupa, proced_tipocampo, proced_administradotipo, proced_tipoindvasc
              FROM sc_giros.tm_procedimiento
              WHERE proced_id = ?";
-        $stmt1 = $conectar->prepare($sql1);
-        $stmt1->bindValue(1, $proced_id);
-        $stmt1->execute();
-        $procedimiento = $stmt1->fetch(PDO::FETCH_ASSOC);
+        if ($registration !== null) {
+            $rows = $this->get_registration_options($registration['person'], $registration['role'], $registration['area'], $proced_id);
+            $procedimiento = $rows[0] ?? false;
+            if (!$procedimiento) return ['procedimiento' => false, 'tasas' => []];
+        } else {
+            $stmt1 = $conectar->prepare($sql1);
+            $stmt1->bindValue(1, $proced_id);
+            $stmt1->execute();
+            $procedimiento = $stmt1->fetch(PDO::FETCH_ASSOC);
+        }
 
         // 2. Obtener tasas asociadas al procedimiento
         $sql2 = "SELECT t.tasaproced_id, t.tasa_id, t.proced_id, t.tasaproced_pos, t.tasaproced_monto, t.est, t.desc_tasa, t.cod_ref, t.tasa_partida, t.is_multiplica,

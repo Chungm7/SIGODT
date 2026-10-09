@@ -151,6 +151,15 @@ class tupa extends Conectar
         $sql->execute();
         return $resultado = $sql->fetchAll();
     }
+    public function get_registration_documents()
+    {
+        $conectar = parent::conexion();
+        parent::set_names();
+        $stmt = $conectar->prepare("SELECT tupa_id, tupa_nom FROM sc_giros.tm_tupa WHERE est = 2 AND tipo_doc IN ('TUPA','TUSNE') ORDER BY tupa_id DESC");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function get_tupa_usu()
     {
         $conectar = parent::conexion();

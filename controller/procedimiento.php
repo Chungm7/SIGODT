@@ -27,10 +27,19 @@ switch ($_GET["op"]) {
         }
         break;
     case "abrirproced":
-        if (empty($_POST["ciud_id"]) || empty($_POST["proced_id"])) {
+        header('Content-Type: application/json');
+        $person = $_SESSION['usua_id_SIGODT'] ?? null;
+        $role = $_SESSION['rol_id_SIGODT'] ?? null;
+        $area = $_POST['area_id'] ?? null;
+        $procedure = $_POST['proced_id'] ?? null;
+        $valid = true;
+        foreach ([$person, $role, $area, $procedure, $_POST['ciud_id'] ?? null] as $id) {
+            if (!Procedimiento::registration_id($id)) $valid = false;
+        }
+        if (!$valid || !$proced->get_registration_options($person, $role, $area, $procedure)) {
             echo json_encode([
                 "success" => false,
-                "message" => "El ID del ciudadano y el ID del procedimiento son obligatorios."
+                "message" => "Seleccione un ciudadano y un procedimiento vigente de un área autorizada con una sesión válida."
             ]);
             exit;
         }
@@ -46,7 +55,9 @@ switch ($_GET["op"]) {
             $empr_id,
             $_SESSION["usua_id_SIGODT"],
             $ruc,
-            $razon_social
+            $razon_social,
+            $role,
+            $area
         );
 
         if (!$procedciudadanoID) {
@@ -147,22 +158,17 @@ switch ($_GET["op"]) {
         $bitacora->update_bitacora_grupo($_SESSION["usua_id_SIGODT"], $cantant);
         break;
 
+    case "registration_areas":
     case "getAreas_usu":
-        if ($_SESSION["rol_id_SIGODT"] == 9) {
-            // Rol 9 obtiene todas las áreas
-            $datos = $proced->get_todas_areas();
-        } else {
-            // Otros roles obtienen solo sus áreas asignadas
-            $datos = $proced->get_Areas_usu($_SESSION["usua_id_SIGODT"]);
+        $datos = $proced->get_registration_options($_SESSION['usua_id_SIGODT'] ?? null, $_SESSION['rol_id_SIGODT'] ?? null);
+        $html = "<option value=''>Seleccione</option>";
+        $seen = [];
+        foreach ($datos as $row) {
+            if (isset($seen[$row['depe_id']])) continue;
+            $seen[$row['depe_id']] = true;
+            $html .= "<option value='" . (int)$row['depe_id'] . "'>" . htmlspecialchars($row['depe_denominacion'], ENT_QUOTES, 'UTF-8') . "</option>";
         }
-
-        if (is_array($datos) && count($datos) > 0) {
-            $html = "<option label='Seleccione'></option>";
-            foreach ($datos as $row) {
-                $html .= "<option value='" . $row['depe_id'] . "'>" . $row['depe_denominacion'] . "</option>";
-            }
-            echo $html;
-        }
+        echo $html;
         break;
 
     case "listar":
@@ -226,14 +232,31 @@ switch ($_GET["op"]) {
         }
         break;
 
+    case "registration_combo":
     case "combo_tupa_tusne":
-        $datos = $proced->get_proced_area_tupa_tusne($_POST["area_id"], $_POST["tupa_id"]);
-        if (is_array($datos) == true and count($datos) > 0) {
-            $html = " <option label='Seleccione'></option>";
-            foreach ($datos as $row) {
-                $html .= "<option value='" . $row['proced_id'] . "' data-tipo='" . $row['proced_tipoindvasc'] . "'>" . $row['proced_cod'] . '-' .  $row['proced_nom'] . "</option>";
-            }
-            echo $html;
+        $area = $_POST['area_id'] ?? null;
+        $document = $_GET['op'] === 'registration_combo' ? ($_POST['tupa_id'] ?? null) : null;
+        $datos = [];
+        if (Procedimiento::registration_id($area) && ($_GET['op'] !== 'registration_combo' || Procedimiento::registration_id($document))) {
+            $datos = $proced->get_registration_options($_SESSION['usua_id_SIGODT'] ?? null, $_SESSION['rol_id_SIGODT'] ?? null, $area, null, $document);
+        }
+        $html = "<option value=''>Seleccione</option>";
+        foreach ($datos as $row) {
+            $html .= "<option value='" . (int)$row['proced_id'] . "' data-tipo='" . htmlspecialchars($row['proced_tipoindvasc'], ENT_QUOTES, 'UTF-8') . "'>" . htmlspecialchars($row['proced_cod'] . '-' . $row['proced_nom'], ENT_QUOTES, 'UTF-8') . "</option>";
+        }
+        echo $html;
+        break;
+    case "registration_detail":
+    case "registration_show":
+        header('Content-Type: application/json');
+        $area = $_POST['area_id'] ?? null;
+        $procedure = $_POST['proced_id'] ?? null;
+        $context = ['person' => $_SESSION['usua_id_SIGODT'] ?? null, 'role' => $_SESSION['rol_id_SIGODT'] ?? null, 'area' => $area];
+        $valid = Procedimiento::registration_id($area) && Procedimiento::registration_id($procedure);
+        if ($_GET['op'] === 'registration_show') {
+            echo json_encode($valid ? $proced->get_registration_options($context['person'], $context['role'], $area, $procedure) : []);
+        } else {
+            echo json_encode($valid ? $proced->get_procedimiento_detalle($procedure, $context) : ['procedimiento' => false, 'tasas' => []]);
         }
         break;
     case "mostrar_detalle":

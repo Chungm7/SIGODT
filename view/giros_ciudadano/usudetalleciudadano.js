@@ -148,6 +148,7 @@ function detalleEditar(e) {
   let formData = new FormData($("#ciudadanosdetalles_form")[0]);
   formData.append("tipo_proced", "ciudadano");
   formData.append("proced_id", $("#proced_id").val());
+  formData.set("area_id", $("#area_id").val());
   formData.append("ciud_id", ciud_id || "");
   formData.set("empr_id", $("#select_direccion").val() || $("#empr_id").val());
   formData.append("procedciudadano_id", $("#procedciudadano_id").val());
@@ -164,8 +165,8 @@ function detalleEditar(e) {
     data: formData,
     contentType: false,
     processData: false,
-    success: function (response) {
-      let res = JSON.parse(response);
+    dataType: "json",
+    success: function (res) {
       $("#btnguardar").prop("disabled", false).html('<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check me-1" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg> Guardar');
 
       if (res.success) {
@@ -219,6 +220,11 @@ function detalleEditar(e) {
 
 var area_id = 0;
 var proced_id = 0;
+var registrationPickerVersion = 0;
+var registrationModalProcedure = null;
+$('#modalmantenimiento').on('hidden.bs.modal', function () {
+  registrationModalProcedure = null;
+});
 
 $(document).ready(function () {
   $(".select2").select2();
@@ -836,7 +842,7 @@ function listarTasas(proceciudadano_id) {
 function combo_areas() {
   $.post("../../controller/procedimiento.php?op=getAreas_usu", function (data) {
     $("#area_id").html(data);
-    $("#area_id").prop("selectedIndex", 1);
+    $("#area_id").prop("selectedIndex", $("#area_id option").length > 1 ? 1 : 0);
     combo_proced($("#area_id").val());
   });
 }
@@ -854,29 +860,40 @@ function combo_tupa() {
   });
 }
 function combo_proced(area_id) {
-  tupa_id = $("#tupa_id").val();
+  const version = ++registrationPickerVersion;
+  $("#proced_id").html('<option value="">Seleccione</option>').val("").prop("disabled", true);
+  $("#procedimiento_id").val("");
+  $("#cardDetalleProcedimiento").html("");
+  if (registrationModalProcedure) $("#modalmantenimiento").modal("hide");
+  if (!area_id) return;
   $.ajax({
     url: "../../controller/procedimiento.php?op=combo_tupa_tusne",
     type: "POST",
-    data: { area_id: area_id, tupa_id: tupa_id },
+    data: { area_id: area_id },
     dataType: "html",
     success: function (data) {
-      $("#proced_id").html(data);
+      if (version !== registrationPickerVersion) return;
+      $("#proced_id").html(data).prop("disabled", false);
     },
-    error: function (xhr, status, error) {
-      console.error("Error en la solicitud AJAX:", status, error);
+    error: function () {
+      if (version !== registrationPickerVersion) return;
+      $("#cardDetalleProcedimiento").html('<div class="alert alert-warning">No se pudieron cargar los procedimientos.</div>');
     }
   });
 }
 $('#proced_id').on('change', function () {
   let proced_id = $(this).val();
+  const version = ++registrationPickerVersion;
+  if (registrationModalProcedure) $("#modalmantenimiento").modal("hide");
+  $("#cardDetalleProcedimiento").html("");
   if (proced_id) {
     $.ajax({
-      url: "../../controller/procedimiento.php?op=mostrar_detalle",
+      url: "../../controller/procedimiento.php?op=registration_detail",
       type: "POST",
-      data: { proced_id: proced_id },
+      data: { proced_id: proced_id, area_id: $("#area_id").val() },
       dataType: "json",
       success: function (data) {
+        if (version !== registrationPickerVersion) return;
         mostrarDetalleProcedimiento(data);
       },
       error: function (xhr, status, error) {
@@ -1007,14 +1024,19 @@ function nuevo() {
   // Ocultar alertas
   $("#info_procedimiento, #ciud_mensaje, #mensaje_empresa").html("").removeClass("alert-danger alert-warning alert-info").addClass("d-none");
 
-  // Cargar datos del procedimiento
+  // Validar la selección actual en el servidor antes de abrir el registro.
+  const version = ++registrationPickerVersion;
   $.ajax({
-    url: "../../controller/procedimiento.php?op=get_proces_by_id",
+    url: "../../controller/procedimiento.php?op=registration_show",
     type: "POST",
-    data: { proced_id: procedId },
+    data: { proced_id: procedId, area_id: $("#area_id").val() },
     dataType: "json",
     success: function (response) {
+      if (version !== registrationPickerVersion || procedId !== $("#proced_id").val()) return;
       if (response.length > 0) {
+        registrationModalProcedure = procedId;
+        $("#btnguardar").prop("disabled", false);
+        $("#modalmantenimiento").modal("show");
         var proc = response[0];
 
         // Mostrar información del procedimiento
@@ -1048,14 +1070,11 @@ function nuevo() {
       }
     },
     error: function () {
+      if (version !== registrationPickerVersion) return;
       $("#info_procedimiento").html(`<div class="alert alert-danger">Error al obtener los datos.</div>`).removeClass("d-none");
     }
   });
 
-  $("#modalmantenimiento").modal("show");
-  setTimeout(function () {
-    $("#ciudadano_doc").focus().select();
-  }, 150);
 }
 
 
