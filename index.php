@@ -114,13 +114,15 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
                 </a>
               </div>
               <h2 class="h3 text-center mb-3">MUNICIPALIDAD PROVINCIAL DE CHICLAYO</h2>
-              <div class="mb-2 row">
-                  <div class="col-3">
-                    <img src="public/img/sis_logo.png" width="65" height="65">
-                  </div>
-                  <div class="col-9">
-                    <p class="h3 text-justify"><small>Sistema de Gestion de Ordenes de Derecho de Tramite- Municipalidad de Chiclayo</small></p>
-                  </div>
+              <div class="d-flex align-items-center mb-3">
+                <div class="flex-shrink-0 me-2">
+                  <img src="public/img/sis_logo.png" class="img-thumbnail" style="background-color: unset;" width="65" height="55">
+                </div>
+                <div class="ms-2">
+                  <p class="h3 mb-0 text-wrap">
+                    <small>Sistema de Gestión de Órdenes de Derecho de Trámite</small>
+                  </p>
+                </div>
               </div>
               
 

@@ -51,6 +51,41 @@
 
 <!-- Estilos Globales de Plantilla (sisGitse) -->
 <style>
+    /* Estructura para Sticky Footer (Footer siempre al fondo de la pantalla) */
+    html, body {
+        height: 100%;
+    }
+
+    .page {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    .wrapper {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        flex: 1 0 auto;
+        width: 100%;
+    }
+
+    .page-wrapper {
+        display: flex;
+        flex-direction: column;
+        flex: 1 0 auto;
+        min-height: calc(100vh - 180px);
+        width: 100%;
+    }
+
+    .page-body {
+        flex: 1 0 auto;
+    }
+
+    .footer {
+        margin-top: auto !important;
+    }
+
     .bg-white {
         color: #fcfcfc;
     }

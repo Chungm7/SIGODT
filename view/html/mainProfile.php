@@ -5,9 +5,12 @@
       aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
-      <a href=".">
-        <img src="../../public/img/sis_logo.png" width="50px" alt="SIGODT" class="navbar-brand-image">
+    <h1 class="navbar-brand navbar-brand-autodark pe-0 pe-md-3">
+      <a href="../inicio/" class="d-flex align-items-center" style="text-decoration: none;">
+        <img src="../../public/img/sis_logo.png" width="42px" alt="SIGODT" class="navbar-brand-image me-2">
+        <div class="d-none d-md-block" style="text-align: left;">
+          <div class="fs-5" style="white-space: break-spaces;"><?php echo mb_strtoupper($_ENV["SIS_NOM"] ?? "Sistema de Gestión de Órdenes de Derecho de Trámite"); ?></div>
+        </div>
       </a>
     </h1>
     <?php
