@@ -34,7 +34,17 @@ function guardaryeditar(e) {
     data: formData,
     processData: false,
     contentType: false,
+    dataType: "json",
     success: function (data) {
+      if (!data || data.success !== true) {
+        Swal.fire({
+          title: "Error!",
+          text: (data && data.message) || "No se pudo guardar el procedimiento.",
+          icon: "error",
+          confirmButtonText: "Aceptar",
+        });
+        return;
+      }
       $("#proceds_data").DataTable().ajax.reload();
       $("#modalmantenimiento").modal("hide");
 
@@ -206,6 +216,17 @@ function nuevoproced() {
     Swal.fire({
       title: "Filtros requeridos",
       text: "Debe seleccionar un Documento (TUPA) y un Área antes de agregar un procedimiento.",
+      icon: "warning",
+      confirmButtonText: "Entendido",
+    });
+    return;
+  }
+
+  var documentState = Number($("#tupa_id option:selected").attr("data-document-state"));
+  if (documentState !== 2 && documentState !== 3) {
+    Swal.fire({
+      title: "Documento inactivo",
+      text: "Solo se pueden agregar procedimientos a documentos En Proceso o Vigentes.",
       icon: "warning",
       confirmButtonText: "Entendido",
     });

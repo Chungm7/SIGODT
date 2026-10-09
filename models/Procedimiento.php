@@ -4,19 +4,25 @@ class Procedimiento extends Conectar
 
     public function insert_proced($proced_tupa, $proced_area, $proced_cod, $proced_nom, $proced_campo, $proced_administradotipo, $proced_tipoindvasc)
     {
+        if (!is_scalar($proced_tupa) || filter_var($proced_tupa, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) === false) {
+            return false;
+        }
         $conectar = parent::conexion();
         parent::set_names();
-        $sql = "INSERT INTO sc_giros.tm_procedimiento(proced_tupa, proced_area, proced_cod, proced_nom, fechacrea, est, proced_tipocampo, proced_administradotipo, proced_tipoindvasc) VALUES (?,?,?,?, NOW(),'1',?, ?,?);";
+        // Check the stored lifecycle in the insert itself, never a posted state.
+        $sql = "INSERT INTO sc_giros.tm_procedimiento(proced_tupa, proced_area, proced_cod, proced_nom, fechacrea, est, proced_tipocampo, proced_administradotipo, proced_tipoindvasc)
+                SELECT tupa_id, ?, ?, ?, NOW(), '1', ?, ?, ?
+                FROM sc_giros.tm_tupa
+                WHERE tupa_id = ? AND est IN (2,3);";
         $sql = $conectar->prepare($sql);
-        $sql->bindValue(1, $proced_tupa);
-        $sql->bindValue(2, $proced_area);
-        $sql->bindValue(3, $proced_cod);
-        $sql->bindValue(4, $proced_nom);
-        $sql->bindValue(5, $proced_campo);
-        $sql->bindValue(6, $proced_administradotipo);
-        $sql->bindValue(7, $proced_tipoindvasc);
-        $sql->execute();
-        return $resultado = $sql->fetchAll();
+        $sql->bindValue(1, $proced_area);
+        $sql->bindValue(2, $proced_cod);
+        $sql->bindValue(3, $proced_nom);
+        $sql->bindValue(4, $proced_campo);
+        $sql->bindValue(5, $proced_administradotipo);
+        $sql->bindValue(6, $proced_tipoindvasc);
+        $sql->bindValue(7, $proced_tupa, PDO::PARAM_INT);
+        return $sql->execute() && $sql->rowCount() === 1;
     }
 
 

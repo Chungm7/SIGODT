@@ -59,6 +59,7 @@ function cargarListaTupa() {
         } else {
             data.forEach(function (item) {
                 var isActivo = (item.est === 2);
+                var isEnProceso = (item.est === 3);
                 var isBloqueado = (item.tupa_block === '1');
                 var tipoDoc = item.tipo_doc || 'TUPA';
 
@@ -90,7 +91,7 @@ function cargarListaTupa() {
                 html += `
                 <div class="col-md-6 col-lg-4 mb-3">
                     <div class="card card-stacked shadow-sm h-100">
-                        <div class="card-status-top ${isActivo ? 'bg-success' : 'bg-secondary'}"></div>
+                        <div class="card-status-top ${isActivo ? 'bg-success' : isEnProceso ? 'bg-info' : 'bg-secondary'}"></div>
                         <div class="card-body">
                             <div class="d-flex align-items-center justify-content-between mb-2">
                                 <span class="badge ${tipoDoc === 'TUPA' ? 'bg-blue-lt' : 'bg-purple-lt'} fw-bold">${tipoDoc}</span>
@@ -100,8 +101,8 @@ function cargarListaTupa() {
                                 ${item.tupa_nom}
                             </h3>
                             <div class="d-flex align-items-center gap-2 mb-3">
-                                <span class="badge ${isActivo ? 'bg-success-lt text-success' : 'bg-danger-lt text-danger'}">
-                                    ${isActivo ? 'Vigente' : 'Inactivo'}
+                                <span class="badge ${isActivo ? 'bg-success-lt text-success' : isEnProceso ? 'bg-info-lt text-info' : 'bg-danger-lt text-danger'}">
+                                    ${isActivo ? 'Vigente' : isEnProceso ? 'En Proceso' : 'Inactivo'}
                                 </span>
                                 <span class="badge ${isBloqueado ? 'bg-warning-lt text-warning' : 'bg-teal-lt text-teal'}">
                                     ${isBloqueado ? 'Bloqueado' : 'En Edición'}
@@ -188,7 +189,7 @@ function desbloquear_tupa(tupa_id) {
 function duplicar(tupa_id) {
     Swal.fire({
         title: "¿Duplicar documento?",
-        text: "Se creará una copia íntegra con todos los procedimientos, tasas y montos asignados.",
+        text: "Se creará un documento En Proceso copiando solo procedimientos, tasas y requisitos activos, con sus montos asignados.",
         icon: "question",
         showCancelButton: true,
         confirmButtonText: "Sí, duplicar",
@@ -196,14 +197,20 @@ function duplicar(tupa_id) {
         confirmButtonColor: "#206bc4"
     }).then((result) => {
         if (result.value) {
-            $.post("../../controller/tupa.php?op=duplicar", { tupa_id: tupa_id }, function () {
+            $.post("../../controller/tupa.php?op=duplicar", { tupa_id: tupa_id }, function (response) {
+                if (!response || response.success !== true || !Number.isInteger(response.tupa_id) || response.tupa_id <= 0) {
+                    Swal.fire({ title: 'Error!', text: 'No se pudo duplicar el documento.', icon: 'error', confirmButtonText: 'Aceptar' });
+                    return;
+                }
                 cargarListaTupa();
                 Swal.fire({
                     title: 'Duplicado!',
-                    text: 'El documento fue duplicado correctamente con su catálogo',
+                    text: 'El documento fue duplicado correctamente con su catálogo activo',
                     icon: 'success',
                     confirmButtonText: 'Aceptar'
                 });
+            }, 'json').fail(function () {
+                Swal.fire({ title: 'Error!', text: 'No se pudo duplicar el documento.', icon: 'error', confirmButtonText: 'Aceptar' });
             });
         }
     });

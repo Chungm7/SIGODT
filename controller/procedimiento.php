@@ -9,12 +9,21 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL); 
 switch ($_GET["op"]) {
     case "guardaryeditar":
-        if (empty($_POST["proced_id"])) {
-            $proced->insert_proced($_POST["tupa_id"], $_POST["area_id"], $_POST["proced_cod"], $_POST["proced_nom"], $_POST["tipo_campo"], $_POST["tipo_administrado"], $_POST["proced_tipoindvasc"]);
+        header('Content-Type: application/json');
+        try {
+            if (empty($_POST["proced_id"])) {
+                $created = $proced->insert_proced($_POST["tupa_id"] ?? null, $_POST["area_id"], $_POST["proced_cod"], $_POST["proced_nom"], $_POST["tipo_campo"], $_POST["tipo_administrado"], $_POST["proced_tipoindvasc"]);
+                if (!$created) {
+                    echo json_encode(['success' => false, 'message' => 'Solo se pueden agregar procedimientos a un documento válido En Proceso o Vigente.']);
+                    break;
+                }
+            } else {
+                $proced->update_proced($_POST["proced_id"], $_POST["proced_cod"], $_POST["proced_nom"], $_POST["tipo_campo"], $_POST["tipo_administrado"], $_POST["proced_tipoindvasc"]);
+            }
             $bitacora->update_bitacora($_SESSION["usua_id_SIGODT"]);
-        } else {
-            $proced->update_proced($_POST["proced_id"], $_POST["proced_cod"], $_POST["proced_nom"], $_POST["tipo_campo"], $_POST["tipo_administrado"], $_POST["proced_tipoindvasc"]);
-            $bitacora->update_bitacora($_SESSION["usua_id_SIGODT"]);
+            echo json_encode(['success' => true]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'No se pudo guardar el procedimiento.']);
         }
         break;
     case "abrirproced":

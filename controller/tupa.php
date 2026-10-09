@@ -45,10 +45,23 @@ switch ($_GET["op"]) {
         $bitacora->update_bitacora($_SESSION["usua_id_SIGODT"]);
         break;
     case "duplicar":
-        $cantant = $bitacora->get_max_id()[0]["bita_id"];
-
-        $tupa->duplicar_tupa($_POST["tupa_id"]);
-        $bitacora->update_bitacora_grupo($_SESSION["usua_id_SIGODT"], $cantant);
+        header('Content-Type: application/json');
+        try {
+            $sourceId = $_POST['tupa_id'] ?? null;
+            if (!is_scalar($sourceId) || filter_var($sourceId, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) === false) {
+                throw new RuntimeException('Invalid document ID');
+            }
+            $cantant = $bitacora->get_max_id()[0]["bita_id"];
+            $result = $tupa->duplicar_tupa($sourceId);
+            $newId = $result[0]['duplicar_tupa'] ?? null;
+            if (!is_scalar($newId) || filter_var($newId, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) === false) {
+                throw new RuntimeException('Invalid duplication result');
+            }
+            $bitacora->update_bitacora_grupo($_SESSION["usua_id_SIGODT"], $cantant);
+            echo json_encode(['success' => true, 'tupa_id' => (int)$newId]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'No se pudo duplicar el documento.']);
+        }
         break;
     case "desbloquear_tupa":
         $tupa->desbloquear_tupa($_POST["tupa_id"]);
@@ -100,7 +113,8 @@ switch ($_GET["op"]) {
         if (is_array($datos) == true and count($datos) > 0) {
             $html = " <option label='Seleccione'></option>";
             foreach ($datos as $row) {
-                $html .= "<option value='" . $row['tupa_id'] . "' data-estado='" . $row['tupa_block'] . "'>" . $row['tupa_nom'] . "</option>";
+                $label = [1 => 'Inactivo', 2 => 'Vigente', 3 => 'En Proceso'][(int)$row['est']] ?? 'Desconocido';
+                $html .= "<option value='" . $row['tupa_id'] . "' data-estado='" . $row['tupa_block'] . "' data-document-state='" . (int)$row['est'] . "'>" . htmlspecialchars($row['tupa_nom'], ENT_QUOTES, 'UTF-8') . " (" . $label . ")</option>";
             }
             echo $html;
         }

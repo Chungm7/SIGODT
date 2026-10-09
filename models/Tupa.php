@@ -6,7 +6,7 @@ class tupa extends Conectar
     {
         $conectar = parent::conexion();
         parent::set_names();
-        $sql = "INSERT INTO sc_giros.tm_tupa(tupa_nom, tupa_año, est, tipo_doc) VALUES (?, ?, 1, ?);";
+        $sql = "INSERT INTO sc_giros.tm_tupa(tupa_nom, tupa_año, est, tipo_doc) VALUES (?, ?, 3, ?);";
         $sql = $conectar->prepare($sql);
         $sql->bindValue(1, $tupa_nom);
         $sql->bindValue(2, $tupa_año);
@@ -120,7 +120,7 @@ class tupa extends Conectar
     {
         $conectar = parent::conexion();
         parent::set_names();
-        $sql = "SELECT tupa_id, tupa_año, est, tupa_nom, tupa_block, tipo_doc FROM sc_giros.tm_tupa WHERE est IN (1,2) ORDER BY tupa_id DESC";
+        $sql = "SELECT tupa_id, tupa_año, est, tupa_nom, tupa_block, tipo_doc FROM sc_giros.tm_tupa WHERE est IN (1,2,3) ORDER BY tupa_id DESC";
         $sql = $conectar->prepare($sql);
         $sql->execute();
         return $resultado = $sql->fetchAll();
@@ -133,7 +133,7 @@ class tupa extends Conectar
         // Ajustamos la consulta para que recupere tanto TUPA como TUSNE
         $sql = "SELECT tupa_id, tupa_año, est, tupa_nom, tupa_block, tipo_doc 
             FROM sc_giros.tm_tupa 
-            WHERE est IN (1, 2) 
+            WHERE est IN (1, 2, 3) 
             AND tipo_doc IN ('TUPA', 'TUSNE')  -- Aseguramos que tanto TUPA como TUSNE se recuperen
             ORDER BY tupa_id DESC"; 
 
@@ -146,7 +146,7 @@ class tupa extends Conectar
     {
         $conectar = parent::conexion();
         parent::set_names();
-        $sql = "SELECT tupa_id, tupa_año, est, tupa_nom, tupa_block, tipo_doc FROM sc_giros.tm_tupa WHERE est IN (1,2) ORDER BY tupa_id DESC";
+        $sql = "SELECT tupa_id, tupa_año, est, tupa_nom, tupa_block, tipo_doc FROM sc_giros.tm_tupa WHERE est IN (1,2,3) ORDER BY tupa_id DESC";
         $sql = $conectar->prepare($sql);
         $sql->execute();
         return $resultado = $sql->fetchAll();
@@ -165,7 +165,7 @@ class tupa extends Conectar
     {
         $conectar = parent::conexion();
         parent::set_names();
-        $sql = "SELECT * FROM sc_giros.tm_tupa WHERE est IN (1,2) AND tupa_id = ?";
+        $sql = "SELECT * FROM sc_giros.tm_tupa WHERE est IN (1,2,3) AND tupa_id = ?";
         $sql = $conectar->prepare($sql);
         $sql->bindValue(1, $tupa_id);
         $sql->execute();
