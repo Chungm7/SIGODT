@@ -35,10 +35,10 @@ Database doubles do not prove live PostgreSQL semantics. Browser/server checks r
 ## Delivery and progress
 - Branch: `feature/tributos-document-areas`; base: `c0ed7f6e`.
 - Delivery strategy: ask-on-risk; forecast 280–370 authored changed lines, generated files excluded. No PR/push/merge authorized.
-- Commit: pending; one Conventional Commit for the coherent behavior and its tests/docs.
-- RDD assessment and review: pending; no approval inferred.
+- Commit: `2d034fcc` (`fix(tributos): filter areas by selected document procedures`), including tests and this document. Progress bookkeeping follows separately.
+- RDD assessment: medium, 6 paths / 294 authored lines, `review_due=false`, `under_budget`, against `c0ed7f6e`; original unrelated untracked inventory explicitly excluded. No native review started and no approval claimed; range remains pending for any later slice.
 - Progress: implementation complete. Initial PHP regression failed with missing document-scoped query; initial Node regressions failed before source edits. Final PHP and all six Node behavioral cases passed, plus every listed regression/syntax/whitespace check. Parent reran the new PHP contracts successfully.
 - Verification limits: PHP/DOM doubles only; live database/browser pending. Optional post-implementation baseline replay via Node subprocess was blocked by EPERM; initial observed RED evidence remains valid. No required final check failed.
 - Authored change: worker 250 lines (60 source additions, 6 deletions, 184 test additions), plus this task document; below delivery threshold.
-- Next step: commit the work unit and assess its committed native-review range.
+- Next step: user decides integration/deployment; then verify Tributos areas and document-change resets in the test application. No push, merge or remote action performed.
 - Engram mirror: `odd/tributos-document-areas/tasks`; save/readback required at each progress update.
