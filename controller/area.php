@@ -47,6 +47,14 @@ switch ($_GET["op"]) {
             echo $html;
         }
         break;
+    case "combo_tributos":
+        $datos = $area->get_tributos_areas($_POST['tupa_id'] ?? null);
+        $html = "<option value=''>Seleccione</option>";
+        foreach ($datos as $row) {
+            $html .= "<option value='" . (int)$row['depe_id'] . "'>" . htmlspecialchars($row['depe_denominacion'], ENT_QUOTES, 'UTF-8') . "</option>";
+        }
+        echo $html;
+        break;
     case "insert_area_usu":
         $datos = explode(',', $_POST['pers_id']);
         $data = array();

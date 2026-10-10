@@ -24,6 +24,25 @@
             return $resultado=$sql->fetchAll();
         }
 
+        public function get_tributos_areas($tupa_id){
+            if ((!is_int($tupa_id) && !is_string($tupa_id)) ||
+                filter_var($tupa_id, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) === false) {
+                return [];
+            }
+            $conectar = parent::conexion();
+            parent::set_names();
+            $sql = "SELECT a.depe_id, a.depe_denominacion
+                FROM tb_dependencia a
+                WHERE a.depe_estado = 'A' AND EXISTS (
+                    SELECT 1 FROM sc_giros.tm_procedimiento p
+                    WHERE p.proced_area = a.depe_id AND p.proced_tupa = ? AND p.est = 1
+                ) ORDER BY a.depe_denominacion";
+            $stmt = $conectar->prepare($sql);
+            $stmt->bindValue(1, $tupa_id, PDO::PARAM_INT);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+
         public function get_depe_id($depe_id){
             $conectar= parent::conexion();
             parent::set_names();

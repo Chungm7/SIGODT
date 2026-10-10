@@ -54,6 +54,8 @@ function tasaEditar(e) {
 var area_id = 0;
 var tupa_id = 0;
 var proced_id = 0;
+var areaRequestVersion = 0;
+var procedureRequestVersion = 0;
 
 $(document).ready(function () {
     $('.select2').select2({ width: '100%' });
@@ -61,14 +63,14 @@ $(document).ready(function () {
     combo_tupa();
 
     $("#area_id").change(function () {
-        area_id = $(this).val();
+        area_id = $(this).val() || 0;
         combo_proced(area_id, tupa_id);
         cargardata();
     });
 
     $("#tupa_id").change(function () {
-        tupa_id = $(this).val();
-        combo_proced(area_id, tupa_id);
+        tupa_id = $(this).val() || 0;
+        combo_areas();
         cargardata();
     });
 
@@ -129,8 +131,26 @@ function cargardata() {
 }
 
 function combo_areas() {
-    $.post("../../controller/area.php?op=combo", function (data) {
-        $('#area_id').html(data);
+    var version = ++areaRequestVersion;
+    var documentId = tupa_id;
+    area_id = 0;
+    $('#area_id').html("<option value=''>Seleccione</option>").val('').prop('disabled', true).trigger('change.select2');
+    combo_proced(0, documentId);
+    if (!documentId) return;
+
+    $.ajax({
+        url: "../../controller/area.php?op=combo_tributos",
+        type: "POST",
+        data: { tupa_id: documentId },
+        dataType: "html",
+        success: function (data) {
+            if (version !== areaRequestVersion || documentId !== tupa_id) return;
+            $('#area_id').html(data).val('').prop('disabled', false).trigger('change.select2');
+        },
+        error: function (xhr, status, error) {
+            if (version !== areaRequestVersion) return;
+            console.error("Error en la solicitud AJAX:", status, error);
+        }
     });
 }
 
@@ -141,15 +161,22 @@ function combo_tupa() {
 }
 
 function combo_proced(area_id, tupa_id) {
+    var version = ++procedureRequestVersion;
+    proced_id = 0;
+    $('#proced_id').html("<option value=''>Seleccione</option>").val('').prop('disabled', true).trigger('change.select2');
+    if (!area_id || !tupa_id) return;
+
     $.ajax({
         url: "../../controller/procedimiento.php?op=combo",
         type: "POST",
         data: { area_id: area_id, tupa_id: tupa_id },
         dataType: "html",
         success: function (data) {
-            $('#proced_id').html(data);
+            if (version !== procedureRequestVersion) return;
+            $('#proced_id').html(data).val('').prop('disabled', false).trigger('change.select2');
         },
         error: function (xhr, status, error) {
+            if (version !== procedureRequestVersion) return;
             console.error("Error en la solicitud AJAX:", status, error);
         }
     });
