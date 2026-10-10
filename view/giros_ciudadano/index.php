@@ -119,12 +119,12 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                     </div>
                   </div>
 
-                  <!-- Tarjeta 2: Listado de Procedimientos Abiertos -->
+                  <!-- Operational procedure and order listing -->
                   <div class="card shadow-sm">
                     <div class="card-header d-flex justify-content-between align-items-center py-2">
-                      <h3 class="card-title fw-bold mb-0">Listado de Procedimientos Abiertos</h3>
+                      <h3 class="card-title fw-bold mb-0">Trámites y órdenes de giro</h3>
                       <div class="card-actions">
-                        <button type="button" class="btn btn-icon btn-outline-secondary" id="btnRecargar" title="Actualizar listado" onclick="recargarTabla(event)">
+                        <button type="button" class="btn btn-icon btn-outline-secondary" id="btnRecargar" title="Actualizar listado" aria-label="Actualizar listado" style="min-width:44px;min-height:44px" onclick="recargarTabla(event)">
                           <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="22" height="22" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                             <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
@@ -134,6 +134,38 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                       </div>
                     </div>
 
+                    <div class="card-body border-bottom">
+                      <div class="row g-3 align-items-end">
+                        <div class="col-12 col-md-4">
+                          <label for="giro_state" class="form-label">Estado</label>
+                          <select id="giro_state" class="form-select" style="min-height:44px">
+                            <option value="en_curso" selected>En curso (pendientes y girados)</option>
+                            <option value="9">Pendiente</option>
+                            <option value="1">Girado</option>
+                            <option value="4">Pagado</option>
+                            <option value="0">Anulado</option>
+                            <option value="3">Improcedente</option>
+                            <option value="5">Usado</option>
+                            <option value="6">Extornado</option>
+                            <option value="todos">Todos los estados</option>
+                          </select>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-3">
+                          <label for="giro_date_from" class="form-label">Registro del trámite desde</label>
+                          <input type="date" id="giro_date_from" class="form-control" style="min-height:44px" aria-describedby="giroDateHelp" />
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-3">
+                          <label for="giro_date_to" class="form-label">Registro del trámite hasta</label>
+                          <input type="date" id="giro_date_to" class="form-control" style="min-height:44px" aria-describedby="giroDateHelp" />
+                        </div>
+                        <div class="col-12 col-md-2">
+                          <button type="button" id="giroResetFilters" class="btn btn-outline-secondary w-100" style="min-height:44px">Restablecer filtros</button>
+                        </div>
+                      </div>
+                      <p id="giroDateHelp" class="text-muted mt-2 mb-1">Fechas opcionales: corresponden al registro del trámite, no al pago. Sin fechas se consulta todo el historial del estado seleccionado.</p>
+                      <p id="giroListStatus" class="mb-0" role="status" aria-live="polite">Seleccione un procedimiento para consultar el listado.</p>
+                    </div>
+
                     <div class="table-responsive">
                       <table id="detalle_data" class="table card-table table-vcenter table-hover datatable" style="width:100%">
                         <thead>
@@ -141,7 +173,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                             <th class="text-center" style="width: 110px;">Código</th>
                             <th class="text-center" style="width: 100px;">DNI / Doc</th>
                             <th>Ciudadano / Razón Social</th>
-                            <th class="text-center" style="width: 140px;">Fecha</th>
+                            <th class="text-center" style="width: 140px;">Fecha de registro</th>
                             <th class="text-center" style="width: 110px;">Estado</th>
                             <th class="text-center" style="width: 160px;">Progreso del Trámite</th>
                             <th class="text-center" style="width: 70px;">Tasas</th>

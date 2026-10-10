@@ -222,6 +222,10 @@ var area_id = 0;
 var proced_id = 0;
 var registrationPickerVersion = 0;
 var registrationModalProcedure = null;
+var giroListTable = null;
+var giroListRequest = null;
+var giroListVersion = 0;
+var giroListRefreshMarkup = null;
 $('#modalmantenimiento').on('hidden.bs.modal', function () {
   registrationModalProcedure = null;
 });
@@ -232,25 +236,30 @@ $(document).ready(function () {
 
 
   getdataload();
-  recargarTabla();
   cargardata();
   combo_areas();
 
 
   $("#area_id").change(function () {
-    $("#area_id option:selected").each(function () {
-      area_id = $(this).val();
-      combo_proced(area_id);
-      cargardata();
-    });
+    area_id = $(this).val();
+    proced_id = "";
+    combo_proced(area_id);
+    cargardata();
   });
 
   $("#proced_id").change(function () {
-    $("#proced_id option:selected").each(function () {
-      proced_id = $(this).val();
-      $("#procedimiento_id").val(proced_id);
-      cargardata();
-    });
+    proced_id = $(this).val();
+    $("#procedimiento_id").val(proced_id);
+    cargardata();
+  });
+  ["#giro_state", "#giro_date_from", "#giro_date_to"].forEach(function (selector) {
+    $(selector).change(function () { cargardata(); });
+  });
+  $("#giroResetFilters").on("click", function () {
+    $("#giro_state").val("en_curso");
+    $("#giro_date_from").val("");
+    $("#giro_date_to").val("");
+    cargardata();
   });
   $("#proced_id").change(function () {
     // Obtener el nombre del trámite seleccionado
@@ -527,57 +536,107 @@ function buscaRUC() {
 
 
 
-function cargardata() {
-  if ($.fn.DataTable.isDataTable("#detalle_data")) {
-    $("#detalle_data").DataTable().destroy();
+function giroListSelection() {
+  return {
+    proced_id: $("#proced_id").val() || "",
+    area_id: $("#area_id").val() || "",
+    state: $("#giro_state").val() || "en_curso",
+    date_from: $("#giro_date_from").val() || "",
+    date_to: $("#giro_date_to").val() || ""
+  };
+}
+
+function giroListStatus(message, failed) {
+  $("#giroListStatus").text(message).toggleClass("text-danger", !!failed);
+}
+
+function giroListBusy(busy) {
+  const button = $("#btnRecargar");
+  if (giroListRefreshMarkup === null) giroListRefreshMarkup = button.html();
+  button.prop("disabled", busy).attr("aria-busy", String(busy));
+  button.html(busy
+    ? '<span class="spinner-border spinner-border-sm" aria-hidden="true"></span>'
+    : giroListRefreshMarkup);
+  $("#detalle_data").attr("aria-busy", String(busy));
+}
+
+function loadGiroList(request, callback) {
+  const version = ++giroListVersion;
+  const selection = giroListSelection();
+  const snapshot = JSON.stringify(selection);
+  if (giroListRequest) giroListRequest.abort();
+  giroListRequest = null;
+  const empty = { draw: request.draw, recordsTotal: 0, recordsFiltered: 0, data: [] };
+  const current = function () {
+    return version === giroListVersion && snapshot === JSON.stringify(giroListSelection());
+  };
+  const fail = function () {
+    callback(empty);
+    giroListBusy(false);
+    giroListStatus("No se pudo cargar el listado. Revise los filtros e intente nuevamente.", true);
+  };
+  if (!selection.proced_id) {
+    callback(empty);
+    giroListBusy(false);
+    giroListStatus("Seleccione un procedimiento para consultar sus trámites y órdenes de giro.");
+    return;
   }
-  $("#detalle_data").DataTable({
-    aProcessing: true,
-    aServerSide: true,
-    dom: "Bfrtip",
-    ordering: false,
-    buttons: [],
-    ajax: {
-      url: "../../controller/procedimiento.php?op=listar_proced_ciudadano_usuario",
-      type: "post",
-      data: function (request) {
-        request.proced_id = $("#proced_id").val() || 0;
-        request.area_id = $("#area_id").val() || 0;
+  Object.assign(request, selection);
+  giroListBusy(true);
+  giroListStatus("Cargando listado...");
+  giroListRequest = $.ajax({
+    url: "../../controller/procedimiento.php?op=listar_proced_ciudadano_usuario",
+    type: "POST",
+    dataType: "json",
+    timeout: 30000,
+    data: request,
+    success: function (response) {
+      if (!current()) return;
+      if (!response || response.error || !Array.isArray(response.data) ||
+          response.draw !== request.draw || !Number.isInteger(response.recordsTotal) ||
+          !Number.isInteger(response.recordsFiltered) || response.recordsFiltered < 0 ||
+          response.recordsTotal < response.recordsFiltered) {
+        fail();
+        return;
       }
+      callback(response);
+      giroListBusy(false);
+      giroListStatus("Listado actualizado: " + response.recordsFiltered + " registros coinciden con los filtros.");
     },
-    bDestroy: true,
-    responsive: true,
-    bInfo: false,
-    iDisplayLength: 10,
-    language: {
-      sProcessing: "Procesando...",
-      sLengthMenu: "Mostrar _MENU_ registros",
-      sZeroRecords: "No se encontraron resultados",
-      sEmptyTable: "Ningún dato disponible en esta tabla o Falta Seleccionar una Opción",
-      sInfo:
-        "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
-      sInfoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
-      sInfoFiltered: "(filtrado de un total de _MAX_ registros)",
-      sInfoPostFix: "",
-      sSearch: "Buscar:",
-      sUrl: "",
-      sInfoThousands: ",",
-      sLoadingRecords: "Cargando...",
-      oPaginate: {
-        sFirst: "Primero",
-        sLast: "Último",
-        sNext: "Siguiente",
-        sPrevious: "Anterior"
-      },
-      oAria: {
-        sSortAscending:
-          ": Activar para ordenar la columna de manera ascendente",
-        sSortDescending:
-          ": Activar para ordenar la columna de manera descendente"
-      }
+    error: function () {
+      if (current()) fail();
     }
   });
-  proced_id = 0;
+}
+
+function cargardata(resetPaging) {
+  if (giroListTable) {
+    giroListTable.ajax.reload(null, resetPaging !== false);
+    return;
+  }
+  giroListTable = $("#detalle_data").DataTable({
+    processing: true,
+    serverSide: true,
+    dom: "lfrtip",
+    ordering: false,
+    ajax: loadGiroList,
+    responsive: true,
+    info: true,
+    pageLength: 10,
+    lengthMenu: [10, 25, 50, 100],
+    language: {
+      processing: "Procesando...",
+      lengthMenu: "Mostrar _MENU_ registros",
+      zeroRecords: "No se encontraron resultados con los filtros actuales",
+      emptyTable: "Seleccione un procedimiento o ajuste los filtros para consultar el listado",
+      info: "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+      infoEmpty: "Mostrando 0 registros",
+      infoFiltered: "(filtrado de un total de _MAX_ registros)",
+      search: "Buscar:",
+      loadingRecords: "Cargando...",
+      paginate: { first: "Primero", last: "Último", next: "Siguiente", previous: "Anterior" }
+    }
+  });
 }
 function eliminar(proceciudadano_id, est, orden_giro) {
 
@@ -639,112 +698,12 @@ function eliminar(proceciudadano_id, est, orden_giro) {
     });
 }
 function recargarTabla(event) {
-  // Si se recibe el evento, prevenir la acción predeterminada
-  if (event && event.preventDefault) {
-    event.preventDefault();
-  }
-
-  const button = document.querySelector("#btnRecargar");
-  if (!button) {
-    console.error("El botón con id 'btnRecargar' no se encontró en el documento.");
-    return;
-  }
-
-  const spinner = '<span class="spinner-border spinner-border-sm" role="status"></span>';
-
-  // Mostrar spinner de carga y deshabilitar el botón 
-  button.disabled = true;
-  button.innerHTML = spinner;
-
-  try {
-    // Obtener el valor del procedimiento
-    let procedimiento_id = $("#proced_id").val();
-    if (procedimiento_id && procedimiento_id !== "") {
-      cargardata_reload(procedimiento_id);
-    } else {
-      console.warn("No se seleccionó ningún procedimiento.");
-    }
-  } catch (error) {
-    console.error("Error al ejecutar cargardata_reload:", error);
-  }
-
-  setTimeout(() => {
-    button.disabled = false;
-    button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="22" height="22" viewBox="0 0 24 24"
-                           stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                           <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                           <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
-                           <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
-                         </svg>`;
-  }, 1000);
-
+  if (event && event.preventDefault) event.preventDefault();
+  cargardata(false);
 }
 
-
-function cargardata_reload(proced_id) {
-  try {
-    if (
-      typeof procediminto_id !== "undefined" &&
-      procediminto_id !== null &&
-      procediminto_id !== ""
-    ) {
-      if ($.fn.DataTable.isDataTable("#detalle_data")) {
-        $("#detalle_data").DataTable().destroy();
-      }
-      $("#detalle_data").DataTable({
-        aProcessing: true,
-        aServerSide: true,
-        ordering: false,
-        dom: "Bfrtip",
-        buttons: [],
-        ajax: {
-          url: "../../controller/procedimiento.php?op=listar_proced_ciudadano_usuario",
-          type: "post",
-          data: function (request) {
-        request.proced_id = $("#proced_id").val() || 0;
-        request.area_id = $("#area_id").val() || 0;
-      }
-        },
-        bDestroy: true,
-        responsive: false,
-        bInfo: false,
-        iDisplayLength: 10,
-        language: {
-          sProcessing: "Procesando...",
-          sLengthMenu: "Mostrar _MENU_ registros",
-          sZeroRecords: "No se encontraron resultados",
-          sEmptyTable: "Ningún dato disponible en esta tabla",
-          sInfo:
-            "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
-          sInfoEmpty:
-            "Mostrando registros del 0 al 0 de un total de 0 registros",
-          sInfoFiltered: "(filtrado de un total de _MAX_ registros)",
-          sInfoPostFix: "",
-          sSearch: "Buscar:",
-          sUrl: "",
-          sInfoThousands: ",",
-          sLoadingRecords: "Cargando...",
-          oPaginate: {
-            sFirst: "Primero",
-            sLast: "Último",
-            sNext: "Siguiente",
-            sPrevious: "Anterior"
-          },
-          oAria: {
-            sSortAscending:
-              ": Activar para ordenar la columna de manera ascendente",
-            sSortDescending:
-              ": Activar para ordenar la columna de manera descendente"
-          }
-        }
-      });
-    }
-    proced_id = 0;
-  } catch (error) {
-    console.error("Error al ejecutar cargardata_reload:", error);
-    // Manejar el error aquí
-    // Puedes realizar acciones adicionales si deseas, como mostrar un mensaje de error personalizado
-  }
+function cargardata_reload() {
+  cargardata(false);
 }
 function calcularTotalTasas() {
   let total = 0;
