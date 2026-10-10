@@ -642,8 +642,8 @@ function eliminar(proceciudadano_id, est, orden_giro) {
 
   swal
     .fire({
-      title: "Eliminar!",
-      text: "Desea Eliminar el Registro?",
+      title: "Anular trámite",
+      text: "¿Desea anular el trámite?",
       icon: "error",
       confirmButtonText: "Si",
       showCancelButton: true,
@@ -670,7 +670,7 @@ function eliminar(proceciudadano_id, est, orden_giro) {
                 $("#detalle_data").DataTable().ajax.reload();
                 Swal.fire({
                   title: "Correcto!",
-                  text: "Se Eliminó Correctamente",
+                  text: "El trámite se anuló correctamente.",
                   icon: "success",
                   confirmButtonText: "Aceptar"
                 });
@@ -680,7 +680,7 @@ function eliminar(proceciudadano_id, est, orden_giro) {
             // Si el estado no es 1 o 2, mostrar un mensaje de error
             Swal.fire({
               title: "Error!",
-              text: "El estado del registro no permite la eliminación.",
+              text: "El estado del trámite no permite la anulación.",
               icon: "error",
               confirmButtonText: "Aceptar"
             });
@@ -689,7 +689,7 @@ function eliminar(proceciudadano_id, est, orden_giro) {
           // Si los DNI no coinciden, mostrar un mensaje de error
           Swal.fire({
             title: "Error!",
-            text: "El DNI ingresado no coincide con el de la sesión. No tiene permiso para eliminar el registro.",
+            text: "El DNI ingresado no coincide con el de la sesión. No tiene permiso para anular el trámite.",
             icon: "error",
             confirmButtonText: "Aceptar"
           });

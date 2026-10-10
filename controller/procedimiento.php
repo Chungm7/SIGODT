@@ -544,8 +544,8 @@ switch ($_GET["op"]) {
                 $sub_array[] = '<button type="button" onclick="ver(' . $id . ')" class="btn btn-outline-success btn-icon" data-estado="' . $escape($state) . '" title="Ver tasas y liquidación">' . $view_icon . '</button>';
                 $order_argument = $row['ogciud_id'] === null ? 'null' : $escape(json_encode((string)$row['ogciud_id'], JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_TAG | JSON_HEX_AMP));
                 $disabled = in_array($state, [1,4,9], true) ? '' : ' disabled';
-                $trash_icon = '<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12M9 7v-3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/></svg>';
-                $sub_array[] = '<button type="button" onclick="eliminar(' . $id . ', ' . (int)$state . ', ' . $order_argument . ')" class="btn btn-outline-danger btn-icon" title="Eliminar trámite"' . $disabled . '>' . $trash_icon . '</button>';
+                $cancel_icon = '<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+                $sub_array[] = '<button type="button" onclick="eliminar(' . $id . ', ' . (int)$state . ', ' . $order_argument . ')" class="btn btn-outline-danger btn-icon" title="Anular trámite" aria-label="Anular trámite"' . $disabled . '>' . $cancel_icon . '</button>';
                 $data[] = $sub_array;
             }
             $emit($filters['draw'], $page, $data);

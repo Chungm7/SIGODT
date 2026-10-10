@@ -177,7 +177,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                             <th class="text-center" style="width: 110px;">Estado</th>
                             <th class="text-center" style="width: 160px;">Progreso del Trámite</th>
                             <th class="text-center" style="width: 70px;">Tasas</th>
-                            <th class="text-center" style="width: 70px;">Eliminar</th>
+                            <th class="text-center" style="width: 70px;">Anular</th>
                           </tr>
                         </thead>
                         <tbody>

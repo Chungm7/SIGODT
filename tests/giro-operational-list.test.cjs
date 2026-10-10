@@ -198,3 +198,14 @@ test('Malformed draw/count contracts cannot announce a successful refresh', () =
     assert.equal(h.$('#btnRecargar').prop('disabled'), false);
   }
 });
+
+
+test('Operational cancellation copy says Anular without changing the existing action', () => {
+  assert.match(markup, />Anular<\/th>/);
+  const action = functionSource('eliminar');
+  assert.match(action, /title: "Anular trámite"/);
+  assert.match(action, /text: "¿Desea anular el trámite\?"/);
+  assert.match(action, /text: "El trámite se anuló correctamente\."/);
+  assert.doesNotMatch(action, /(?:title|text): "[^"]*(?:[Ee]liminar|[Ee]liminación|Eliminó)/);
+  assert.match(action, /op=eliminar_proced_ciudadano/);
+});

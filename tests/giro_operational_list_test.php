@@ -95,6 +95,9 @@ check(count($response['data']) === 3, 'Partial issuance/cancellation fixtures pr
 check(strpos($response['data'][2][0], 'T-11') !== false, 'Pending row has a usable procedure identifier');
 foreach ($response['data'] as $row) {
     check(strpos($row[2], '<script>') === false && strpos($row[2], '&lt;script&gt;') !== false, 'Escape company/person text');
+    check(strpos($row[7], 'title="Anular trámite"') !== false && strpos($row[7], 'aria-label="Anular trámite"') !== false, 'Operational cancellation uses an explicit accessible label');
+    check(strpos($row[7], 'M6 6l12 12M18 6L6 18') !== false, 'Operational cancellation uses an X icon');
+    check(strpos($row[7], 'M4 7h16') === false, 'Operational cancellation does not use a trash icon');
 }
 check($db->statement->bindings[':person'][0] === 7 && $db->statement->bindings[':role'][0] === 2, 'Posted identity cannot expand permissions');
 foreach ([0,1,3,4,5,6,9,2,42,null] as $state) {
