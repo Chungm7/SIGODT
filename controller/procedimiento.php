@@ -498,103 +498,64 @@ switch ($_GET["op"]) {
         break;
 
     case "listar_proced_ciudadano_usuario":
-
-        $datos = $proced->get_procedciudadano_id($_POST["proced_id"]);
-
-
-        $data = array();
-        foreach ($datos as $row) {
-            $sub_array = array();
-            $estado = '';
-            $color = '';
-            $color_barra = '';
-
-            $est = $row["est"];
-
-            // convertir vacío o null real a 1
-            if ($est === null || $est === "") {
-                $est = 9;
-            }
-
-            switch ($est) {
-                case 0:
-                    $estado = "Anulado";
-                    $color = "#dc3045"; // Amarillo
-                    $color_barra = 'danger';
-                    break;
-                
-                case 9:
-                    $estado = "Pendiente";
-                    $color = "#ffc107"; // Amarillo
-                    $color_barra = 'warning';
-                    break;
-
-                case 1:
-                    $estado = "Girado";
-                    $color = "#28a745"; // Verde
-                    $color_barra = 'success';
-                    break;
-                case 3:
-                    $estado = "Improcedente";
-                    $color = "#dc3045"; // Rojo
-                    $color_barra = 'danger';
-                    break;
-                case 4:
-                    $estado = "Pagado";
-                    $color = "#007bff";
-                    $color_barra = 'primary';
-                    break;
-                case 5:
-                    $estado = "Usado";
-                    $color = "#6f42c1";
-                    $color_barra = 'purple';
-                    break;
-                default:
-                    $estado = "Extornado";
-                    $color = "#6c757d";
-                    $color_barra = 'secondary';
-                    break;
-            }
-
-            $porcentaje = number_format($row["pagadas"] / $row["total"] * 100, 2);
-
-            $sub_array[] = $row["ogciud_id"];
-            $sub_array[] = $row["ciudadano_dni"];
-            $sub_array[] = $row["nombre_completo"];
-            $fecha_formateada = date("Y-m-d H:i:s", strtotime($row["fechacrea"]));
-            $sub_array[] = $fecha_formateada;
-
-            // Estado como badge nativo Tabler
-            $estado_html = '<span class="badge bg-' . $color_barra . ' text-' . $color_barra . '-fg">' . $estado . '</span>';
-            $sub_array[] = $estado_html;
-
-            // Barra de progreso Tabler
-            $progress_bar_html = '<div class="d-flex align-items-center justify-content-center gap-2"><div class="progress progress-sm flex-fill" style="min-width: 60px;"><div class="progress-bar bg-' . $color_barra . '" style="width:' . $porcentaje . '%" role="progressbar" aria-valuenow="' . $porcentaje . '" aria-valuemin="0" aria-valuemax="100"></div></div><span class="text-secondary small fw-bold">' . $porcentaje . '%</span></div>';
-            $sub_array[] = $progress_bar_html;
-
-            // Botón Ver Tasas con Tabler SVG
-            $sub_array[] = '<button type="button" onClick="ver(' . $row["procedciudadano_id"] . ');" id="' . $row["procedciudadano_id"] . '" class="btn btn-outline-success btn-icon" data-estado="' . $row["est"] . '" title="Ver tasas y liquidación"><svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M9 17h6" /><path d="M9 13h6" /></svg></button>';
-
-            $trash_svg = '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>';
-
-            $og_param = !empty($row["ogciud_id"]) ? "'" . addslashes($row["ogciud_id"]) . "'" : "null";
-            if ($row["est"] == 1 || $row["est"] == 2 || $row["est"] == 4 || $est == 9) {
-                $sub_array[] = '<button type="button" onClick="eliminar(' . (int)$row["procedciudadano_id"] . ', ' . (int)$est . ', ' . $og_param . ');" id="' . $row["procedciudadano_id"] . '" class="btn btn-outline-danger btn-icon" title="Eliminar trámite">' . $trash_svg . '</button>';
-            } else {
-                $sub_array[] = '<button type="button" disabled onClick="eliminar(' . (int)$row["procedciudadano_id"] . ', ' . (int)$est . ', ' . $og_param . ');" id="' . $row["procedciudadano_id"] . '" class="btn btn-outline-danger btn-icon" title="Eliminar trámite">' . $trash_svg . '</button>';
-            }
-
-            $data[] = $sub_array;
+        header('Content-Type: application/json; charset=utf-8');
+        $draw = filter_var($_POST['draw'] ?? $_POST['sEcho'] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 1000000000]]);
+        $draw = $draw === false ? 0 : $draw;
+        $empty = ['recordsTotal' => 0, 'recordsFiltered' => 0, 'data' => []];
+        $emit = function ($draw, $page, $rows, $error = null) {
+            $response = ['draw' => (int)$draw, 'recordsTotal' => $page['recordsTotal'], 'recordsFiltered' => $page['recordsFiltered'], 'data' => $rows,
+                'sEcho' => (int)$draw, 'iTotalRecords' => $page['recordsTotal'], 'iTotalDisplayRecords' => $page['recordsFiltered'], 'aaData' => $rows];
+            if ($error !== null) $response['error'] = $error;
+            echo json_encode($response, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+        };
+        if (!Procedimiento::registration_id($_SESSION['usua_id_SIGODT'] ?? null) || !Procedimiento::registration_id($_SESSION['rol_id_SIGODT'] ?? null)) {
+            http_response_code(401);
+            $emit($draw, $empty, [], 'Sesión no válida. Inicie sesión nuevamente.');
+            break;
         }
-
-
-        $results = array(
-            "sEcho" => 1,
-            "iTotalRecords" => count($data),
-            "iTotalDisplayRecords" => count($data),
-            "aaData" => $data
-        );
-        echo json_encode($results);
+        try {
+            $filters = Procedimiento::operational_filters($_POST);
+            $procedure = $_POST['proced_id'] ?? null;
+            $area = $_POST['area_id'] ?? null;
+            if (in_array($area, ['', '0', 0], true)) $area = null;
+            if ($area !== null && !Procedimiento::registration_id($area)) throw new InvalidArgumentException('Área inválida.');
+            if (in_array($procedure, [null, '', '0', 0], true)) {
+                $emit($filters['draw'], $empty, []);
+                break;
+            }
+            if (!Procedimiento::registration_id($procedure)) throw new InvalidArgumentException('Procedimiento inválido.');
+            $page = $proced->get_operational_list($procedure, $_SESSION['usua_id_SIGODT'], $_SESSION['rol_id_SIGODT'], $area, $filters);
+            $data = [];
+            $escape = function ($value) { return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8'); };
+            $labels = [0 => ['Anulado', 'danger'], 1 => ['Girado', 'success'], 3 => ['Improcedente', 'danger'],
+                4 => ['Pagado', 'primary'], 5 => ['Usado', 'purple'], 6 => ['Extornado', 'secondary'], 9 => ['Pendiente', 'warning']];
+            foreach ($page['data'] as $row) {
+                $state = $row['filter_state'] === null ? null : (int)$row['filter_state'];
+                $unknown = 'Desconocido (' . ($row['est'] === null ? '—' : $row['est']) . ')';
+                [$label, $color] = $state !== null && isset($labels[$state]) ? $labels[$state] : [$unknown, 'secondary'];
+                $total = (int)$row['total'];
+                $percentage = number_format($total > 0 ? min(100, max(0, (int)$row['pagadas'] / $total * 100)) : 0, 2, '.', '');
+                $id = (int)$row['procedciudadano_id'];
+                $identifier = $row['ogciud_id'] ?? ($row['procedciudadano_cod'] ?: 'Trámite ' . $id);
+                $sub_array = [$escape($identifier), $escape($row['ciudadano_dni']), $escape($row['nombre_completo']), $escape($row['fechacrea'])];
+                $sub_array[] = '<span class="badge bg-' . $color . ' text-' . $color . '-fg">' . $escape($label) . '</span>';
+                $sub_array[] = '<div class="d-flex align-items-center justify-content-center gap-2"><div class="progress progress-sm flex-fill" style="min-width:60px"><div class="progress-bar bg-' . $color . '" style="width:' . $percentage . '%" role="progressbar" aria-valuenow="' . $percentage . '" aria-valuemin="0" aria-valuemax="100"></div></div><span class="text-secondary small fw-bold">' . $percentage . '%</span></div>';
+                $view_icon = '<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21h-10a2 2 0 0 1-2-2v-14a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/><path d="M9 17h6M9 13h6"/></svg>';
+                $sub_array[] = '<button type="button" onclick="ver(' . $id . ')" class="btn btn-outline-success btn-icon" data-estado="' . $escape($state) . '" title="Ver tasas y liquidación">' . $view_icon . '</button>';
+                $order_argument = $row['ogciud_id'] === null ? 'null' : $escape(json_encode((string)$row['ogciud_id'], JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_TAG | JSON_HEX_AMP));
+                $disabled = in_array($state, [1,4,9], true) ? '' : ' disabled';
+                $trash_icon = '<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12M9 7v-3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/></svg>';
+                $sub_array[] = '<button type="button" onclick="eliminar(' . $id . ', ' . (int)$state . ', ' . $order_argument . ')" class="btn btn-outline-danger btn-icon" title="Eliminar trámite"' . $disabled . '>' . $trash_icon . '</button>';
+                $data[] = $sub_array;
+            }
+            $emit($filters['draw'], $page, $data);
+        } catch (InvalidArgumentException $error) {
+            http_response_code(400);
+            $emit($draw, $empty, [], $error->getMessage());
+        } catch (Throwable $error) {
+            http_response_code(500);
+            $emit($draw, $empty, [], 'No se pudo cargar el listado. Intente nuevamente.');
+        }
         break;
 
     case "listaConsulta":

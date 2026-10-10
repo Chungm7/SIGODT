@@ -540,7 +540,10 @@ function cargardata() {
     ajax: {
       url: "../../controller/procedimiento.php?op=listar_proced_ciudadano_usuario",
       type: "post",
-      data: { proced_id: proced_id }
+      data: function (request) {
+        request.proced_id = $("#proced_id").val() || 0;
+        request.area_id = $("#area_id").val() || 0;
+      }
     },
     bDestroy: true,
     responsive: true,
@@ -697,7 +700,10 @@ function cargardata_reload(proced_id) {
         ajax: {
           url: "../../controller/procedimiento.php?op=listar_proced_ciudadano_usuario",
           type: "post",
-          data: { proced_id: proced_id }
+          data: function (request) {
+        request.proced_id = $("#proced_id").val() || 0;
+        request.area_id = $("#area_id").val() || 0;
+      }
         },
         bDestroy: true,
         responsive: false,

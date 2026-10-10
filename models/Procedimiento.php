@@ -353,60 +353,176 @@ class Procedimiento extends Conectar
         $sql->execute();
         return $resultado = $sql->fetchColumn();
     }
-    public function get_procedciudadano_id($proced_id)
+    public static function operational_filters($input)
     {
+        if (!is_array($input)) throw new InvalidArgumentException('Filtros inválidos.');
+        $result = [];
+        foreach (['draw' => ['sEcho', 0, 0, 1000000000], 'start' => ['iDisplayStart', 0, 0, 1000000000], 'length' => ['iDisplayLength', 10, 1, 100]] as $key => $rule) {
+            $value = $input[$key] ?? $input[$rule[0]] ?? $rule[1];
+            if ((!is_int($value) && !is_string($value)) ||
+                filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => $rule[2], 'max_range' => $rule[3]]]) === false) {
+                throw new InvalidArgumentException('Paginación inválida.');
+            }
+            $result[$key] = (int)$value;
+        }
+        $state = $input['state'] ?? 'en_curso';
+        if (!is_string($state) || !in_array($state, ['en_curso', 'todos', '0', '1', '3', '4', '5', '6', '9'], true)) {
+            throw new InvalidArgumentException('Estado inválido.');
+        }
+        $result['state'] = $state;
+        if (isset($input['search']) && !is_array($input['search'])) throw new InvalidArgumentException('Búsqueda inválida.');
+        $search = isset($input['search']) && array_key_exists('value', $input['search']) ? $input['search']['value'] : ($input['sSearch'] ?? '');
+        if (!is_string($search) || strlen($search) > 200 || preg_match('//u', $search) !== 1) {
+            throw new InvalidArgumentException('Búsqueda inválida.');
+        }
+        $result['search'] = trim($search) === '' ? '' : '%' . strtr(trim($search), ['!' => '!!', '%' => '!%', '_' => '!_']) . '%';
+        foreach (['date_from', 'date_to'] as $key) {
+            $value = $input[$key] ?? '';
+            if (!is_string($value)) throw new InvalidArgumentException('Fecha inválida.');
+            if ($value !== '' && (substr($value, 0, 4) === '0000' || !preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/D', $value))) throw new InvalidArgumentException('Fecha inválida.');
+            $date = $value === '' ? null : DateTime::createFromFormat('!Y-m-d', $value);
+            if ($value !== '' && (!$date || $date->format('Y-m-d') !== $value)) throw new InvalidArgumentException('Fecha inválida.');
+            $result[$key] = $value === '' ? null : $value;
+        }
+        if ($result['date_from'] !== null && $result['date_to'] !== null && $result['date_from'] > $result['date_to']) {
+            throw new InvalidArgumentException('El rango de fechas no es válido.');
+        }
+        return $result;
+    }
+
+    public function get_operational_list($procedure, $person, $role, $area, $filters)
+    {
+        $empty = ['recordsTotal' => 0, 'recordsFiltered' => 0, 'data' => []];
+        foreach ([$procedure, $person, $role] as $id) {
+            if (!self::registration_id($id)) return $empty;
+        }
+        if ($area !== null && !self::registration_id($area)) return $empty;
+        // Access is historical: assignment matters, current catalog lifecycle does not.
+        // Retained cancelled links belong to history, not to current pending eligibility.
+        $sql = <<<'SQL'
+WITH params AS (
+    SELECT CAST(:procedure AS integer) AS procedure, CAST(:person AS integer) AS person,
+           CAST(:role AS integer) AS role, CAST(:area AS integer) AS area,
+           CAST(:state AS text) AS state, CAST(:search AS text) AS search,
+           CAST(:date_from AS date) AS date_from, CAST(:date_to AS date) AS date_to,
+           CAST(:size AS integer) AS page_size, CAST(:offset AS integer) AS page_offset
+), authorized AS (
+    SELECT tc.*, c.ciud_numero_documento::text AS citizen_document,
+           CONCAT_WS(' ', c.ciud_nombre, c.ciud_primer_apellido, c.ciud_segundo_apellido) AS citizen_name,
+           COALESCE(NULLIF(BTRIM(tc.empresa_ruc::text), ''), NULLIF(BTRIM(e.empr_ruc::text), '')) AS company_document,
+           COALESCE(NULLIF(BTRIM(tc.empresa_razon_social), ''), NULLIF(BTRIM(e.empr_razon_social), ''),
+                    NULLIF(BTRIM(e.empr_nombre_comercial), '')) AS company_name,
+           CONCAT_WS(' ', tc.empresa_razon_social, e.empr_razon_social, e.empr_nombre_comercial) AS company_search,
+           CONCAT_WS(' ', tc.empresa_ruc::text, e.empr_ruc::text) AS company_document_search
+    FROM sc_giros.td_procedciudadano tc
+    JOIN sc_giros.tm_procedimiento p ON p.proced_id = tc.proced_id
+    JOIN public.tb_ciudadano c ON c.ciud_id = tc.ciud_id
+    LEFT JOIN public.tb_empresa e ON e.empr_id = tc.empr_id
+    CROSS JOIN params q
+    WHERE p.proced_id = q.procedure AND (q.area IS NULL OR p.proced_area = q.area)
+      AND (q.role = 9 OR EXISTS (
+          SELECT 1 FROM sc_giros.td_areausu tau
+          WHERE tau.depe_id = p.proced_area AND tau.est = 1 AND tau.pers_id = q.person
+      ))
+), fees AS (
+    SELECT ttc.* FROM sc_giros.td_tasatciud ttc
+    JOIN authorized a ON a.procedciudadano_id = ttc.tasatciud_procedciud
+), progress AS (
+    SELECT tasatciud_procedciud AS procedure_id,
+           COUNT(*) FILTER (WHERE est <> 0)::integer AS total,
+           COUNT(*) FILTER (WHERE est IN (2,4,5))::integer AS pagadas
+    FROM fees GROUP BY tasatciud_procedciud
+), order_rows AS (
+    SELECT DISTINCT a.procedciudadano_id, og.ogciud_id::text AS ogciud_id, og.est::integer AS est,
+           'order'::text AS row_kind,
+           'order:' || a.procedciudadano_id || ':' || og.ogciud_id AS row_id
+    FROM authorized a
+    JOIN fees f ON f.tasatciud_procedciud = a.procedciudadano_id
+    JOIN sc_giros.td_giro_tasa_ciudadano gt ON gt.tasaciud_id = f.tasatciud_id
+    JOIN sc_giros.td_ordengirociud og ON og.ogciud_id = gt.girot_giro
+), procedure_candidates AS (
+    SELECT a.procedciudadano_id, a.est,
+           (a.est IN (1,2) AND (
+               EXISTS (
+                   SELECT 1 FROM fees f
+                   WHERE f.tasatciud_procedciud = a.procedciudadano_id AND f.est IN (1,3)
+                     AND NOT EXISTS (
+                         SELECT 1 FROM sc_giros.td_giro_tasa_ciudadano valid_link
+                         JOIN sc_giros.td_ordengirociud valid_order ON valid_order.ogciud_id = valid_link.girot_giro
+                         WHERE valid_link.tasaciud_id = f.tasatciud_id AND valid_link.est = 1
+                           AND valid_order.est NOT IN (0,3,6)
+                     )
+               ) OR (a.est = 1 AND NOT EXISTS (
+                   SELECT 1 FROM fees f WHERE f.tasatciud_procedciud = a.procedciudadano_id
+               ))
+           )) AS pending
+    FROM authorized a
+), procedure_rows AS (
+    SELECT c.procedciudadano_id, NULL::text AS ogciud_id,
+           CASE WHEN c.pending THEN 9 ELSE c.est END::integer AS est,
+           CASE WHEN c.pending THEN 'pending' ELSE 'procedure' END AS row_kind,
+           CASE WHEN c.pending THEN 'pending:' ELSE 'procedure:' END || c.procedciudadano_id AS row_id
+    FROM procedure_candidates c
+    WHERE c.pending OR NOT EXISTS (
+        SELECT 1 FROM order_rows o WHERE o.procedciudadano_id = c.procedciudadano_id
+    )
+), rows AS (
+    SELECT * FROM order_rows
+    UNION ALL
+    SELECT * FROM procedure_rows
+), listing AS (
+    SELECT r.*, a.procedciudadano_cod, a.fechacrea,
+           COALESCE(a.company_document, a.citizen_document) AS ciudadano_dni,
+           COALESCE(a.company_name, a.citizen_name) AS nombre_completo,
+           a.citizen_document, a.citizen_name, a.company_search, a.company_document_search,
+           COALESCE(pr.total, 0) AS total, COALESCE(pr.pagadas, 0) AS pagadas,
+           CASE WHEN r.row_kind = 'pending' THEN 9
+                WHEN r.row_kind = 'order' AND r.est IN (0,1,3,4,5,6) THEN r.est
+                WHEN r.row_kind = 'procedure' AND r.est IN (0,3,5,6) THEN r.est
+                ELSE NULL END AS filter_state
+    FROM rows r JOIN authorized a USING (procedciudadano_id)
+    LEFT JOIN progress pr ON pr.procedure_id = r.procedciudadano_id
+), filtered AS (
+    SELECT l.* FROM listing l CROSS JOIN params q
+    WHERE (q.state = 'todos' OR (q.state = 'en_curso' AND l.filter_state IN (1,9))
+           OR q.state = l.filter_state::text)
+      AND (q.date_from IS NULL OR l.fechacrea >= q.date_from)
+      AND (q.date_to IS NULL OR l.fechacrea < q.date_to + INTERVAL '1 day')
+      AND (q.search = '' OR l.ogciud_id ILIKE q.search ESCAPE '!'
+           OR l.procedciudadano_cod ILIKE q.search ESCAPE '!'
+           OR l.citizen_document ILIKE q.search ESCAPE '!' OR l.citizen_name ILIKE q.search ESCAPE '!'
+           OR l.company_document_search ILIKE q.search ESCAPE '!' OR l.company_search ILIKE q.search ESCAPE '!')
+), counts AS (
+    SELECT (SELECT COUNT(*) FROM listing) AS records_total,
+           (SELECT COUNT(*) FROM filtered) AS records_filtered
+), page AS (
+    SELECT * FROM filtered ORDER BY fechacrea DESC NULLS LAST, row_id
+    LIMIT (SELECT page_size FROM params) OFFSET (SELECT page_offset FROM params)
+)
+SELECT counts.*, page.* FROM counts LEFT JOIN page ON TRUE
+ORDER BY page.fechacrea DESC NULLS LAST, page.row_id
+SQL;
         $conectar = parent::conexion();
         parent::set_names();
-        $sql = " SELECT
-        og.ogciud_id,
-        tc.procedciudadano_id,
-        tc.procedciudadano_cod,
-        tc.proced_id,
-        ciu.ciud_nombre AS ciudadano_nombre,
-        ciu.ciud_numero_documento AS ciudadano_dni,
-        CONCAT(ciu.ciud_nombre, ' ', ciu.ciud_primer_apellido, ' ', ciu.ciud_segundo_apellido) AS nombre_completo,
-        tc.fechacrea,
-        CASE
-            WHEN og.est IS NOT NULL THEN og.est
-            WHEN ttc.est = 0 THEN 0
-            ELSE og.est
-        END::INT AS est,
-        COUNT(*) FILTER (WHERE tt.est = 1)::int AS total,
-        COALESCE(SUM(CASE WHEN ttc.est IN (2,4,5) THEN 1 ELSE 0 END), 0)::int AS pagadas
-        FROM
-            sc_giros.td_tasatciud ttc
-        LEFT JOIN
-            sc_giros.td_tasaproced tt ON ttc.tasatciud_tasaproced = tt.tasaproced_id
-        LEFT JOIN
-            sc_giros.td_procedciudadano tc ON ttc.tasatciud_procedciud = tc.procedciudadano_id
-        LEFT JOIN
-            public.tb_ciudadano ciu ON tc.ciud_id= ciu.ciud_id
-
-        LEFT JOIN 
-            sc_giros.td_giro_tasa_ciudadano gt ON gt.tasaciud_id = ttc.tasatciud_id
-
-        LEFT JOIN 
-            sc_giros.td_ordengirociud og ON gt.girot_giro = og.ogciud_id
-
-        WHERE
-            tc.proced_id = ?
-            AND tc.est IN (0,1,2,3,4,5,6)
-        GROUP BY
-            og.ogciud_id,
-            tc.procedciudadano_id,
-            tc.procedciudadano_cod,
-            ciu.ciud_nombre,
-            tc.proced_id,
-            ciu.ciud_numero_documento,
-            CONCAT(ciu.ciud_nombre, ' ', ciu.ciud_primer_apellido, ' ', ciu.ciud_segundo_apellido),
-            tc.fechacrea,
-            ttc.est
-        ORDER BY
-            tc.fechacrea DESC limit 200; ";
-            $sql = $conectar->prepare($sql);
-            $sql->bindValue(1, $proced_id);
-            $sql->execute();
-            return $resultado = $sql->fetchAll();
+        $stmt = $conectar->prepare($sql);
+        foreach ([':procedure' => $procedure, ':person' => $person, ':role' => $role, ':size' => $filters['length'], ':offset' => $filters['start']] as $key => $value) {
+            $stmt->bindValue($key, $value, PDO::PARAM_INT);
+        }
+        $stmt->bindValue(':area', $area, $area === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
+        foreach (['state', 'search', 'date_from', 'date_to'] as $key) {
+            $value = $filters[$key];
+            $stmt->bindValue(':' . $key, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+        }
+        $stmt->execute();
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if (!$rows) return $empty;
+        $result = ['recordsTotal' => (int)$rows[0]['records_total'], 'recordsFiltered' => (int)$rows[0]['records_filtered'], 'data' => []];
+        foreach ($rows as $row) {
+            if ($row['row_id'] === null) continue;
+            unset($row['records_total'], $row['records_filtered']);
+            $result['data'][] = $row;
+        }
+        return $result;
     }
     public function get_procedciudadano_id_admin($proced_id)
     {
