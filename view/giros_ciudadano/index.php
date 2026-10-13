@@ -144,7 +144,6 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                             <option value="1">Girado</option>
                             <option value="4">Pagado</option>
                             <option value="0">Anulado</option>
-                            <option value="3">Improcedente</option>
                             <option value="5">Usado</option>
                             <option value="6">Extornado</option>
                             <option value="todos">Todos los estados</option>

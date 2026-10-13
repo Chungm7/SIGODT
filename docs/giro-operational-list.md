@@ -11,7 +11,7 @@ The citizen giro listing defaults to **En curso**: pending trámites without a v
 
 ## State and date semantics
 - Pendiente is derived from actionable fees without a valid issued association, not a stored order state. Cancellation can expose a pending row alongside cancelled history; partial issuance can expose pending and issued rows together.
-- Individual states are Girado, Pagado, Anulado, Improcedente, Usado and Extornado. Unverified state codes retain Desconocido and are available through Todos los estados, not a fabricated state filter.
+- Individual filter choices are Girado, Pagado, Anulado, Usado and Extornado. Improcedente is no longer offered as a filter; existing historical rows keep their label and remain visible through Todos los estados. Unverified state codes retain Desconocido and are available through Todos los estados, not a fabricated state filter.
 - Dates refer to **trámite creation**, never payment. Either endpoint is optional, the end date includes that calendar day, and a reversed range is rejected. Existing database timestamp semantics remain unchanged.
 - Search uses literal text, not regular expressions or wildcard syntax; the server accepts at most 200 UTF-8 bytes. Pages allow 10, 25, 50 or 100 rows with fixed newest-first ordering.
 

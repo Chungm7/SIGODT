@@ -80,9 +80,11 @@ function result(draw, count = 1) {
 
 test('Controls expose known states, blank optional creation dates and accessible feedback', () => {
   assert.match(markup, /id="giro_state"/);
-  for (const value of ['en_curso', '9', '1', '4', '0', '3', '5', '6', 'todos']) {
+  for (const value of ['en_curso', '9', '1', '4', '0', '5', '6', 'todos']) {
     assert.match(markup, new RegExp(`value="${value}"`));
   }
+  const stateSelector = markup.match(/<select[^>]*id="giro_state"[^>]*>[\s\S]*?<\/select>/)[0];
+  assert.doesNotMatch(stateSelector, /Improcedente|value="3"/);
   assert.match(markup, /value="en_curso" selected/);
   for (const id of ['giro_date_from', 'giro_date_to']) {
     const input = markup.match(new RegExp(`<input[^>]*id="${id}"[^>]*>`));
