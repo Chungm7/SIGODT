@@ -49,7 +49,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
 
                             <div class="card shadow-sm mb-3">
                                 <div class="card-body">
-                                    <div class="row g-3 align-items-end">
+                                    <div class="row g-3 align-items-start">
                                         <div class="col-md-4">
                                             <label class="form-label fw-semibold" for="tupa_id">Documento / TUPA <span class="text-danger">*</span></label>
                                             <select class="form-select select2" name="tupa_id" id="tupa_id" data-placeholder="Seleccione Documento">
@@ -61,6 +61,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                                             <select class="form-select select2" name="area_id" id="area_id" data-placeholder="Seleccione Área">
                                                 <option label="Seleccione"></option>
                                             </select>
+                                            <small class="form-hint">Solo áreas con procedimientos activos en el documento seleccionado. Para crear, elija el área en Nuevo Procedimiento.</small>
                                         </div>
                                     </div>
                                 </div>

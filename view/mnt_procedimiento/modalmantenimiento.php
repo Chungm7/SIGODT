@@ -11,6 +11,14 @@
                 <div class="modal-body">
                     <input type="hidden" name="proced_id" id="proced_id" />
 
+                    <div class="mb-3">
+                        <label for="proced_area" class="form-label fw-semibold">Área del procedimiento <span class="text-danger">*</span></label>
+                        <select class="form-select select2" id="proced_area" required style="width: 100%;">
+                            <option value="">Seleccione</option>
+                        </select>
+                        <small class="form-hint">Al crear, puede elegir cualquier área activa, aunque aún no tenga procedimientos en este documento. Al editar, se conserva el área original.</small>
+                    </div>
+
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <label for="proced_cod" class="form-label fw-semibold">Código del Procedimiento <span class="text-danger">*</span></label>

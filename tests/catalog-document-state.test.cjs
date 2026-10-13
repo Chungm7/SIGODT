@@ -6,13 +6,15 @@ function harness(file) {
   const alerts = [], elements = new Map();
   let request, html = '', reloads = 0, hidden = 0, state = 1;
   const $ = (selector) => ({
-    val(value) { return arguments.length ? this : selector === '#area_id' || selector === '#tupa_id' ? '7' : ''; },
+    val(value) { return arguments.length ? this : selector === '#area_id' || selector === '#tupa_id' || selector === '#proced_area' ? '7' : ''; },
     on() {}, ready() {}, attr: () => String(state), trigger() { return this; },
-    html(value) { html = value; },
+    prop(key, value) { return arguments.length > 1 ? this : false; },
+    html(value) { html = value; return this; },
     modal() { hidden++; },
     DataTable: () => ({ajax: {reload() { reloads++; }}}),
     0: {reset() {}},
   });
+  $.fn = {DataTable: {isDataTable() { return false; }}};
   $.ajax = options => { request = options; };
   $.post = (url, data, callback) => {
     if (typeof data === 'function') { callback = data; }
@@ -41,11 +43,11 @@ test('duplication reports success only for a positive ID and describes active-on
   assert.equal(h.alerts.at(-1).icon, 'error');
 });
 test('catalog save rejection does not close modal or reload table', () => {
-  const h = harness('mnt_procedimiento'); h.context.guardaryeditar({preventDefault() {}});
+  const h = harness('mnt_procedimiento'); h.context.formDocument = '7'; h.context.guardaryeditar({preventDefault() {}});
   h.request().success({success: false, message: 'Documento inactivo'});
   assert.equal(h.alerts.at(-1).icon, 'error'); assert.equal(h.reloads(), 0); assert.equal(h.hidden(), 0);
   h.request().success({success: true});
-  assert.equal(h.alerts.at(-1).icon, 'success'); assert.equal(h.reloads(), 1); assert.equal(h.hidden(), 1);
+  assert.equal(h.alerts.at(-1).icon, 'success'); assert.match(h.request().url, /area.php\?op=combo_tributos/); assert.equal(h.hidden(), 1);
 });
 test('new catalog procedure modal only opens for vigente or in-progress', () => {
   for (const state of [0,1,2,3,99]) {
