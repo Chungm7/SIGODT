@@ -894,11 +894,13 @@ function mostrarDetalleProcedimiento(data) {
         `;
     data.tasas.forEach((tasa, idx) => {
       let multiplicaText = tasa.is_multiplica == 1 ? 'Sí' : 'No';
+      let parsedMonto = parseFloat(tasa.tasaproced_monto);
+      let montoDisplay = !isNaN(parsedMonto) ? `S/ ${parsedMonto.toFixed(2)}` : '-';
       tasasHtml += `
                 <tr>
                     <td>${idx + 1}</td>
                     <td>${tasa.tasa_nom}</td>
-                    <td>S/ ${parseFloat(tasa.tasaproced_monto).toFixed(2)}</td>
+                    <td>${montoDisplay}</td>
                     <td class="text-center">${multiplicaText}</td>
                     <td>${tasa.desc_tasa || "-"}</td>
                 </tr>

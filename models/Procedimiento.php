@@ -783,7 +783,8 @@ SQL;
                 ta.tasa_nom, t.is_multiplica
              FROM sc_giros.td_tasaproced t
              INNER JOIN sc_giros.tm_tasa ta ON t.tasa_id = ta.tasa_id
-             WHERE t.proced_id = ?";
+             WHERE t.proced_id = ? AND t.est = 1
+             ORDER BY t.tasaproced_pos, t.tasaproced_id";
         $stmt2 = $conectar->prepare($sql2);
         $stmt2->bindValue(1, $proced_id);
         $stmt2->execute();
