@@ -476,21 +476,14 @@ switch ($_GET["op"]) {
 
             $checkbox = "";
 
-            if ($tcampo === 2) {
-                if ($i == 0 && $tcampo === 2) {
-                    // For the first row
-                    if ($row["est"] == 2) {
-                        // If the first occurrence is "Pagado," mark all subsequent "Pendiente" checkboxes as checked
-                        $checkbox = "<input type='checkbox' class='form-check-input' name='detallecheck[]' value='" . $row["tasatciud_id"] . "' data-estado='" . $row["est"] . "' data-monto='" . $row["tasaproced_monto"] . "' disabled>";
-                    } else {
-                        // For other states or when handling "Pendiente" after "Pagado," show a checkbox accordingly
-                        $checked = "";
-                        $checkbox = "<input type='checkbox' class='form-check-input' name='detallecheck[]' value='" . $row["tasatciud_id"] . "' data-estado='" . $row["est"] . "' data-monto='" . $row["tasaproced_monto"] . "' disabled $checked>";
-                    }
-                } else {
-                    // For other rows
-                    $checkbox = ($datos[0]["est"] !== 3) ? "<input type='checkbox' class='form-check-input' name='detallecheck[]' value='" . $row["tasatciud_id"] . "' data-estado='" . $row["est"] . "' data-monto='" . $row["tasaproced_monto"] . "' disabled checked>" : "<input type='checkbox' class='form-check-input' name='detallecheck[]' value='" . $row["tasatciud_id"] . "' data-estado='" . $row["est"] . "' data-monto='" . $row["tasaproced_monto"] . "' disabled>";
-                }
+            if ((int) $tcampo === 2) {
+                // The administrative fee is issued individually; remaining pending fees form one group.
+                $groupReady = in_array((int) $datos[0]["est"], [2, 4, 5], true);
+                $groupEligible = $i > 0 && $groupReady && (int) $row["est"] === 1;
+                $groupAttributes = $i > 0 ? " data-grupo='posteriores'" : "";
+                $groupAttributes .= " data-emision-grupo='" . ($groupEligible ? "1" : "0") . "'";
+                $selectionAttributes = $groupEligible ? "checked" : "disabled";
+                $checkbox = "<input type='checkbox' class='form-check-input' name='detallecheck[]' value='" . $row["tasatciud_id"] . "' data-estado='" . $row["est"] . "' data-monto='" . $row["tasaproced_monto"] . "'" . $groupAttributes . " " . $selectionAttributes . ">";
             } else {
                 if ($tcampo === 3) {
                     // Verificar si el estado es "Improcedente" y desactivar el checkbox en consecuencia
@@ -523,7 +516,7 @@ switch ($_GET["op"]) {
                 '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-credit-card-pay"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 19h-6a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v4.5" /><path d="M3 10h18" /><path d="M16 19h6" /><path d="M19 16l3 3l-3 3" /><path d="M7.005 15h.005" /><path d="M11 15h2" /></svg>';
             $pago_button = '';
             if ($row["est"] == 1) {
-                if ($tcampo === 2) {
+                if ((int) $tcampo === 2) {
                     if ($i == 0) {
                         $pago_button = '<button type="button" onClick="pagar(' . $row["tasatciud_id"] . ',' . $_POST["proceciudadano_id"] . ');" id="' . $row["tasatciud_id"] . '" class="btn btn-outline-primary btn-icon" title="Emitir Orden de Giro">' . $icon_class . '</button>';
                     } else {
@@ -535,7 +528,7 @@ switch ($_GET["op"]) {
                     $pago_button = '<button type="button" onClick="pagar(' . $row["tasatciud_id"] . ',' . $_POST["proceciudadano_id"] . ',' . $_POST["est"] . ');" id="' . $row["tasatciud_id"] . '" class="btn btn-outline-primary btn-icon" title="Emitir Orden de Giro">' . $icon_class . '</button>';
                 }
             } else if ($row["est"] !== 3 || $row["est"] !== 0 || $row["est"] !== 6) {
-                if ($tcampo === 2) {
+                if ((int) $tcampo === 2) {
                     if ($i == 0) {
                         $pago_button = '<button type="button" onClick="imprimir(' . $row["tasatciud_id"] . ');" id="' . $row["tasatciud_id"] . '" class="btn btn-outline-danger btn-icon" title="Imprimir Comprobante"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-printer"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" /><path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /></svg></button>';
                     } else {

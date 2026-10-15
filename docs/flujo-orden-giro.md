@@ -159,17 +159,17 @@ Tras el éxito, la interfaz recarga datos y ofrece imprimir. Si ya no quedan tas
 
 Hay tratamiento especial por `proced_tipocampo`:
 
-- **Tipo 2:** la primera tasa, según `tasaproced_pos`, tiene acción individual de emisión cuando está pendiente. Las siguientes tienen casillas deshabilitadas y selección automática según las condiciones del listado.
+- **Tipo 2:** la primera tasa del listado (costo administrativo) tiene acción individual de emisión cuando está pendiente. Una vez Girada (`2`), Pagada (`4`) o Usada (`5`), se habilitan y preseleccionan juntas las demás tasas **Pendientes (`1`)**. Marcar o desmarcar cualquiera selecciona o deselecciona todo ese grupo; no se ofrece emisión individual para ellas. El costo administrativo y las tasas no pendientes quedan fuera de la selección grupal. Antes de girar el costo, o si está Anulado (`0`), Improcedente (`3`) o Extornado (`6`), el grupo permanece bloqueado.
 - **Tipo 3:** las casillas también se deshabilitan y no se ofrece emisión individual en esa rama.
 - **Otros tipos:** una tasa pendiente puede tener emisión individual y las casillas pueden permitir selección manual.
 
-**No se encontró en este listado ni en el endpoint grupal una regla consistente que exija que la primera tasa esté Pagada (`4`) antes de emitir las demás.** No confundir la intención de una interfaz por etapas con una validación efectiva de pago.
+**No se exige pago confirmado del costo administrativo:** basta con que esté Girado (`2`). Por ejemplo, con costo Girado y TUC/Registro Pendientes, ambas tasas se seleccionan juntas y se emiten en una sola orden, conservando la cantidad de cada concepto. Incluso si solo queda una tasa pendiente, el botón debe reflejarla y permitir girarla.
 
-Las comparaciones de tipos y estados mezclan igualdad estricta y no estricta; algunos comportamientos dependen de si PDO devuelve números o cadenas. Además, ciertas asignaciones repetidas de marcado/deshabilitado terminan sobrescribiendo condiciones anteriores.
+Esta regla de selección se aplica en la interfaz ciudadana; el endpoint grupal no incorpora aquí una nueva validación de etapas ni de pertenencia del grupo. La rama Tipo 2 admite identificadores de tipo y estado numéricos o cadenas. Las demás ramas conservan sus comparaciones y condiciones existentes.
 
 ### 5.5 Botón visible con una sola tasa Girada
 
-El código actual de `listarTasas` muestra el botón grupal únicamente si hay más de una fila de tasas. Cuenta todas las filas, no solo las pendientes. La función de totales considera las pendientes.
+El código actual de `listarTasas` muestra el botón grupal únicamente si hay más de una fila de tasas. Cuenta todas las filas, no solo las pendientes. La función de totales considera las pendientes habilitadas para emisión grupal; actualiza el importe y deshabilita el botón cuando no hay selección, aunque solo quede una o ninguna pendiente.
 
 Una captura con una sola tasa Girada y el botón visible no coincide con esa condición del código revisado. No se confirmó la causa: podría ser una versión desplegada distinta u otro comportamiento del DOM. **No demuestra que sea válido volver a girar esa tasa.**
 
