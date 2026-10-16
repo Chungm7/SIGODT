@@ -36,7 +36,7 @@ PHP;
 $period = ['start' => '2025-01-01', 'end' => '2025-01-31'];
 $session = ['usua_id_SIGODT' => '7', 'nombre_completo_SIGODT' => '=Emisor <script>'];
 foreach ([[], ['usua_id_SIGODT' => []], ['usua_id_SIGODT' => '1 OR 1=1'], ['usua_id_SIGODT' => 0]] as $invalid) {
-    foreach (['json', 'csv', 'print'] as $op) {
+    foreach (['json', 'csv', 'print', 'pdf'] as $op) {
         check(str_contains(reportEndpoint($invalid, $period, $op)[1], 'HTTP:401'), 'S2: reject invalid sessions on every output');
     }
 }
@@ -81,7 +81,15 @@ foreach (['csv', 'print'] as $op) {
     [$export] = reportEndpoint($session, $period + ['procedure' => '20'], $op, $rows);
     check(!str_contains($export, '002-2025') && str_contains($export, '5.50'), 'S6/S7: same filtered full export');
 }
-echo "PASS S6: full authorized/filter-consistent CSV and print escaping\n";
+foreach ([[], $period + ['document' => []], $period + ['procedure' => '-1']] as $invalid) {
+    check(reportEndpoint($session, $invalid, 'pdf')[1] === 'HTTP:400', 'PDF validates before database access');
+}
+[$pdf, $status] = reportEndpoint($session, $period + ['limit' => 1, 'page' => 2, 'emitter' => 999, 'worker' => 999, 'full' => 0], 'pdf', $rows);
+$pdf = json_decode($pdf, true, 512, JSON_THROW_ON_ERROR);
+check($status === 'HTTP:200' && count($pdf['details']) === 3 && $pdf['summary'] === $data['summary'], 'PDF uses full authorized results, not requested page/emitter/full');
+[$pdfFiltered] = reportEndpoint($session, $period + ['procedure' => '20'], 'pdf', $rows);
+check(json_decode($pdfFiltered, true)['summary'] === $filtered['summary'], 'PDF matching-line semantics');
+echo "PASS S6/S10: full authorized PDF data and existing exports\n";
 check(str_contains($html, '<strong>SIGODT</strong>') && str_contains($html, 'aria-label="Contexto del reporte"'), 'S9: institutional heading and grouped context');
 check(str_contains($html, 'size: A4 landscape') && str_contains($html, 'table-layout: fixed') && str_contains($html, 'table-header-group'), 'S9: readable landscape print with repeated headers and proportional columns');
 check(str_contains($html, 'break-inside: avoid') && !str_contains($html, 'text-overflow: ellipsis') && !str_contains($html, 'overflow: hidden'), 'S3/S9: keep short rows together without clipping long content');

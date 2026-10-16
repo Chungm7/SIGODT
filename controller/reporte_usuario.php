@@ -12,7 +12,7 @@ if ((!is_string($emitter) && !is_int($emitter)) || !preg_match('/^[1-9][0-9]*$/D
     exit;
 }
 $operation = $_GET['op'] ?? 'json';
-if (!in_array($operation, ['json', 'csv', 'print'], true)) {
+if (!in_array($operation, ['json', 'csv', 'print', 'pdf'], true)) {
     http_response_code(400);
     echo json_encode(['error' => 'Operación inválida.']);
     exit;
@@ -39,7 +39,7 @@ try {
     echo json_encode(['error' => 'No se pudo generar el reporte. Intente nuevamente.']);
     exit;
 }
-if ($operation === 'json') {
+if ($operation === 'json' || $operation === 'pdf') {
     echo json_encode($report, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
     exit;
 }

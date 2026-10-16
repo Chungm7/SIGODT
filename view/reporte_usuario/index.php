@@ -51,6 +51,7 @@ catch (InvalidArgumentException $error) {
       <p class="text-muted mb-0">Los filtros cuentan cada orden coincidente una vez y suman solo sus conceptos coincidentes. Se incluyen órdenes anuladas, extornadas y estados históricos.</p>
     </div>
     <div class="card-footer report-actions">
+      <button id="reportPdf" class="btn btn-primary" type="button" disabled>Descargar PDF</button>
       <a id="reportCsv" class="btn btn-outline-secondary" download>Exportar CSV para Excel</a>
       <a id="reportPrint" class="btn btn-outline-secondary" target="_blank" rel="noopener">Imprimir / PDF (todo el filtro)</a>
     </div>
@@ -73,5 +74,8 @@ catch (InvalidArgumentException $error) {
 </main></div><?php require_once '../html/footer.php'; ?></div>
 </div></div>
 <?php require_once '../html/mainjs.php'; ?>
+<script src="../../public/lib/jspdf/jspdf.umd.min.js"></script>
+<script src="../../public/lib/jspdf-autotable/jspdf.plugin.autotable.min.js"></script>
+<script src="reportepdf.js"></script>
 <script src="reporteusuario.js"></script>
 </body></html>

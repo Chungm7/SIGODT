@@ -8,7 +8,7 @@ En **Mis emisiones**, cada trabajador consulta exclusivamente las órdenes que e
 2. Ajuste **Desde** y **Hasta**; ambos días están incluidos según la fecha de emisión, no la fecha de pago.
 3. Opcionalmente seleccione un documento y un procedimiento. Pulse **Consultar** después de cada cambio.
 4. Revise las cuatro métricas del resumen, el desglose y el detalle paginado. Los botones **Anterior** y **Siguiente**, al pie del detalle, no cambian los totales. En pantallas estrechas, desplace las tablas horizontalmente para ver todas las columnas.
-5. Use **Exportar CSV para Excel** o **Imprimir / PDF** para obtener todos los resultados del filtro, no solo la página visible.
+5. Use **Descargar PDF**, **Exportar CSV para Excel** o **Imprimir / PDF** para obtener todos los resultados del filtro aplicado, no solo la página visible.
 
 ## Cómo interpretar los resultados
 
@@ -37,6 +37,10 @@ El detalle conserva todos los nombres distintos de ciudadanos/razones sociales, 
 
 **CSV para Excel** es un archivo de texto UTF-8 con separador punto y coma, no un archivo XLSX. Si Excel no separa columnas automáticamente, importe el archivo como UTF-8 y seleccione «punto y coma». Incluye emisor, periodo, filtros por ID, fecha de generación, resumen, detalle completo y desglose. Los textos que podrían ejecutarse como fórmulas se prefijan con apóstrofo.
 
+**Descargar PDF** genera directamente un archivo A4 horizontal con texto seleccionable, las ocho columnas completas, resumen y desglose. Incluye emisor, periodo, filtros por ID y fecha de generación; repite encabezados y numera las páginas. Los nombres y códigos largos se ajustan sin recortarse; las filas excepcionalmente largas pueden continuar en otra página. Un reporte vacío también produce un PDF legible. El nombre del archivo usa solo las fechas (`emisiones-AAAA-MM-DD-AAAA-MM-DD.pdf`), nunca nombres personales.
+
+El botón se desactiva mientras genera el archivo. Cambiar filtros o iniciar otra consulta invalida la descarga pendiente. Si falla la carga o generación, el mensaje explica el error; reintente manualmente o use la impresión alternativa. No hay reintentos automáticos.
+
 **Imprimir / PDF** abre una página HTML con todos los resultados filtrados. Pulse **Imprimir / Guardar como PDF** y seleccione la impresora o el destino PDF del navegador. El documento incluye encabezado SIGODT, contexto del filtro, resumen y tablas completas; está preparado para A4 horizontal con encabezados de tabla repetidos. La barra de impresión no aparece en papel. Los nombres largos se ajustan en varias líneas, sin recortarse. Los textos se presentan escapados, sin ejecutar contenido de nombres o catálogos.
 
 Cada exportación vuelve a consultar la misma sesión y los mismos filtros. Si los datos cambian entre consulta y exportación, los resultados reflejan ese nuevo momento; no son un cierre contable.
@@ -50,4 +54,12 @@ Cada exportación vuelve a consultar la misma sesión y los mismos filtros. Si l
 
 ## Verificación técnica
 
-Las pruebas sin dependencias ejercitan el controlador público con una conexión simulada y comprueban propiedad de sesión, parámetros SQL, agregados, filtros, paginación y exportaciones. No ejecutan PostgreSQL ni sustituyen una comprobación con navegador y datos reales. El reporte usa una lectura de los conceptos del periodo autorizado para construir opciones y agregados consistentes; rangos grandes requieren memoria proporcional al detalle recuperado.
+Las pruebas PHP con conexión simulada ejercitan el controlador público con una conexión simulada y comprueban propiedad de sesión, parámetros SQL, agregados, filtros, paginación y exportaciones. No ejecutan PostgreSQL ni sustituyen una comprobación con navegador y datos reales. El reporte usa una lectura de los conceptos del periodo autorizado para construir opciones y agregados consistentes; rangos grandes requieren memoria proporcional al detalle recuperado, también en el navegador al exportar PDF.
+
+### Dependencias PDF locales
+
+Solo esta vista carga jsPDF UMD **4.2.1**, seguido de AutoTable **5.0.9** y el generador del reporte. AutoTable declara compatibilidad `^2 || ^3 || ^4` con jsPDF. Los archivos son distribuciones oficiales npm intactas (MIT); el TTF PT Sans proviene de un commit fijo de Google Fonts (OFL-1.1). La fuente se solicita al mismo origen y se incrusta en el PDF para preservar ñ y tildes. No se usan CDN, HTML capturado, imágenes ni recursos remotos en esta función. No se migraron otras dependencias existentes.
+
+Consulte `public/lib/report-pdf-fonts/provenance.json` para versiones, URL de origen, SHA256 de cada distribución/licencia/fuente e integridad npm SHA512 verificada al descargar. Las licencias se conservan junto a los archivos; `README.md` en ese directorio explica la actualización manual.
+
+`node --test tests/reporteusuario*.test.cjs tests/reportepdf.test.cjs` ejecuta las distribuciones reales en un entorno VM de navegador y comprueba los bytes PDF. Cuando está disponible, `pdftotext` valida texto Unicode, múltiples páginas, encabezados y numeración. La comprobación visual del navegador y la base PostgreSQL real requieren un entorno configurado; estas pruebas no las sustituyen.

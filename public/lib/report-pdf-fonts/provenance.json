@@ -1,0 +1,52 @@
+[
+  {
+    "file": "public/lib/jspdf/jspdf.umd.min.js",
+    "version": "4.2.1",
+    "source": "https://registry.npmjs.org/jspdf/-/jspdf-4.2.1.tgz",
+    "member": "package/dist/jspdf.umd.min.js",
+    "sha256": "e6551fcdc32f09d6853b2c5126d18d01d9447e0da618a41a11ebeee0f6c20d54",
+    "license": "MIT",
+    "npm_integrity": "sha512-YyAXyvnmjTbR4bHQRLzex3CuINCDlQnBqoSYyjJwTP2x9jDLuKDzy7aKUl0hgx3uhcl7xzg32agn5vlie6HIlQ=="
+  },
+  {
+    "file": "public/lib/jspdf/LICENSE",
+    "version": "4.2.1",
+    "source": "https://registry.npmjs.org/jspdf/-/jspdf-4.2.1.tgz",
+    "member": "package/LICENSE",
+    "sha256": "dc388ec35ff463288cdde3588a36fd4ed12a45deff053243b37309acc9ef583b",
+    "license": "MIT",
+    "npm_integrity": "sha512-YyAXyvnmjTbR4bHQRLzex3CuINCDlQnBqoSYyjJwTP2x9jDLuKDzy7aKUl0hgx3uhcl7xzg32agn5vlie6HIlQ=="
+  },
+  {
+    "file": "public/lib/jspdf-autotable/jspdf.plugin.autotable.min.js",
+    "version": "5.0.9",
+    "source": "https://registry.npmjs.org/jspdf-autotable/-/jspdf-autotable-5.0.9.tgz",
+    "member": "package/dist/jspdf.plugin.autotable.min.js",
+    "sha256": "83dd8e5ae29436bd3d3ef4f4a915125b3951264994c25de0359d3fbd105abe15",
+    "license": "MIT",
+    "npm_integrity": "sha512-wIOG2ggjG6Y7qvqjgFACZZeu+oHxoxrhwCn1lTMxjPhojLVVvu2U2yS2srVCYl0CXe6pqiG/jQMIIS0CFn1ssw=="
+  },
+  {
+    "file": "public/lib/jspdf-autotable/LICENSE.txt",
+    "version": "5.0.9",
+    "source": "https://registry.npmjs.org/jspdf-autotable/-/jspdf-autotable-5.0.9.tgz",
+    "member": "package/LICENSE.txt",
+    "sha256": "99a374e0385cf714d2faae5f6e02ec79217c6bcecec39bdb9e102091471b960a",
+    "license": "MIT",
+    "npm_integrity": "sha512-wIOG2ggjG6Y7qvqjgFACZZeu+oHxoxrhwCn1lTMxjPhojLVVvu2U2yS2srVCYl0CXe6pqiG/jQMIIS0CFn1ssw=="
+  },
+  {
+    "file": "public/lib/report-pdf-fonts/PT_Sans-Web-Regular.ttf",
+    "version": "8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5",
+    "source": "https://raw.githubusercontent.com/google/fonts/8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5/ofl/ptsans/PT_Sans-Web-Regular.ttf",
+    "sha256": "9cc831490532009bae2b3ce0d39c62adfc889060beb421593bfd9d2396d0f10a",
+    "license": "OFL-1.1"
+  },
+  {
+    "file": "public/lib/report-pdf-fonts/OFL.txt",
+    "version": "8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5",
+    "source": "https://raw.githubusercontent.com/google/fonts/8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5/ofl/ptsans/OFL.txt",
+    "sha256": "2758cf7a872827f39661cf8cc24188113c030447aefb5ca7145993650076ca8c",
+    "license": "OFL-1.1"
+  }
+]

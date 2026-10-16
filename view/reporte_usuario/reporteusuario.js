@@ -28,6 +28,13 @@
     let page = 1;
     let applied = null;
     let request = 0;
+    let pdfRequest = 0;
+    const pdfButton = get('reportPdf');
+    const invalidatePdf = () => {
+      pdfRequest++;
+      pdfButton.disabled = true;
+      pdfButton.textContent = 'Descargar PDF';
+    };
     const readFilters = () => ({ start: get('reportStart').value, end: get('reportEnd').value, document: get('reportDocument').value, procedure: get('reportProcedure').value });
     const table = (id, rows) => {
       const body = get(id);
@@ -58,6 +65,7 @@
     };
     async function load(filters, wantedPage = 1) {
       const token = ++request;
+      invalidatePdf();
       get('reportResults').hidden = true;
       get('reportMessage').textContent = 'Consultando…';
       get('reportPrev').disabled = true;
@@ -86,14 +94,52 @@
         get('reportNext').disabled = page * data.limit >= data.total;
         get('reportMessage').textContent = data.total ? 'Reporte actualizado.' : 'No se encontraron órdenes para estos filtros.';
         get('reportResults').hidden = false;
+        pdfButton.disabled = false;
       } catch (error) {
         if (token === request) get('reportMessage').textContent = error.message || 'No se pudo consultar. Intente nuevamente.';
       }
     }
+    pdfButton.addEventListener('click', async () => {
+      if (!applied || pdfButton.disabled) return;
+      const token = ++pdfRequest;
+      const reportToken = request;
+      const filters = { ...applied };
+      const current = () => token === pdfRequest && reportToken === request;
+      pdfButton.disabled = true;
+      pdfButton.textContent = 'Generando PDF…';
+      get('reportMessage').textContent = 'Generando PDF completo…';
+      try {
+        if (!root.ReportPdf) throw new Error('No se pudo cargar PDF. Recargue la página e intente nuevamente.');
+        const response = await root.fetch(reportUrl(filters, 'pdf'), { credentials: 'same-origin', cache: 'no-store' });
+        const data = await response.json();
+        if (!current()) return;
+        if (!response.ok || data.error) {
+          if (response.status === 401) {
+            applied = null;
+            get('reportResults').hidden = true;
+          }
+          throw new Error(data.error || 'No se pudo generar el PDF. Intente nuevamente.');
+        }
+        const font = await root.ReportPdf.loadFont();
+        if (!current()) return;
+        const pdf = root.ReportPdf.build(data, filters, font);
+        if (!current()) return;
+        pdf.save(root.ReportPdf.filename(filters));
+        get('reportMessage').textContent = 'PDF generado.';
+      } catch (error) {
+        if (current()) get('reportMessage').textContent = error.message || 'No se pudo generar el PDF. Intente nuevamente.';
+      } finally {
+        if (current()) {
+          pdfButton.disabled = !applied;
+          pdfButton.textContent = 'Descargar PDF';
+        }
+      }
+    });
     form.addEventListener('submit', event => { event.preventDefault(); load(readFilters()); });
     // Changing pending filters invalidates the displayed report and any in-flight response.
     form.addEventListener('change', event => {
       request++;
+      invalidatePdf();
       if (event.target === get('reportDocument')) get('reportProcedure').value = '';
       get('reportResults').hidden = true;
       get('reportMessage').textContent = 'Filtros modificados. Pulse Consultar para actualizar.';

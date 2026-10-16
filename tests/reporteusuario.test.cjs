@@ -7,13 +7,14 @@ test('S4: local current-month dates do not drift through UTC', () => {
   assert.deepEqual(report.monthRange(new Date(2024, 1, 15)), { start: '2024-02-01', end: '2024-02-29' });
 });
 test('S2/S6/S7: export reuses filters, never page or emitter, accurate format', () => {
-  const url = report.reportUrl({ start: '2025-01-01', end: '2025-01-31', document: '1', procedure: '2', page: 9, emitter: 100 }, 'csv');
-  const query = new URL(url, 'https://example.invalid').searchParams;
-  assert.equal(query.get('op'), 'csv');
-  assert.equal(query.get('document'), '1');
-  assert.equal(query.get('procedure'), '2');
-  assert.equal(query.has('page'), false);
-  assert.equal(query.has('emitter'), false);
+  for (const operation of ['csv', 'pdf']) {
+    const url = report.reportUrl({ start: '2025-01-01', end: '2025-01-31', document: '1', procedure: '2', page: 9, emitter: 100, worker: 3, full: true }, operation);
+    const query = new URL(url, 'https://example.invalid').searchParams;
+    assert.equal(query.get('op'), operation);
+    assert.equal(query.get('document'), '1');
+    assert.equal(query.get('procedure'), '2');
+    for (const key of ['page', 'emitter', 'worker', 'full']) assert.equal(query.has(key), false);
+  }
 });
 test('S3/S5: cells render untrusted text without HTML and preserve multi labels', () => {
   const row = { appendChild(child) { this.child = child; } };
@@ -107,4 +108,47 @@ test('S3/S4: changed filters invalidate stale responses and errors hide old expo
   await flush();
   assert.equal(get('reportResults').hidden, true);
   assert.equal(get('reportMessage').textContent, 'Sesión no válida.');
+});
+test('S10: PDF fetches complete applied filters, disables duplicates, saves only current requests and permits manual retry', async t => {
+  const oldFetch = globalThis.fetch, oldPdf = globalThis.ReportPdf;
+  t.after(() => { globalThis.fetch = oldFetch; globalThis.ReportPdf = oldPdf; });
+  const calls = [], saves = [];
+  let resolvePdf, resolveFont;
+  globalThis.ReportPdf = { loadFont: () => new Promise(done => { resolveFont = done; }), filename: () => 'safe.pdf', build: data => ({ save: name => saves.push([data, name]) }) };
+  globalThis.fetch = async (url, options) => {
+    calls.push({ url, options });
+    if (url.includes('op=pdf')) return new Promise(done => { resolvePdf = done; });
+    return { ok: true, json: async () => payload() };
+  };
+  const doc = fixtureDocument(), get = id => doc.getElementById(id);
+  report.mount(doc);
+  assert.equal(get('reportPdf').disabled, true);
+  await flush();
+  assert.equal(get('reportPdf').disabled, false);
+  get('reportStart').value = '2099-12-31'; // Unapplied edits must not become export filters.
+  get('reportPdf').fire('click'); get('reportPdf').fire('click');
+  assert.equal(get('reportPdf').disabled, true);
+  assert.match(get('reportPdf').textContent, /Generando/);
+  assert.equal(calls.filter(c => c.url.includes('op=pdf')).length, 1);
+  assert.doesNotMatch(calls.at(-1).url, /2099|page=|worker=|full=/);
+  assert.deepEqual(calls.at(-1).options, { credentials: 'same-origin', cache: 'no-store' });
+  resolvePdf({ ok: true, json: async () => payload() }); await flush();
+  get('reportForm').fire('change'); resolveFont('font'); await flush();
+  assert.equal(saves.length, 0);
+  get('reportForm').fire('submit'); await flush();
+  get('reportPdf').fire('click'); resolvePdf({ ok: false, status: 401, json: async () => ({ error: 'Sesión no válida.' }) }); await flush();
+  assert.equal(saves.length, 0); assert.match(get('reportMessage').textContent, /Sesión/);
+  assert.equal(get('reportPdf').disabled, true);
+  get('reportForm').fire('submit'); await flush();
+  globalThis.ReportPdf = undefined;
+  get('reportPdf').fire('click'); await flush();
+  assert.match(get('reportMessage').textContent, /PDF/);
+  assert.equal(get('reportPdf').disabled, false);
+  globalThis.ReportPdf = { loadFont: async () => 'font', filename: () => 'safe.pdf', build: () => { throw new Error('Fallo PDF'); } };
+  get('reportPdf').fire('click'); resolvePdf({ ok: true, json: async () => payload() }); await flush();
+  assert.match(get('reportMessage').textContent, /Fallo PDF/);
+  assert.equal(get('reportPdf').disabled, false);
+  globalThis.ReportPdf.build = data => ({ save: name => saves.push([data, name]) });
+  get('reportPdf').fire('click'); resolvePdf({ ok: true, json: async () => payload() }); await flush();
+  assert.equal(saves.length, 1); assert.equal(saves[0][1], 'safe.pdf');
 });
