@@ -5,6 +5,7 @@ $isDashboardActive = (strpos($currentPage, '/dashboard/') !== false);
 $isProcesosActive = (strpos($currentPage, '/giros_ciudadano/') !== false || strpos($currentPage, '/admin_giros_ciudadano/') !== false);
 $isConsultasActive = (strpos($currentPage, '/consultar_nombre/') !== false || strpos($currentPage, '/consultar_documento/') !== false || strpos($currentPage, '/consultar_og/') !== false || strpos($currentPage, '/consultar_mes/') !== false);
 $isMntActive = (strpos($currentPage, '/mnt_') !== false);
+$isReportActive = (strpos($currentPage, '/reporte_usuario/') !== false);
 ?>
 <header class="navbar-expand-md">
   <div class="collapse navbar-collapse" id="navbar-menu">
@@ -105,6 +106,9 @@ $isMntActive = (strpos($currentPage, '/mnt_') !== false);
                 Consulta por Orden de Giro
               </a>
             </div>
+          </li>
+          <li class="nav-item <?php echo $isReportActive ? 'active' : ''; ?>">
+            <a class="nav-link" href="../reporte_usuario/"><span class="nav-link-title">Mis emisiones</span></a>
           </li>
           <li class="nav-item dropdown <?php echo $isMntActive ? 'active' : ''; ?>">
             <a class="nav-link dropdown-toggle" href="#navbar-mantenimientos" data-bs-toggle="dropdown"
