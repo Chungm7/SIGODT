@@ -14,7 +14,7 @@
     doc.addFileToVFS('PTSans.ttf', font);
     doc.addFont('PTSans.ttf', 'PTSans', 'normal');
     doc.setFont('PTSans', 'normal');
-    doc.setProperties({ title: 'Reporte de mis emisiones', creator: 'SIGODT' });
+    doc.setProperties({ title: 'Reporte', creator: 'SIGODT' });
     const common = {
       margin: { top: 20, bottom: 16, left: 12, right: 12 },
       styles: { font: 'PTSans', fontStyle: 'normal', fontSize: 8, cellPadding: 2, overflow: 'linebreak', valign: 'top' },
@@ -25,7 +25,7 @@
       doc.autoTable({ ...common, startY: doc.lastAutoTable ? doc.lastAutoTable.finalY + 5 : 21, ...options });
     };
     table({ theme: 'plain', styles: { ...common.styles, fontSize: 11 }, body: [
-      ['Reporte de mis emisiones'],
+      ['Reporte'],
       [`Emisor: ${text(data.emitter)}`],
       [`Periodo inclusivo: ${filters.start} al ${filters.end} · Generado: ${text(data.generated_at)}`],
       [`Documento (ID): ${filters.document || 'Todos'} · Procedimiento (ID): ${filters.procedure || 'Todos'}`]
@@ -46,7 +46,7 @@
       doc.setFont('PTSans', 'normal');
       doc.setFontSize(11);
       doc.setTextColor(32, 107, 196);
-      doc.text('SIGODT · Reporte de mis emisiones', 12, 12);
+      doc.text('SIGODT · Reporte', 12, 12);
       doc.setDrawColor(200, 210, 220);
       doc.line(12, 15, 285, 15);
       doc.setFontSize(8);

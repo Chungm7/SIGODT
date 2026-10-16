@@ -10,7 +10,7 @@ catch (InvalidArgumentException $error) {
 <!doctype html>
 <html lang="es"><head>
 <?php require_once '../html/mainHead.php'; ?>
-<title>SIGODT::Mis emisiones</title>
+<title>SIGODT::Reportes</title>
 <link rel="stylesheet" href="reporteusuario.css">
 </head><body>
 <script src="../../public/tabler/js/demo-theme.min.js"></script>
@@ -20,9 +20,9 @@ catch (InvalidArgumentException $error) {
 <header class="page-header mb-3">
   <ol class="breadcrumb breadcrumb-arrows mb-3" aria-label="Ruta de navegación">
     <li class="breadcrumb-item"><a href="../inicio/">SIGODT</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Mis emisiones</li>
+    <li class="breadcrumb-item active" aria-current="page">Reportes</li>
   </ol>
-  <h1 class="page-title">Reporte de mis emisiones</h1>
+  <h1 class="page-title">Reportes</h1>
   <p class="text-muted mt-2 mb-0">Consulte las órdenes que usted emitió, sus conceptos y sus importes por periodo.</p>
 </header>
 <form id="reportForm" class="card shadow-sm mb-3">
@@ -52,7 +52,6 @@ catch (InvalidArgumentException $error) {
     </div>
     <div class="card-footer report-actions">
       <button id="reportPdf" class="btn btn-primary" type="button" disabled>Descargar PDF</button>
-      <a id="reportCsv" class="btn btn-outline-secondary" download>Exportar CSV para Excel</a>
       <a id="reportPrint" class="btn btn-outline-secondary" target="_blank" rel="noopener">Imprimir / PDF (todo el filtro)</a>
     </div>
   </section>

@@ -1,14 +1,14 @@
 # Consulte sus órdenes emitidas
 
-En **Mis emisiones**, cada trabajador consulta exclusivamente las órdenes que emitió con su sesión actual. No existe selector de trabajador. El reporte es de solo lectura y no modifica órdenes ni catálogos.
+En **Reportes**, cada trabajador consulta exclusivamente las órdenes que emitió con su sesión actual. No existe selector de trabajador. El reporte es de solo lectura y no modifica órdenes ni catálogos.
 
 ## Consulta rápida
 
-1. Abra **Mis emisiones** en el menú. El periodo inicial es el mes actual.
+1. Abra **Reportes** en el menú. El periodo inicial es el mes actual.
 2. Ajuste **Desde** y **Hasta**; ambos días están incluidos según la fecha de emisión, no la fecha de pago.
 3. Opcionalmente seleccione un documento y un procedimiento. Pulse **Consultar** después de cada cambio.
 4. Revise las cuatro métricas del resumen, el desglose y el detalle paginado. Los botones **Anterior** y **Siguiente**, al pie del detalle, no cambian los totales. En pantallas estrechas, desplace las tablas horizontalmente para ver todas las columnas.
-5. Use **Descargar PDF**, **Exportar CSV para Excel** o **Imprimir / PDF** para obtener todos los resultados del filtro aplicado, no solo la página visible.
+5. Use **Descargar PDF** o **Imprimir / PDF** para obtener todos los resultados del filtro aplicado, no solo la página visible.
 
 ## Cómo interpretar los resultados
 
@@ -34,8 +34,6 @@ El detalle conserva todos los nombres distintos de ciudadanos/razones sociales, 
 - Cambiar un filtro oculta el resultado anterior hasta volver a consultar. Una selección sin coincidencias se muestra explícitamente, no se sustituye silenciosamente por «Todos».
 
 ## Exportaciones
-
-**CSV para Excel** es un archivo de texto UTF-8 con separador punto y coma, no un archivo XLSX. Si Excel no separa columnas automáticamente, importe el archivo como UTF-8 y seleccione «punto y coma». Incluye emisor, periodo, filtros por ID, fecha de generación, resumen, detalle completo y desglose. Los textos que podrían ejecutarse como fórmulas se prefijan con apóstrofo.
 
 **Descargar PDF** genera directamente un archivo A4 horizontal con texto seleccionable, las ocho columnas completas, resumen y desglose. Incluye emisor, periodo, filtros por ID y fecha de generación; repite encabezados y numera las páginas. Los nombres y códigos largos se ajustan sin recortarse; las filas excepcionalmente largas pueden continuar en otra página. Un reporte vacío también produce un PDF legible. El nombre del archivo usa solo las fechas (`emisiones-AAAA-MM-DD-AAAA-MM-DD.pdf`), nunca nombres personales.
 

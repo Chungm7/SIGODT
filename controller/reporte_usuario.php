@@ -90,7 +90,7 @@ function reportHtmlRow($cells, $tag = 'td') {
 }
 ?>
 <!doctype html>
-<html lang="es"><head><meta charset="utf-8"><title>Reporte de mis emisiones</title>
+<html lang="es"><head><meta charset="utf-8"><title>Reporte</title>
 <style>
 * { box-sizing: border-box; }
 body { font: 11px/1.45 Arial, sans-serif; color: #182433; background: #eef1f4; margin: 0; }
@@ -121,7 +121,7 @@ td:last-child, th:last-child { text-align: right; font-variant-numeric: tabular-
 </style></head><body>
 <div class="print-toolbar"><button type="button" onclick="window.print()">Imprimir / Guardar como PDF</button> <span>Seleccione el destino PDF en el diálogo del navegador.</span></div>
 <main class="print-document">
-<header class="report-heading"><strong>SIGODT</strong><h1>Reporte de mis emisiones</h1><p>Órdenes emitidas · Detalle completo del filtro</p></header>
+<header class="report-heading"><strong>SIGODT</strong><h1>Reporte</h1><p>Órdenes emitidas · Detalle completo del filtro</p></header>
 <dl aria-label="Contexto del reporte"><?php foreach (array_slice($metadata, 0, 5) as $row) { echo '<div><dt>' . reportEscape($row[0]) . '</dt><dd>' . reportEscape($row[1]) . '</dd></div>'; } ?></dl>
 <h2>Resumen de emisiones</h2>
 <dl aria-label="Totales del filtro"><?php foreach (array_slice($metadata, 5, 4) as $row) { echo '<div><dt>' . reportEscape($row[0]) . '</dt><dd>' . reportEscape($row[1]) . '</dd></div>'; } ?></dl>

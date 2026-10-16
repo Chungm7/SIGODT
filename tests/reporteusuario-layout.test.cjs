@@ -5,8 +5,8 @@ const view = readFileSync('view/reporte_usuario/index.php', 'utf8');
 
 test('S9: report follows shared shell, navigable header and named report cards', () => {
   assert.match(view, /demo-theme\.min\.js/);
-  assert.match(view, /breadcrumb[\s\S]*href="\.\.\/inicio\/"[\s\S]*aria-current="page">Mis emisiones/);
-  assert.match(view, /class="page-title">Reporte de mis emisiones/);
+  assert.match(view, /breadcrumb[\s\S]*href="\.\.\/inicio\/"[\s\S]*aria-current="page">Reportes/);
+  assert.match(view, /class="page-title">Reporte/);
   for (const title of ['Filtros de consulta', 'Resumen de emisiones', 'Desglose por documento y procedimiento', 'Detalle de órdenes']) {
     assert.ok(view.includes(`class="card-title">${title}</h2>`), title);
   }
@@ -20,7 +20,8 @@ test('S3/S6/S9: metrics, complete columns, distinct exports and accessible table
     assert.match(view, new RegExp(`<dd[^>]*id="${id}"`));
   }
   for (const label of ['Ciudadano / Razón social', 'Nombre del procedimiento', 'Estado actual', 'Importe (S/)']) assert.ok(view.includes(label));
-  assert.match(view, /id="reportCsv" class="btn btn-outline-secondary"/);
+  assert.doesNotMatch(view, /reportCsv|Exportar CSV para Excel/);
+  assert.match(view, /id="reportPdf"[^>]*>Descargar PDF<\/button>/);
   assert.match(view, /id="reportPrint"[^>]*target="_blank" rel="noopener"/);
   assert.equal((view.match(/tabindex="0" role="region" aria-label=/g) || []).length, 2);
   const css = readFileSync('view/reporte_usuario/reporteusuario.css', 'utf8');

@@ -38,6 +38,7 @@ function fixtureDocument() {
   return {
     createElement: element,
     getElementById(id) {
+      if (id === 'reportCsv') return null;
       if (!elements.has(id)) elements.set(id, element());
       return elements.get(id);
     }
@@ -84,7 +85,8 @@ test('S1-S7: mounted UI renders server totals, paginates and exports applied fil
   get('reportProcedure').value = '2';
   get('reportForm').fire('submit');
   await flush();
-  assert.match(get('reportCsv').href, /op=csv.*document=1.*procedure=2/);
+  assert.equal(get('reportCsv'), null);
+  assert.match(get('reportPrint').href, /op=print.*document=1.*procedure=2/);
   assert.doesNotMatch(get('reportPrint').href, /page=/);
   get('reportForm').fire('change', get('reportDocument'));
   assert.equal(get('reportProcedure').value, '');

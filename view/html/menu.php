@@ -108,7 +108,7 @@ $isReportActive = (strpos($currentPage, '/reporte_usuario/') !== false);
             </div>
           </li>
           <li class="nav-item <?php echo $isReportActive ? 'active' : ''; ?>">
-            <a class="nav-link" href="../reporte_usuario/"><span class="nav-link-title">Mis emisiones</span></a>
+            <a class="nav-link" href="../reporte_usuario/"><span class="nav-link-title">Reportes</span></a>
           </li>
           <li class="nav-item dropdown <?php echo $isMntActive ? 'active' : ''; ?>">
             <a class="nav-link dropdown-toggle" href="#navbar-mantenimientos" data-bs-toggle="dropdown"

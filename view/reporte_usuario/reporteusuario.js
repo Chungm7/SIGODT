@@ -87,7 +87,6 @@
         get('reportAmount').textContent = `S/ ${summary.amount}`;
         table('reportBreakdown', data.breakdown.map(row => [row.document, row.code, row.procedure, row.orders, row.lines, row.amount]));
         table('reportDetails', data.details.map(row => [row.order_id, row.emitted_at, row.citizens, row.documents, row.codes, row.procedures, row.state_label, row.amount]));
-        get('reportCsv').href = reportUrl(applied, 'csv');
         get('reportPrint').href = reportUrl(applied, 'print');
         get('reportPage').textContent = `Página ${page} de ${Math.max(1, Math.ceil(data.total / data.limit))} · ${data.total} órdenes`;
         get('reportPrev').disabled = page <= 1;
