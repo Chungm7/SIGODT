@@ -36,7 +36,7 @@ function harness(response) {
     if (selector.startsWith('#tasaListContainer input')) {
       return api(rows.map(r => r.checkbox).filter(c => c.grupo === 'posteriores' && !c.disabled));
     }
-    if (!elements.has(selector)) elements.set(selector, {value: '', checked: false});
+    if (!elements.has(selector)) elements.set(selector, {value: '', checked: false, visible: false, classes: new Set()});
     return api([elements.get(selector)]);
   }
   function api(items) {
@@ -48,12 +48,15 @@ function harness(response) {
       val(v) { if (!arguments.length) return items[0]?.value; items.forEach(x => x.value = v); return this; },
       prop(k, v) { if (arguments.length === 1) return items[0]?.[k]; items.forEach(x => x[k] = v); return this; },
       html(v) { if (!arguments.length) return items[0]?.html; items.forEach(x => x.html = v); return this; },
+      text(v) { if (!arguments.length) return items[0]?.text ?? items[0]?.html; items.forEach(x => { x.text = v; x.html = v; }); return this; },
       attr(k, v) { items.forEach(x => x[k.replace('data-', '')] = v); return this; },
       show() { items.forEach(x => x.visible = true); return this; },
       hide() { items.forEach(x => x.visible = false); return this; },
       on(event, fn) { items.forEach(x => x.handler = fn); return this; },
       off() { return this; }, appendTo() { return this; }, modal() { return this; },
-      addClass() { return this; }
+      addClass(c) { items.forEach(x => (x.classes = x.classes || new Set()).add(c)); return this; },
+      removeClass(c) { items.forEach(x => (x.classes = x.classes || new Set()).delete(c)); return this; },
+      hasClass(c) { return Boolean(items[0]?.classes?.has(c)); }
     };
   }
   $.ajax = o => {
@@ -74,7 +77,7 @@ function harness(response) {
   vm.runInContext(fs.readFileSync(`${__dirname}/../view/giros_ciudadano/usudetalleciudadano.js`, 'utf8'), context);
   $('#estado_procedimiento').val('1');
   context.listarTasas(7);
-  return {context, $, rows, requests, alerts, button: elements.get('#IDpagarGrupo'),
+  return {context, $, rows, requests, alerts, button: elements.get('#IDpagarGrupo'), elements,
     confirm() { elements.get('#btn-action').handler({preventDefault() {}}); },
     toggle(index, checked) {
       rows[index].checkbox.checked = checked;
@@ -152,4 +155,46 @@ test('ordinary individual/manual and type 3 grouped presentation remain availabl
   assert.match(joint.aaData[0][0], /disabled checked/);
   assert.equal(joint.aaData[0][5], '');
   assert.equal(harness(joint).button.disabled, false);
+});
+
+test('single-fee procedures adapt UI: no checkbox, prominent emitir button, hidden group button, and conditional tabs', () => {
+  const singlePending = listing(1, [1]);
+  assert.equal(singlePending.aaData[0][0], '', 'Single fee must not render a checkbox');
+  assert.match(singlePending.aaData[0][5], /class="btn btn-primary d-inline-flex align-items-center gap-1"/);
+  assert.match(singlePending.aaData[0][5], /<span>Emitir Orden de Giro<\/span>/);
+  assert.match(singlePending.aaData[0][5], /pagar\(10,7,1\)/);
+
+  const h = harness(singlePending);
+  assert.equal(h.button.visible, false, '#IDpagarGrupo hidden for single-fee procedures');
+  assert.equal(h.elements.get('#badgeTotalTasas').html, 1);
+
+  // Tabs remain hidden when there are 0 giros
+  h.context.listarGiros(7);
+  const lastPostCall = h.requests[h.requests.length - 1];
+  assert.match(lastPostCall[0], /listargiros/);
+  lastPostCall[2]([]); // 0 giros returned
+  assert.equal(h.elements.get('#badgeTotalGiros').html, 0);
+  assert.equal(h.elements.get('#modalTasasTabs').visible, false, 'Tabs hidden when single fee and 0 giros');
+
+  // Tabs show when past giros exist
+  lastPostCall[2]([{ ogciud_id: 'OG-100', recibo_nro: 'R-01', ogciud_comentario: '', fecha: '2026-10-16', badge: 'bg-green', estado: 'Girado' }]);
+  assert.equal(h.elements.get('#badgeTotalGiros').html, 1);
+  assert.equal(h.elements.get('#modalTasasTabs').visible, true, 'Tabs shown when past giros exist');
+
+  // Multi-fee procedures always show tabs and enable group pay per staged selection
+  const multi = listing(1, [1, 1]);
+  const hMulti = harness(multi);
+  assert.equal(hMulti.elements.get('#modalTasasTabs').visible, true, 'Tabs shown for multi-fee procedures');
+  assert.equal(hMulti.button.visible, true, '#IDpagarGrupo shown for multi-fee procedures');
+  assert.equal(hMulti.elements.get('#badgeTotalTasas').html, 2);
+
+  // Test fallback in editarComentario() toggles between tabs
+  hMulti.context.activarTab('tasas');
+  assert.equal(hMulti.$('#tab-tasas-link').hasClass('active'), true);
+  hMulti.context.editarComentario();
+  assert.equal(hMulti.$('#tab-giros-link').hasClass('active'), true);
+  assert.equal(hMulti.$('#tab-tasas-link').hasClass('active'), false);
+  hMulti.context.editarComentario();
+  assert.equal(hMulti.$('#tab-tasas-link').hasClass('active'), true);
+  assert.equal(hMulti.$('#tab-giros-link').hasClass('active'), false);
 });

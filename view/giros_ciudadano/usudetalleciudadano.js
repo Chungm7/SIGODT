@@ -226,6 +226,65 @@ var giroListTable = null;
 var giroListRequest = null;
 var giroListVersion = 0;
 var giroListRefreshMarkup = null;
+var modalTotalTasas = 0;
+var modalTotalGiros = 0;
+
+function actualizarVisibilidadTabs() {
+  if (modalTotalTasas > 1) {
+    $("#modalTasasTabs").show();
+  } else if (modalTotalGiros > 0) {
+    $("#modalTasasTabs").show();
+  } else {
+    $("#modalTasasTabs").hide();
+  }
+}
+
+function activarTab(tabId) {
+  var isGiros = tabId === "giros";
+  var activeLink = isGiros ? "#tab-giros-link" : "#tab-tasas-link";
+  var inactiveLink = isGiros ? "#tab-tasas-link" : "#tab-giros-link";
+  var activePane = isGiros ? "#tab-giros" : "#tab-tasas";
+  var inactivePane = isGiros ? "#tab-tasas" : "#tab-giros";
+
+  var activeEl = typeof document !== "undefined" && document.querySelector ? document.querySelector(activeLink) : null;
+  if (typeof window !== "undefined" && window.bootstrap && window.bootstrap.Tab && activeEl) {
+    try {
+      var tabInstance = typeof window.bootstrap.Tab.getOrCreateInstance === "function"
+        ? window.bootstrap.Tab.getOrCreateInstance(activeEl)
+        : (typeof window.bootstrap.Tab.getInstance === "function" && window.bootstrap.Tab.getInstance(activeEl)) || new window.bootstrap.Tab(activeEl);
+      if (tabInstance && typeof tabInstance.show === "function") {
+        tabInstance.show();
+      }
+    } catch (e) {}
+  }
+  if (typeof $(activeLink).tab === "function") {
+    try {
+      $(activeLink).tab("show");
+    } catch (e) {}
+  }
+
+  if (typeof $(inactiveLink).removeClass === "function") {
+    $(inactiveLink).removeClass("active");
+  }
+  $(inactiveLink).attr("aria-selected", "false");
+  $(activeLink).addClass("active").attr("aria-selected", "true");
+
+  if (typeof $(inactivePane).removeClass === "function") {
+    $(inactivePane).removeClass("show active");
+  }
+  $(activePane).addClass("show active");
+}
+
+$(document).on("click", "#tab-tasas-link", function (e) {
+  e.preventDefault();
+  activarTab("tasas");
+});
+
+$(document).on("click", "#tab-giros-link", function (e) {
+  e.preventDefault();
+  activarTab("giros");
+});
+
 $('#modalmantenimiento').on('hidden.bs.modal', function () {
   registrationModalProcedure = null;
 });
@@ -745,10 +804,18 @@ function listarTasas(proceciudadano_id) {
   $.ajax({
     url: "../../controller/tasa.php?op=listar_proceds_tasa_x_procedciudadano_usu",
     type: "POST",
-    data: { proceciudadano_id: proceciudadano_id },
+    data: {
+      proceciudadano_id: proceciudadano_id,
+      est: $("#estado_procedimiento").val() || 1
+    },
     dataType: "json",
     success: function (response) {
       var html = "";
+      var count = (response.aaData && response.aaData.length) ? response.aaData.length : 0;
+      modalTotalTasas = count;
+      $("#badgeTotalTasas").html(count);
+      actualizarVisibilidadTabs();
+
       if (response.aaData && response.aaData.length > 0) {
         response.aaData.forEach(function (item) {
           // Suponemos que item es un array con los siguientes índices:
@@ -764,7 +831,9 @@ function listarTasas(proceciudadano_id) {
 
           html += '<div class="list-group-item">';
           html += '  <div class="row align-items-center">';
-          html += '    <div class="col-auto">' + checkbox + '</div>';
+          if (checkbox) {
+            html += '    <div class="col-auto">' + checkbox + '</div>';
+          }
           html += '    <div class="col">';
           html += '      <div><strong>Tasa:</strong> ' + tasaNom + '</div>';
           html += '      <div><strong>Importe:</strong> ' + monto + '</div>';
@@ -779,7 +848,9 @@ function listarTasas(proceciudadano_id) {
               '</div>';
           }
 
-          html += '    <div class="col-auto">' + pagoButton + '</div>';
+          if (pagoButton) {
+            html += '    <div class="col-auto">' + pagoButton + '</div>';
+          }
           html += '  </div>';
           html += '</div>';
         });
@@ -791,11 +862,11 @@ function listarTasas(proceciudadano_id) {
       $("#IDpagarGrupo").attr("data-procedciudadano_id", proceciudadano_id);
 
       // Mostrar "Girar en Grupo" solo cuando exista mas de 1 tasa y calcular total inicial
-      if (response.aaData && response.aaData.length > 1) {
-        $("#IDpagarGrupo").show();
+      if (count > 1) {
+        $("#IDpagarGrupo").removeClass("d-none").show();
         calcularTotalTasas();
       } else {
-        $("#IDpagarGrupo").hide();
+        $("#IDpagarGrupo").addClass("d-none").hide();
       }
     },
     error: function (xhr, status, error) {
@@ -1097,8 +1168,20 @@ function cambiarcomentario(ogciud_id) {
 function listarGiros(procedciudadano_id) {
   $.post("../../controller/rc.php?op=listargiros", { procedciudadano_id: procedciudadano_id }, function (data) {
     let html = '';
+    var girosData = Array.isArray(data) ? data : [];
+    if (typeof data === "string") {
+      try {
+        girosData = JSON.parse(data);
+      } catch (e) {
+        girosData = [];
+      }
+    }
+    var girosCount = Array.isArray(girosData) ? girosData.length : 0;
+    modalTotalGiros = girosCount;
+    $("#badgeTotalGiros").html(girosCount);
+    actualizarVisibilidadTabs();
 
-    if (data.length === 0) {
+    if (girosCount === 0) {
       html = `
         <div class="alert alert-warning alert-dismissible" role="alert">
             <div class="alert-icon">
@@ -1598,6 +1681,13 @@ function ver(tamiteciudadano_id) {
   $("#modalContent").hide();
   $("#modalAlert").hide();
   $("#modalSpinner").show();
+  $("#modalTasasTabs").hide();
+  $("#IDpagarGrupo").addClass("d-none").hide();
+  $("#badgeTotalTasas").html("0");
+  $("#badgeTotalGiros").html("0");
+  modalTotalTasas = 0;
+  modalTotalGiros = 0;
+  activarTab("tasas");
 
   // Establece el estado inicial de forma segura
   var estadoDom = $("#" + tamiteciudadano_id).data("estado");
@@ -1676,23 +1766,11 @@ function ver(tamiteciudadano_id) {
 
 
 function editarComentario() {
-  // Alternar entre el contenedor de Giros y el contenedor de Tasas
-  var girosVisible = $("#girosListContainer").is(":visible");
-
-  // Si la lista de Giros está visible, se oculta y se muestra la de Tasas
-  if (girosVisible) {
-    $("#girosListContainer").hide();
-    $("#tasaListContainer").show();
-    // Cambiar el texto, icono y color del botón para "Ver Giros"
-    $("#btnEditarComentario").html('<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-cash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 15h-3a1 1 0 0 1 -1 -1v-8a1 1 0 0 1 1 -1h12a1 1 0 0 1 1 1v3" /><path d="M7 9m0 1a1 1 0 0 1 1 -1h12a1 1 0 0 1 1 1v8a1 1 0 0 1 -1 1h-12a1 1 0 0 1 -1 -1z" /><path d="M12 14a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /></svg> Ver Ordenes de Giros')
-      .removeClass('btn-warning').addClass('btn-success');
+  var isGirosActive = $("#tab-giros").hasClass("active") || $("#tab-giros-link").hasClass("active");
+  if (isGirosActive) {
+    activarTab("tasas");
   } else {
-    // Si la lista de Tasas está visible, se oculta y se muestra la de Giros
-    $("#tasaListContainer").hide();
-    $("#girosListContainer").show();
-    // Cambiar el texto, icono y color del botón para "Ver Tasas"
-    $("#btnEditarComentario").html('<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-cash-register"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M21 15h-2.5c-.398 0 -.779 .158 -1.061 .439c-.281 .281 -.439 .663 -.439 1.061c0 .398 .158 .779 .439 1.061c.281 .281 .663 .439 1.061 .439h1c.398 0 .779 .158 1.061 .439c.281 .281 .439 .663 .439 1.061c0 .398 -.158 .779 -.439 1.061c-.281 .281 -.663 .439 -1.061 .439h-2.5" /><path d="M19 21v1m0 -8v1" /><path d="M13 21h-7c-.53 0 -1.039 -.211 -1.414 -.586c-.375 -.375 -.586 -.884 -.586 -1.414v-10c0 -.53 .211 -1.039 .586 -1.414c.375 -.375 .884 -.586 1.414 -.586h2m12 3.12v-1.12c0 -.53 -.211 -1.039 -.586 -1.414c-.375 -.375 -.884 -.586 -1.414 -.586h-2" /><path d="M16 10v-6c0 -.53 -.211 -1.039 -.586 -1.414c-.375 -.375 -.884 -.586 -1.414 -.586h-4c-.53 0 -1.039 .211 -1.414 .586c-.375 .375 -.586 .884 -.586 1.414v6m8 0h-8m8 0h1m-9 0h-1" /><path d="M8 14v.01" /><path d="M8 17v.01" /><path d="M12 13.99v.01" /><path d="M12 17v.01" /></svg> Ver Tasas')
-      .removeClass('btn-success').addClass('btn-warning');
+    activarTab("giros");
   }
 }
 

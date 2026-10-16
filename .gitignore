@@ -30,3 +30,4 @@ controller/uploads/ciudadanos/*
 
 # Code intelligence / Local indices
 .codegraph/
+.playwright-mcp/

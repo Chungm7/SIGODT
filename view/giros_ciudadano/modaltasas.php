@@ -65,39 +65,50 @@
                         </div>
                     </div>
 
-                    <!-- Acciones del Modal -->
-                    <div class="d-flex justify-content-end gap-2 mb-3">
-                        <button type="button" id="btnEditarComentario" onclick="editarComentario()" class="btn btn-outline-success d-inline-flex align-items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-receipt me-1" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2m4 -14h6m-6 4h6m-2 4h2" />
-                            </svg>
-                            <span>Ver Órdenes de Giro</span>
-                        </button>
-                    </div>
+                    <!-- Pestañas de Navegación -->
+                    <ul class="nav nav-tabs mb-3" id="modalTasasTabs" data-bs-toggle="tabs" style="display: none;">
+                        <li class="nav-item">
+                            <a href="#tab-tasas" class="nav-link active" id="tab-tasas-link" data-bs-toggle="tab">
+                                Tasas <span class="badge bg-secondary-lt ms-2" id="badgeTotalTasas">0</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#tab-giros" class="nav-link" id="tab-giros-link" data-bs-toggle="tab">
+                                Órdenes de Giro <span class="badge bg-secondary-lt ms-2" id="badgeTotalGiros">0</span>
+                            </a>
+                        </li>
+                    </ul>
 
-                    <!-- Listado de Giros y Tasas -->
-                    <div class="mb-3">
-                        <!-- Listado de Tasas -->
-                        <div id="tasaListContainer" class="list-group list-group-flush" style="display: block;">
-                            <!-- Items cargados dinámicamente -->
+                    <!-- Contenido de las pestañas -->
+                    <div class="tab-content">
+                        <!-- Pestaña de Tasas -->
+                        <div class="tab-pane active show" id="tab-tasas">
+                            <div class="mb-3">
+                                <div id="tasaListContainer" class="list-group list-group-flush">
+                                    <!-- Items cargados dinámicamente -->
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-end">
+                                <button id="IDpagarGrupo" onclick="pagargrupo()" class="btn btn-primary d-none" style="display: none;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-coin me-1" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                                        <path d="M14.8 9a2 2 0 0 0 -1.8 -1h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1 -1.8 -1" />
+                                        <path d="M12 7v10" />
+                                    </svg>
+                                    <span>Girar en Grupo</span>
+                                </button>
+                            </div>
                         </div>
-                        <!-- Listado de Giros -->
-                        <div id="girosListContainer" class="list-group list-group-flush" style="display: none;">
-                            <!-- Items cargados dinámicamente -->
-                        </div>
-                    </div>
 
-                    <div class="d-flex justify-content-end">
-                        <button id="IDpagarGrupo" onclick="pagargrupo()" class="btn btn-primary d-inline-flex align-items-center" style="display: none;">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-coin me-1" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
-                                <path d="M14.8 9a2 2 0 0 0 -1.8 -1h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1 -1.8 -1" />
-                                <path d="M12 7v10" />
-                            </svg>
-                            <span>Girar en Grupo</span>
-                        </button>
+                        <!-- Pestaña de Giros -->
+                        <div class="tab-pane" id="tab-giros">
+                            <div class="mb-3">
+                                <div id="girosListContainer" class="list-group list-group-flush">
+                                    <!-- Items cargados dinámicamente -->
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
