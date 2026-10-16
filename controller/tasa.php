@@ -44,29 +44,33 @@ switch ($_GET["op"]) {
         $bitacora->update_bitacora($_SESSION["usua_id_SIGODT"]);
         break;
     case "Pagar_Orden_Giro":
-    if (!isset($_SESSION["usua_id_SIGODT"]) || empty($_SESSION["usua_id_SIGODT"])) {
-        echo json_encode([
-            "error"   => true,
-            "message" => "No se pudo generar la Orden de Giro porque su sesión ha expirado. Por favor, inicie sesión nuevamente."
-        ]);
-        exit;
-    }
-
-    // Obtener cantidad del POST o default 1
-    $cantidad = (isset($_POST["cantidad"])) ? intval($_POST["cantidad"])
-        : 1;
-
-    $cantant   = $bitacora->get_max_id()[0]["bita_id"];
-    $resultado = $tasa->Pagar_Order_Giro(
-        $_POST["tasatciudadano_id"],
-        $_SESSION["usua_id_SIGODT"],
-        $_POST["comentario"],
-        $cantidad            // <-- aquí
-    );
-    $bitacora->update_bitacora_grupo($_SESSION["usua_id_SIGODT"], $cantant);
-
-    echo json_encode(["error" => false, "message" => "Orden de Giro Exitoso."]);
-    break;
+    case "Pagar_Orden_Giro_grupo":
+        header('Content-Type: application/json; charset=utf-8');
+        if (empty($_SESSION["usua_id_SIGODT"])) {
+            echo json_encode(['error' => true, 'message' => 'No se pudo generar la Orden de Giro porque su sesión ha expirado. Por favor, inicie sesión nuevamente.']);
+            break;
+        }
+        try {
+            if ($_GET['op'] === 'Pagar_Orden_Giro') {
+                $resultado = $tasa->Pagar_Order_Giro($_POST['tasatciudadano_id'] ?? null,
+                    $_SESSION['usua_id_SIGODT'], $_POST['comentario'] ?? '', $_POST['cantidad'] ?? 1);
+                echo json_encode(['error' => false, 'message' => 'Orden de Giro Exitoso.', 'ogciud_id' => $resultado['ogciud_id']]);
+            } else {
+                if (!is_string($_POST['tasatciud_id'] ?? null) || !is_string($_POST['cantidades'] ?? null)) {
+                    throw new InvalidArgumentException('Selección inválida.');
+                }
+                $resultado = $tasa->emitirGrupo(explode(',', $_POST['tasatciud_id']), explode(',', $_POST['cantidades']),
+                    $_SESSION['usua_id_SIGODT'], $_POST['comentario'] ?? '');
+                echo json_encode(['success' => true, 'ogciud_id' => $resultado['ogciud_id'], 'data' => $resultado['data']]);
+            }
+        } catch (InvalidArgumentException $e) {
+            http_response_code(400);
+            echo json_encode(['error' => true, 'message' => 'Seleccione tasas y cantidades válidas.']);
+        } catch (Throwable $e) {
+            http_response_code(500);
+            echo json_encode(['error' => true, 'message' => 'No se pudo emitir la orden. Actualice el listado antes de volver a intentarlo.']);
+        }
+        break;
 
     case "Pagar_Order_Giro_trabajador":
         $cantant = $bitacora->get_max_id()[0]["bita_id"];
@@ -90,70 +94,6 @@ switch ($_GET["op"]) {
         $tasa->Pagar_Order_Giro_Empresa($_POST["tasatempr_id"], $_SESSION["usua_id_SIGODT"], 1, $_POST["comentario"]);
         $bitacora->update_bitacora($_SESSION["usua_id_SIGODT"]);
         break;
-    case "Pagar_Orden_Giro_grupo":
-    try {
-        // Verifica si los parámetros 'tasatciud_id' y 'cantidades' se han recibido
-        if (!isset($_POST['tasatciud_id']) || !isset($_POST['cantidades'])) {
-            throw new Exception('Faltan los IDs de las tasas o las cantidades');
-        }
-
-        // Convertir las cadenas separadas por comas a un array
-        $datos = explode(',', $_POST['tasatciud_id']);
-        $cantidades = explode(',', $_POST['cantidades']); // Recibimos las cantidades también
-        $data = array();
-
-        // Validamos que haya tasas seleccionadas
-        if (count($datos) == 0 || count($cantidades) == 0 || count($datos) != count($cantidades)) {
-            throw new Exception('Los datos de las tasas o las cantidades no coinciden o faltan');
-        }
-
-        // Crear la orden de giro
-        $tasa->crearOrdenini($_SESSION["usua_id_SIGODT"], $_POST["comentario"]);
-        $bitacora->update_bitacora($_SESSION["usua_id_SIGODT"]);
-
-        // Obtener el ID de la última orden de giro creada
-        $OrdenID = $tasa->obtenerultimovalor();
-        $orden = null;
-        foreach ($OrdenID as $row) {
-            $orden = $row["ogciud_id"];
-        }
-
-        // Verificamos que se haya obtenido el ID de la orden
-        if (!$orden) {
-            throw new Exception('No se pudo obtener el ID de la última orden');
-        }
-
-        // Iterar sobre las tasas y agregarlas a la orden de giro
-        for ($i = 0; $i < count($datos); $i++) {
-            $tasatciud_id = $datos[$i];
-            $cantidad = $cantidades[$i];  // Tomamos la cantidad correspondiente a cada tasa
-            $sub_array = array();
-
-            // Insertar la tasa con su cantidad
-            $error = $tasa->insertarTasaGiros($tasatciud_id, $orden, $cantidad);  // Usamos la cantidad
-
-            // Verifica si la tasa fue insertada correctamente
-            if ($error === true) {
-                $bitacora->update_bitacora($_SESSION["usua_id_SIGODT"]);
-                $sub_array[] = $tasatciud_id;
-                $data[] = $sub_array;
-            } else {
-                // Si hubo un error, lo lanzamos y se muestra en el frontend
-                throw new Exception('Error al insertar la tasa con ID: ' . $tasatciud_id . ' - ' . $error);
-            }
-        }
-
-        // Responder con éxito
-        echo json_encode(['success' => true, 'data' => $data]);
-    } catch (Exception $e) {
-        // Capturamos cualquier error y lo mostramos
-        error_log("Error en Pagar_Ordern_Giro_grupo: " . $e->getMessage());
-        echo json_encode(['error' => $e->getMessage()]);
-    }
-    break;
-
-
-
     case "listar":
         $datos = $tasa->get_tasa();
         $data = array();

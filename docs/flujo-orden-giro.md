@@ -115,15 +115,14 @@ En este flujo, nombres internos como `Pagar_Orden_Giro_grupo` y mensajes que dic
 
 La ruta ciudadana `Pagar_Orden_Giro` llama al método de emisión individual de `models/Tasa.php`. En esta ruta se ve directamente el SQL de creación:
 
-1. Busca una tasa existente en estado Pendiente (`1`) y consulta su monto actual.
-2. Actualiza esa tasa a `2` (Girado).
-3. Genera un identificador de orden con secuencia y año, del tipo `000001-2026`.
-4. Inserta la cabecera con estado `1` y usuario/comentario.
-5. Inserta el detalle con cantidad, importe calculado y estado `1`.
-6. Si no quedan tasas del trámite en `1` o `3`, actualiza el trámite a `2`.
-7. Confirma la transacción y devuelve el ID de la orden.
+1. Valida identificador/cantidad y abre una transacción.
+2. Inserta una cabecera mediante `crear_ordengiro_ciud_id`, que reserva un correlativo anual atómico con fecha de PostgreSQL y devuelve su propio ID.
+3. Bloquea y comprueba la tasa Pendiente (`1`), consulta su tarifa actual y la pasa a Girado (`2`).
+4. Inserta el detalle con cantidad e importe calculado (monto × cantidad).
+5. Si no quedan tasas del trámite en `1` o `3`, actualiza el trámite a `2`.
+6. Atribuye la auditoría huérfana de la propia transacción y confirma; cualquier fallo revierte también cabecera y contador.
 
-A diferencia del grupo, la creación individual visible usa su propio identificador generado. No necesita buscar después la última orden global. Esto no convierte toda la gestión de secuencias en una garantía de concurrencia: el método también contiene lógica de mantenimiento de la secuencia, que no se probó con usuarios simultáneos.
+Individual y grupo comparten este camino. No hay mantenimiento de secuencias durante la emisión. La migración y los límites de despliegue se describen en [Correlativo anual atómico](giro-numbering.md); no se ha aplicado a una base real.
 
 ### 5.3 Girar en grupo
 
@@ -147,13 +146,13 @@ El navegador:
 
 El servidor:
 
-1. Comprueba la presencia de los arrays serializados y que sus tamaños coincidan.
-2. Llama una vez a `crearOrdenini`.
-3. Obtiene un identificador mediante `obtenerultimovalor`.
-4. Asocia cada tasa a esa misma orden mediante `insertarTasaGiros`, guardando cantidad e importe.
-5. Devuelve éxito o error; no devuelve el ID de la orden en esa respuesta.
+1. Comprueba sesión, selección no vacía, tamaños, IDs/cantidades enteros positivos y ausencia de IDs repetidos.
+2. Llama una vez a `emitirGrupo`, con una única conexión/transacción.
+3. Crea una cabecera y recibe su propio ID mediante `INSERT RETURNING`; no consulta la última orden global.
+4. Asocia cada tasa con el mismo guard de pendiente, cantidad, tarifa y actualización de estados del camino individual.
+5. Confirma cabecera, detalles, estados y auditoría juntos, o revierte todo ante un fallo tardío. Devuelve el ID de cabecera y datos de las tasas.
 
-Tras el éxito, la interfaz recarga datos y ofrece imprimir. Si ya no quedan tasas del trámite en estados `1` o `3`, el método de asociación actualiza el trámite a `2`.
+Tras el éxito, la interfaz recarga datos y ofrece imprimir. Ante error HTTP, transporte, timeout o JSON inválido, libera la confirmación/modal/spinner y recarga la selección. No reintenta una emisión automáticamente: puede haberse confirmado en servidor aunque se pierda la respuesta.
 
 ### 5.4 Costo inicial y emisión por etapas
 
@@ -225,7 +224,7 @@ El flujo de emisión ofrece imprimir inmediatamente después del éxito. **Impri
 
 ### 8.4 Bitácora
 
-Los controladores llaman a `Bitacora::update_bitacora` o `update_bitacora_grupo` después de determinadas operaciones. Estos métodos asignan el usuario a registros pendientes de auditoría: buscan registros sin persona asignada y actualizan uno o un rango.
+Las emisiones ciudadanas individual/grupal atribuyen dentro de su misma transacción las filas huérfanas cuyo `xmin` coincide con esa transacción. Se debe validar su compatibilidad con los triggers reales, incluidas subtransacciones internas. En otras rutas, los controladores llaman a `Bitacora::update_bitacora` o `update_bitacora_grupo` después de determinadas operaciones. Estos métodos asignan el usuario a registros pendientes de auditoría: buscan registros sin persona asignada y actualizan uno o un rango.
 
 El código presupone registros creados por mecanismos de base de datos, pero no se inspeccionaron las definiciones de esos triggers. No está probado que cada cambio de todas las integraciones tenga auditoría completa, ni que la selección del último registro/rango sea una asociación inequívoca con la solicitud actual bajo concurrencia.
 
@@ -239,10 +238,10 @@ Una orden puede terminar operativamente como usada, anulada o extornada según l
 
 | Punto | Comportamiento observado | Consecuencia posible |
 |---|---|---|
-| Última orden global | La emisión grupal recupera la última orden por fecha, sin vincular la consulta a la solicitud que la creó | Asociación incorrecta bajo concurrencia |
-| Transacción por tasa | En la emisión grupal, cada asociación puede confirmar de forma independiente | Grupo incompleto si falla una tasa posterior |
-| Validación backend grupal | No reproduce de forma robusta estado pendiente, pertenencia, cantidades positivas e IDs únicos | La validación de la pantalla no es una barrera suficiente |
-| Importe cero | El método interpreta un importe falsy como error | Conceptos gratuitos pueden fallar en esa ruta |
+| Generador y despliegue | Las dos emisiones ciudadanas usan contador anual atómico; escritores externos/triggers aún no inventariados | Requiere preflight y despliegue coordinado antes de afirmar corrección del servidor |
+| Transacción grupal | Cabecera, detalles, estados y auditoría se confirman juntos | Un fallo tardío revierte el grupo y su reserva de contador |
+| Validación backend grupal | Comprueba pendiente, cantidades positivas e IDs únicos; no añade reglas de pertenencia/etapas | La selección de pantalla no sustituye autorización de negocio más amplia |
+| Tarifa actual | El detalle compartido consulta la tarifa existente y multiplica por cantidad | No es una copia inmutable del precio al registrar |
 | Referencias de catálogo | No se guarda precio/nombre inmutable al abrir el trámite | El monto al emitir puede diferir del configurado al registrar |
 | Barra de progreso | Incluye tasas Giradas entre las contadas como pagadas | Puede aparentar pago sin confirmación externa |
 | Sincronización externa | El worker consulta solo órdenes `1`/`2` | No detecta automáticamente extornos posteriores de órdenes `4`/`5` |
@@ -263,9 +262,9 @@ Los riesgos son observaciones del código, no prueba de incidentes en producció
 | `controller/procedimiento.php:530–543` | Etiquetas operativas y progreso |
 | `controller/tasa.php:93–161` | Endpoint de emisión agrupada |
 | `controller/tasa.php:428–560` | Estados de tasas, casillas y acciones por tipo |
-| `models/Tasa.php:134–141` | Recuperación de la última orden global |
+| `models/Tasa.php`, `obtenerultimovalor` | Helper legado conservado, ya no usado por emisión ciudadana |
 | `models/Tasa.php:188–285` | Emisión individual, montos y estados |
-| `models/Tasa.php:313–322,370–454` | Rutina de cabecera y asociación grupal por tasa |
+| `models/Tasa.php`, `emitirGrupo` / `emitirDetalle` / `crearOrdenini` | Transacción compartida y cabecera retornada |
 | `view/giros_ciudadano/usudetalleciudadano.js:735–797,1310–1460` | Listado de tasas y confirmación grupal |
 | `controller/rc.php`, operaciones `imprimir`, `imprimirxid`, `listargiros` | Consulta e impresión |
 | `models/Bitacora.php` | Asignación de usuario a auditoría pendiente |
@@ -276,7 +275,7 @@ Los riesgos son observaciones del código, no prueba de incidentes en producció
 
 Los números de línea son orientativos y pueden desplazarse con futuras ediciones. Para confirmar las partes delegadas a la base se requieren, como mínimo:
 
-- `sc_giros.crear_ordengiro_ciud`.
+- Definición desplegada de `sc_giros.crear_ordengiro_ciud`, comparada con el wrapper propuesto en `database/migrations/20261016_atomic_giro_numbering.sql`.
 - `sc_giros.fn_pagar_tasa_trabajador` y `sc_giros.obtener_valor_recibo`, presentes como llamadas de otras rutas de pago; no se reconstruye aquí su lógica interna.
 - `sc_giros.cancelar_pago_tasa`.
 - `sc_giros.eliminar_proced_ciudadano`.

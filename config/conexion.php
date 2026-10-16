@@ -62,7 +62,7 @@ class Conectar {
         return $remoteIp;
     }
 
-    protected function conexion() {
+    protected function conexion($throwOnError = false) {
         try {
             $host = self::getEnv('DB_HOST', '10.10.10.16');
             $port = self::getEnv('DB_PORT', '5432');
@@ -76,6 +76,9 @@ class Conectar {
             $conectar->exec("SET NAMES 'utf8'");
             return $conectar;
         } catch (Exception $e) {
+            if ($throwOnError) {
+                throw $e;
+            }
             print "Error BD!: " . $e->getMessage() . "<br/>";
             die();
         }

@@ -140,161 +140,142 @@ class tasa extends Conectar
         $sql->execute();
         return $resultado = $sql->fetchAll();
     }
-    public function Pagar_Order_Giro($tasatciudadano_id, $usu_id, $comentario,  $cantidad = 1)
+    private function enteroPositivo($value)
     {
-        $conectar = parent::conexion();
+        if ((!is_int($value) && !is_string($value)) || filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 2147483647]]) === false) {
+            throw new InvalidArgumentException('Identificador o cantidad inválida.');
+        }
+        return (int) $value;
+    }
+
+    public function Pagar_Order_Giro($tasatciudadano_id, $usu_id, $comentario, $cantidad = 1)
+    {
+        $resultado = $this->emitirGrupo([$tasatciudadano_id], [$cantidad], $usu_id, $comentario);
+        return ['success' => true, 'ogciud_id' => $resultado['ogciud_id'],
+            'importe' => $resultado['importes'][0], 'cantidad' => (int) $cantidad];
+    }
+
+    // One connection owns the header, every detail/state change and trigger audit.
+    public function emitirGrupo($ids, $cantidades, $usu_id, $comentario)
+    {
+        $usu_id = $this->enteroPositivo($usu_id);
+        if (!is_array($ids) || !is_array($cantidades) || !$ids || count($ids) !== count($cantidades) || !is_string($comentario)) {
+            throw new InvalidArgumentException('Selección inválida.');
+        }
+        $ids = array_map([$this, 'enteroPositivo'], array_values($ids));
+        $cantidades = array_map([$this, 'enteroPositivo'], array_values($cantidades));
+        if (count(array_unique($ids)) !== count($ids)) {
+            throw new InvalidArgumentException('Tasas repetidas.');
+        }
+        $conectar = parent::conexion(true);
         parent::set_names();
         try {
-            // 1. Iniciar la transacción
             $conectar->beginTransaction();
-
-            // 2. Normalizar comentario
-            $comentario = mb_strtoupper($comentario, 'UTF-8');
-
-            // 3. Obtener año actual
-            $currentYear = date('Y');
-
-            // 4. Verificar si es la primera orden del año para sincronizar la secuencia
-            // En operaciones normales (ya existen órdenes este año), se omite el DDL por completo para evitar AccessExclusiveLock
-            $sqlCheck = "SELECT 1 FROM sc_giros.td_ordengirociud WHERE ogciud_id LIKE :mask LIMIT 1";
-            $stmtCheck = $conectar->prepare($sqlCheck);
-            $stmtCheck->execute([':mask' => '%-' . $currentYear]);
-            $hasOrdersThisYear = $stmtCheck->fetchColumn();
-
-            if (!$hasOrdersThisYear) {
-                // Adquirir advisory lock transaccional (987654340) para sincronización atómica
-                $conectar->exec("SELECT pg_advisory_xact_lock(987654340)");
-
-                // Doble comprobación con el candado adquirido
-                $stmtCheck->execute([':mask' => '%-' . $currentYear]);
-                if (!$stmtCheck->fetchColumn()) {
-                    $sqlMax = "
-                        SELECT COALESCE(MAX(SUBSTRING(ogciud_id FROM 1 FOR 6)::INTEGER), 0) + 1 AS next_val
-                        FROM sc_giros.td_ordengirociud
-                        WHERE ogciud_id LIKE :mask
-                    ";
-                    $stmtMax = $conectar->prepare($sqlMax);
-                    $stmtMax->execute([':mask' => '%-' . $currentYear]);
-                    $nextVal = (int)$stmtMax->fetchColumn();
-                    if ($nextVal < 1) {
-                        $nextVal = 1;
-                    }
-                    $conectar->exec("ALTER SEQUENCE sc_giros.ordengiro_id_sequence RESTART WITH {$nextVal}");
-                }
+            $orden = $this->crearOrdenini($usu_id, $comentario, $conectar)[0]['ogciud_id'];
+            $importes = [];
+            // Stable lock order reduces deadlocks for overlapping selections.
+            $indices = array_keys($ids);
+            usort($indices, function ($a, $b) use ($ids) { return $ids[$a] <=> $ids[$b]; });
+            foreach ($indices as $i) {
+                $importes[$i] = $this->emitirDetalle($conectar, $ids[$i], $orden, $cantidades[$i]);
             }
+            // Only audit rows created by THIS transaction, not a global MAX range.
+            $audit = $conectar->prepare("UPDATE sc_seguridad.tb_bitacora SET pers_id = ?
+                WHERE (pers_id IS NULL OR pers_id = 0)
+                  AND xmin::text::bigint = (txid_current() % 4294967296)");
+            $audit->execute([$usu_id]);
+            $conectar->commit();
+            return ['ogciud_id' => $orden, 'importes' => $importes, 'data' => array_map(function ($id) { return [$id]; }, $ids)];
+        } catch (Throwable $e) {
+            if ($conectar->inTransaction()) $conectar->rollBack();
+            throw $e;
+        }
+    }
 
-            // 5. Obtener datos de tasa y procedimiento
-            $sql3 = "
-            SELECT 
-                tc.ciud_id        AS ciudadano_id,
-                tt.tasaproced_monto AS importe
-            FROM sc_giros.td_tasaproced tt
-            JOIN sc_giros.td_tasatciud ttc ON tt.tasaproced_id = ttc.tasatciud_tasaproced
-            JOIN sc_giros.td_procedciudadano tc ON ttc.tasatciud_procedciud = tc.procedciudadano_id
-            WHERE ttc.tasatciud_id = :tasatciud_id
-              AND ttc.est = 1
+    private function emitirDetalle($conectar, $tasatciudadano_id, $newOgciudId, $cantidad)
+    {
+        // 5. Obtener datos de tasa y procedimiento
+        $sql3 = "
+        SELECT
+            tc.ciud_id        AS ciudadano_id,
+            tt.tasaproced_monto AS importe
+        FROM sc_giros.td_tasaproced tt
+        JOIN sc_giros.td_tasatciud ttc ON tt.tasaproced_id = ttc.tasatciud_tasaproced
+        JOIN sc_giros.td_procedciudadano tc ON ttc.tasatciud_procedciud = tc.procedciudadano_id
+        WHERE ttc.tasatciud_id = :tasatciud_id
+          AND ttc.est = 1
+        FOR UPDATE OF ttc
         ";
-            $stmt3 = $conectar->prepare($sql3);
-            $stmt3->execute([':tasatciud_id' => $tasatciudadano_id]);
-            $datos = $stmt3->fetch(PDO::FETCH_ASSOC);
-            if (!$datos) {
-                throw new Exception("La tasa no existe o no está en estado Pendiente.");
-            }
-            $ciudadanoId = $datos['ciudadano_id'];
-            $importe     = $datos['importe'];
-            
+        $stmt3 = $conectar->prepare($sql3);
+        $stmt3->execute([':tasatciud_id' => $tasatciudadano_id]);
+        $datos = $stmt3->fetch(PDO::FETCH_ASSOC);
+        if (!$datos) {
+            throw new Exception("La tasa no existe o no está en estado Pendiente.");
+        }
+        $importe     = $datos['importe'];
 
-            // 6. Marcar la tasa como pagada (est = 2)
-            $sql4 = "
-            UPDATE sc_giros.td_tasatciud
-            SET est = 2
-            WHERE tasatciud_id = :tasatciud_id
-              AND est = 1
+
+        // 6. Marcar la tasa como pagada (est = 2)
+        $sql4 = "
+        UPDATE sc_giros.td_tasatciud
+        SET est = 2
+        WHERE tasatciud_id = :tasatciud_id
+          AND est = 1
         ";
-            $stmt4 = $conectar->prepare($sql4);
-            $stmt4->execute([':tasatciud_id' => $tasatciudadano_id]);
+        $stmt4 = $conectar->prepare($sql4);
+        $stmt4->execute([':tasatciud_id' => $tasatciudadano_id]);
+        if ($stmt4->rowCount() !== 1) {
+            throw new RuntimeException('La tasa ya no está pendiente.');
+        }
 
-            // 7. Generar nuevo ogciud_id: seq() formato '000000-YYYY'
-            $seq = $conectar
-                ->query("SELECT nextval('sc_giros.ordengiro_id_sequence')::TEXT")
-                ->fetchColumn();
-            $newOgciudId = str_pad($seq, 6, '0', STR_PAD_LEFT) . '-' . $currentYear;
-
-            // 8. Insertar en td_ordengirociud
-            $sql5 = "
-            INSERT INTO sc_giros.td_ordengirociud
-                (ogciud_id, fechacrea, pers_id, ogciud_comentario, est)
-            VALUES
-                (:ogciud_id, CURRENT_TIMESTAMP, :pers_id, :comentario, 1)
+        $importeTotal = $importe * $cantidad;
+        // 9. Insertar en td_giro_tasa_ciudadano
+        $sql6 = "
+        INSERT INTO sc_giros.td_giro_tasa_ciudadano
+            (fechacrea, tasaciud_id, girot_giro, cantidad, importe, est)
+        VALUES
+            (CURRENT_TIMESTAMP, :tasaciud_id, :girot_giro, :cantidad, :importe, 1)
         ";
-            $stmt5 = $conectar->prepare($sql5);
-            $stmt5->execute([
-                ':ogciud_id'  => $newOgciudId,
-                ':pers_id'    => $usu_id,
-                ':comentario' => $comentario
-            ]);
+        $stmt6 = $conectar->prepare($sql6);
+        $stmt6->execute([
+            ':tasaciud_id' => $tasatciudadano_id,
+            ':girot_giro'  => $newOgciudId,
+            ':cantidad'    => $cantidad,
+            ':importe'     => $importeTotal
+        ]);
 
-            $importeTotal = $importe * $cantidad;
-            // 9. Insertar en td_giro_tasa_ciudadano
-            $sql6 = "
-            INSERT INTO sc_giros.td_giro_tasa_ciudadano
-                (fechacrea, tasaciud_id, girot_giro, cantidad, importe, est)
-            VALUES
-                (CURRENT_TIMESTAMP, :tasaciud_id, :girot_giro, :cantidad, :importe, 1)
-        ";
-            $stmt6 = $conectar->prepare($sql6);
-            $stmt6->execute([
-                ':tasaciud_id' => $tasatciudadano_id,
-                ':girot_giro'  => $newOgciudId,
-                ':cantidad'    => $cantidad,
-                ':importe'     => $importeTotal   
-            ]);
-
-            // 10. Verificar si quedan tasas pendientes para este procedciudadano
-            $sql7 = "
-            SELECT 1
+        // 10. Verificar si quedan tasas pendientes para este procedciudadano
+        $sql7 = "
+        SELECT 1
+        FROM sc_giros.td_tasatciud
+        WHERE tasatciud_procedciud = (
+            SELECT tasatciud_procedciud
             FROM sc_giros.td_tasatciud
-            WHERE tasatciud_procedciud = (
+            WHERE tasatciud_id = :tasatciud_id
+        )
+          AND est IN (1, 3)
+        LIMIT 1
+        ";
+        $stmt7 = $conectar->prepare($sql7);
+        $stmt7->execute([':tasatciud_id' => $tasatciudadano_id]);
+        $hayPendientes = (bool) $stmt7->fetchColumn();
+
+        // 11. Si no hay pendientes, actualizar estado del procedciudadano a 2
+        if (!$hayPendientes) {
+            $sql8 = "
+            UPDATE sc_giros.td_procedciudadano
+            SET est = 2
+            WHERE procedciudadano_id = (
                 SELECT tasatciud_procedciud
                 FROM sc_giros.td_tasatciud
                 WHERE tasatciud_id = :tasatciud_id
             )
-              AND est IN (1, 3)
-            LIMIT 1
         ";
-            $stmt7 = $conectar->prepare($sql7);
-            $stmt7->execute([':tasatciud_id' => $tasatciudadano_id]);
-            $hayPendientes = (bool) $stmt7->fetchColumn();
-
-            // 11. Si no hay pendientes, actualizar estado del procedciudadano a 2
-            if (!$hayPendientes) {
-                $sql8 = "
-                UPDATE sc_giros.td_procedciudadano
-                SET est = 2
-                WHERE procedciudadano_id = (
-                    SELECT tasatciud_procedciud
-                    FROM sc_giros.td_tasatciud
-                    WHERE tasatciud_id = :tasatciud_id
-                )
-            ";
-                $stmt8 = $conectar->prepare($sql8);
-                $stmt8->execute([':tasatciud_id' => $tasatciudadano_id]);
-            }
-
-            // 12. Confirmar la transacción
-            $conectar->commit();
-
-            return [
-                'success'      => true,
-                'ogciud_id'    => $newOgciudId,
-                'importe'      => $importe,
-                'cantidad'     => $cantidad
-            ];
-        } catch (Exception $e) {
-            // Rollback y rethrow
-            $conectar->rollBack();
-            throw new Exception("Error en Pagar_Order_Giro: " . $e->getMessage());
+            $stmt8 = $conectar->prepare($sql8);
+            $stmt8->execute([':tasatciud_id' => $tasatciudadano_id]);
         }
+
+        return $importe;
     }
 
     public function Pagar_Order_Giro_Empresa($tasatempresa_id, $usu_id, $cantidad, $comentario)
@@ -310,16 +291,17 @@ class tasa extends Conectar
         $sql->execute();
         return $resultado = $sql->fetchAll();
     }
-    public function crearOrdenini($usu_id, $comentario)
+    public function crearOrdenini($usu_id, $comentario, $conectar = null)
     {
-        $conectar = parent::conexion();
-        parent::set_names();
-        $sql = "CALL sc_giros.crear_ordengiro_ciud(?,?)";
-        $sql = $conectar->prepare($sql);
-        $sql->bindParam(1, $usu_id, PDO::PARAM_INT);
-        $sql->bindParam(2, $comentario, PDO::PARAM_STR);
-        $sql->execute();
-        return $resultado = $sql->fetchAll();
+        if ($conectar === null) {
+            $conectar = parent::conexion();
+            parent::set_names();
+        }
+        $stmt = $conectar->prepare("SELECT sc_giros.crear_ordengiro_ciud_id(?, ?) AS ogciud_id");
+        $stmt->execute([$usu_id, $comentario]);
+        $id = $stmt->fetchColumn();
+        if (!$id) throw new RuntimeException('No se pudo crear la orden.');
+        return [['ogciud_id' => $id]];
     }
     public function crearOrdenini_empr($usu_id, $comentario)
     {
@@ -369,94 +351,21 @@ class tasa extends Conectar
     }
     public function insertarTasaGiros($tasatciudadano_id, $p_ordengiro_id, $p_cantidad)
     {
-        $conectar = parent::conexion();
-        parent::set_names();
-
+        $conectar = null;
         try {
-            // Iniciar la transacción
+            $id = $this->enteroPositivo($tasatciudadano_id);
+            $cantidad = $this->enteroPositivo($p_cantidad);
+            $conectar = parent::conexion();
+            parent::set_names();
             $conectar->beginTransaction();
-
-            // Obtener el importe de la tasa multiplicado por la cantidad
-            $sql = "SELECT tasaproced_monto * :p_cantidad AS v_importe
-                FROM sc_giros.td_tasaproced tp
-                INNER JOIN sc_giros.td_tasatciud ttc ON tp.tasaproced_id = ttc.tasatciud_tasaproced
-                WHERE ttc.tasatciud_id = :tasatciudadano_id";
-
-            $stmt = $conectar->prepare($sql);
-            $stmt->bindParam(':p_cantidad', $p_cantidad, PDO::PARAM_INT);
-            $stmt->bindParam(':tasatciudadano_id', $tasatciudadano_id, PDO::PARAM_INT);
-            $stmt->execute();
-
-            $v_importe = $stmt->fetchColumn();
-
-            // Verificar si el importe es nulo
-            if (!$v_importe) {
-                throw new Exception('No se pudo obtener el importe para la tasa con ID: ' . $tasatciudadano_id);
-            }
-
-            // Insertar datos en td_giro_tasa_ciudadano
-            $sql = "INSERT INTO sc_giros.td_giro_tasa_ciudadano (fechacrea, tasaciud_id, girot_giro, cantidad, importe, est)
-                VALUES (CURRENT_TIMESTAMP, :tasatciudadano_id, :p_ordengiro_id, :p_cantidad, :v_importe, 1)";
-
-            $stmt = $conectar->prepare($sql);
-            $stmt->bindParam(':tasatciudadano_id', $tasatciudadano_id, PDO::PARAM_INT);
-            $stmt->bindParam(':p_ordengiro_id', $p_ordengiro_id, PDO::PARAM_STR);
-            $stmt->bindParam(':p_cantidad', $p_cantidad, PDO::PARAM_INT);
-            $stmt->bindParam(':v_importe', $v_importe, PDO::PARAM_STR);
-            $stmt->execute();
-
-            // Actualizar el estado de la tasa a 2 en td_tasatciud
-            $sql = "UPDATE sc_giros.td_tasatciud
-                SET est = 2
-                WHERE tasatciud_id = :tasatciudadano_id AND est = 1";
-
-            $stmt = $conectar->prepare($sql);
-            $stmt->bindParam(':tasatciudadano_id', $tasatciudadano_id, PDO::PARAM_INT);
-            $stmt->execute();
-
-            // Verificar si hay tasas pendientes en estado 1 para el mismo procedciudadano
-            $sql = "SELECT 1
-                FROM sc_giros.td_tasatciud
-                WHERE tasatciud_procedciud = (
-                    SELECT tasatciud_procedciud
-                    FROM sc_giros.td_tasatciud
-                    WHERE tasatciud_id = :tasatciudadano_id
-                ) AND est IN (1, 3)";
-
-            $stmt = $conectar->prepare($sql);
-            $stmt->bindParam(':tasatciudadano_id', $tasatciudadano_id, PDO::PARAM_INT);
-            $stmt->execute();
-
-            // Si no hay tasas pendientes, actualizar el estado del procedciudadano
-            if ($stmt->rowCount() == 0) {
-                $sql = "UPDATE sc_giros.td_procedciudadano
-                    SET est = 2
-                    WHERE procedciudadano_id = (
-                        SELECT tasatciud_procedciud
-                        FROM sc_giros.td_tasatciud
-                        WHERE tasatciud_id = :tasatciudadano_id
-                    )";
-
-                $stmt = $conectar->prepare($sql);
-                $stmt->bindParam(':tasatciudadano_id', $tasatciudadano_id, PDO::PARAM_INT);
-                $stmt->execute();
-            }
-
-            // Confirmar la transacción
+            $this->emitirDetalle($conectar, $id, $p_ordengiro_id, $cantidad);
             $conectar->commit();
-
             return true;
-        } catch (Exception $e) {
-            // Si ocurre algún error, revertir la transacción y devolver el mensaje de error
-            $conectar->rollBack();
-            error_log("Error al insertar la tasa con ID: " . $tasatciudadano_id . " - " . $e->getMessage());
-            return $e->getMessage();  // Retornar el mensaje de error para mostrarlo en el controlador
+        } catch (Throwable $e) {
+            if ($conectar !== null && $conectar->inTransaction()) $conectar->rollBack();
+            return $e->getMessage();
         }
     }
-
-
-
-
 
     public function insertarTasaGiros_empresa($tasatempresa_id, $p_ordengiro_id, $p_cantidad, $yeartext)
     {
