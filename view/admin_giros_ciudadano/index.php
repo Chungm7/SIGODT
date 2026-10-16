@@ -115,7 +115,6 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                         <th class="text-center" style="width: 13%;">Fecha Apertura</th>
                         <th class="text-center" style="width: 10%;">Estado</th>
                         <th class="text-center" style="width: 12%;">Progreso</th>
-                        <th class="text-center" style="width: 7%;">Procedencia</th>
                         <th class="text-center" style="width: 7%;">Editar</th>
                         <th class="text-center" style="width: 7%;">Eliminar</th>
                         <th class="text-center" style="width: 7%;">Tasas</th>

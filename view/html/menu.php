@@ -104,9 +104,6 @@ $isMntActive = (strpos($currentPage, '/mnt_') !== false);
               <a href="../consultar_og/" class="dropdown-item <?php echo (strpos($currentPage, '/consultar_og/') !== false) ? 'active' : ''; ?>">
                 Consulta por Orden de Giro
               </a>
-              <a href="../consultar_mes/" class="dropdown-item <?php echo (strpos($currentPage, '/consultar_mes/') !== false) ? 'active' : ''; ?>">
-                Auditoría Mensual de Órdenes
-              </a>
             </div>
           </li>
           <li class="nav-item dropdown <?php echo $isMntActive ? 'active' : ''; ?>">

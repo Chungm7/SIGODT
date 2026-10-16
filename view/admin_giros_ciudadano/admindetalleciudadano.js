@@ -617,36 +617,6 @@ function eliminar(proceciudadano_id) {
       }
     });
 }
-function setProcedencia(proceciudadano_id) {
-  swal
-    .fire({
-      title: "Cambiar Procedencia?!",
-      text: "Desea cambiar el estado del proced?",
-      icon: "warning",
-      confirmButtonText: "Si",
-      showCancelButton: true,
-      cancelButtonText: "No"
-    })
-    .then((result) => {
-      if (result.value) {
-        $.post(
-          "../../controller/procedimiento.php?op=cambiar_procedencia_proced_ciudadano",
-          { proceciudadano_id: proceciudadano_id },
-          function (data) {
-            $("#detalle_data").DataTable().ajax.reload();
-
-            Swal.fire({
-              title: "Correcto!",
-              text: "Se cambió el estado Correctamente",
-              icon: "success",
-              confirmButtonText: "Aceptar"
-            });
-          }
-        );
-      }
-    });
-}
-
 function combo_proced(area_id, tupa_id) {
   const version = ++registrationPickerVersion;
   $("#proced_id").html('<option value="">Seleccione</option>').val("").prop("disabled", true);

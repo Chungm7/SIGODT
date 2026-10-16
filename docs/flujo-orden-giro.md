@@ -206,7 +206,7 @@ CALL sc_giros.eliminar_proced_ciudadano(?, ?);
 
 No se encontró la definición de esa rutina en los archivos locales revisados. **No está probado aquí qué registros cambia, qué estados previos admite ni cómo trata un trámite con varias órdenes.** El nombre del método no demuestra que borre físicamente el historial.
 
-Existe otra llamada a `sc_giros.cambiar_procedencia_proced_ciudadano(?)`, también sin definición local disponible. Quitar Improcedente del filtro no elimina esta ruta interna.
+La auditoría ya no muestra la columna **Procedencia** ni las acciones **Marcar improcedente** y **Habilitar trámite**. Los estados históricos siguen siendo consultables; este cambio no modifica datos. La ruta interna que llama a `sc_giros.cambiar_procedencia_proced_ciudadano(?)` permanece en el backend, también sin definición local disponible.
 
 ### 8.2 Cancelación de una tasa
 
