@@ -60,6 +60,10 @@ function harness(response) {
     };
   }
   $.ajax = o => {
+    if (o.url.includes('Pagar_Orden_Giro')) {
+      requests.push([o.url, o.data]);
+      return {done() { return this; }, fail() { return this; }, always() { return this; }};
+    }
     rows = response.aaData.map(row => {
       const input = row[0];
       const checkbox = {value: String(row[8]), estado: row[7], monto: 35.5,

@@ -875,7 +875,7 @@ function calcularTotalTasas() {
   $("#IDpagarGrupo").html(
       `<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-coin me-1" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M14.8 9a2 2 0 0 0 -1.8 -1h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1 -1.8 -1" /><path d="M12 7v10" /></svg> Girar Seleccionadas (${seleccionadas}) - S/ ${total.toFixed(2)}`
     );
-  $("#IDpagarGrupo").prop("disabled", seleccionadas === 0);
+  $("#IDpagarGrupo").prop("disabled", seleccionadas === 0 || emisionEnCurso || emisionRequiereActualizar);
 }
 
 function listarTasas(proceciudadano_id) {
@@ -943,6 +943,7 @@ function listarTasas(proceciudadano_id) {
         html = '<div class="alert alert-warning">No se encontraron tasas.</div>';
       }
 
+      emisionRequiereActualizar = false;
       $("#tasaListContainer").html(html);
       $("#IDpagarGrupo").attr("data-procedciudadano_id", proceciudadano_id);
 
@@ -1361,7 +1362,44 @@ function editar(procedciudadano_id) {
 }
 
 
+var emisionEnCurso = false;
+var emisionRequiereActualizar = false;
+
+// Never retry an issuance: a timeout may have committed on the server.
+function solicitarEmision(operacion, datos, exito, terminado) {
+  if (emisionEnCurso) return;
+  emisionEnCurso = true;
+  emisionRequiereActualizar = true;
+  $("#IDpagarGrupo").prop("disabled", true);
+  function fallo() {
+    Swal.fire({ title: "No se pudo confirmar la emisión", icon: "error",
+      text: "Actualice el listado y compruebe si existe la orden antes de volver a emitir.", confirmButtonText: "Aceptar" });
+  }
+  $.ajax({ url: "../../controller/tasa.php?op=" + operacion, type: "POST",
+    data: datos, dataType: "json", timeout: 30000
+  }).done(function (data) {
+    if (!data || typeof data !== 'object' ||
+        !(data.success === true || data.error === false || data.error === true)) {
+      fallo();
+      return;
+    }
+    exito(data);
+  }).fail(fallo).always(function () {
+    emisionEnCurso = false;
+    // Discard the captured selection/comment: another emission needs a fresh modal.
+    $('#btn-action').off('click').prop('disabled', false).html('Aceptar');
+    $('#btn-cancel').removeClass('disabled');
+    $('#loadingSpinner').hide();
+    terminado();
+  });
+}
+
+$('#modal-payment').on('hidden.bs.modal', function () {
+  if (!emisionEnCurso) calcularTotalTasas();
+});
+
 function pagar(tasatciudadano_id, procedciudadano_id, estadotasa) {
+  if (emisionEnCurso || emisionRequiereActualizar) return;
   var estado_procedimiento = $("#estado_procedimiento").val();
   getdataload();
   console.log(tasatciudadano_id);
@@ -1402,20 +1440,14 @@ function pagar(tasatciudadano_id, procedciudadano_id, estadotasa) {
     $('#btn-action').prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Procesando...');
     $('#btn-cancel').addClass('disabled');
 
-    $.post(
-      "../../controller/tasa.php?op=Pagar_Orden_Giro",
+    solicitarEmision(
+      "Pagar_Orden_Giro",
       {
         tasatciudadano_id: tasatciudadano_id,
         cantidad: cantidad,               // ahora enviamos cantidad
         comentario: comentario
       },
-      function (response) {
-        paymentModal.hide();
-        $('#btn-action').prop('disabled', false).html('Aceptar');
-        $('#btn-cancel').removeClass('disabled');
-        var data = JSON.parse(response);
-        $("#IDpagarGrupo").prop("disabled", false).html("Pagar en Grupo");
-        $('#loadingSpinner').hide();
+      function (data) {
 
         if (data.error) {
           Swal.fire({
@@ -1431,8 +1463,6 @@ function pagar(tasatciudadano_id, procedciudadano_id, estadotasa) {
           $("#detalle_data").DataTable().ajax.reload();
           $("#data_tasa").DataTable().ajax.reload();
           getdataload();
-          listarTasas(procedciudadano_id);
-          listarGiros(procedciudadano_id);
 
           Swal.fire({
             title: "¡Orden de Giro Exitosa!",
@@ -1452,6 +1482,11 @@ function pagar(tasatciudadano_id, procedciudadano_id, estadotasa) {
             recargarTabla();
           });
         }
+      }, function () {
+        paymentModal.hide();
+        $("#IDpagarGrupo").html("Girar en Grupo").prop("disabled", true);
+        listarTasas(procedciudadano_id);
+        listarGiros(procedciudadano_id);
       }
     );
   });
@@ -1459,6 +1494,7 @@ function pagar(tasatciudadano_id, procedciudadano_id, estadotasa) {
 
 
 function pagargrupo() {
+  if (emisionEnCurso || emisionRequiereActualizar) return;
   var tasatciud_id = [];
   var cantidades = []; // Nuevo arreglo para almacenar las cantidades
   var estadosValidos = true; // Variable para validar estados de las tasas seleccionadas
@@ -1537,28 +1573,20 @@ function pagargrupo() {
       $('#btn-cancel').addClass('disabled');
 
       // Enviar la solicitud al backend para procesar el pago en grupo
-      $.post(
-        "../../controller/tasa.php?op=Pagar_Orden_Giro_grupo",  // Asegúrate de que la ruta sea la correcta
+      solicitarEmision(
+        "Pagar_Orden_Giro_grupo",
         {
           tasatciud_id: tasatciud_id.join(','), // Unimos el array de IDs en una cadena separada por comas
           cantidades: cantidades.join(','),    // Unimos el array de cantidades en una cadena separada por comas
           comentario: comentario
         },
-        function (response) {
-          paymentModal.hide(); // Ocultar el modal tras recibir respuesta
-          $('#btn-action').prop('disabled', false).html('Aceptar');
-          $('#btn-cancel').removeClass('disabled');
-          var data = JSON.parse(response);
-
-          // Ocultar el spinner y reactivar el botón "Pagar en grupo"
-          $("#IDpagarGrupo").prop("disabled", false).html("Pagar en Grupo");
-          $('#loadingSpinner').hide(); // Esconder el spinner de carga
+        function (data) {
 
           if (data.error) {
             // Si el backend devuelve un error
             Swal.fire({
               title: "Ups!",
-              text: data.error,
+              text: data.message,
               icon: "error",
               confirmButtonText: "Aceptar"
             }).then(() => {
@@ -1570,8 +1598,6 @@ function pagargrupo() {
             $("#detalle_data").DataTable().ajax.reload();
             $("#data_tasa").DataTable().ajax.reload();
             getdataload();
-            listarTasas(procedciudadano_id);
-            listarGiros(procedciudadano_id);
 
             Swal.fire({
               title: "¡Orden de Giro Exitosa!",
@@ -1595,17 +1621,11 @@ function pagargrupo() {
               recargarTabla();
             });
           }
-        }).fail(function (xhr, status, error) {
-          // Si la llamada AJAX falla
-          $("#IDpagarGrupo").prop("disabled", false).html("Pagar en Grupo");
-          $('#loadingSpinner').hide();
-
-          Swal.fire({
-            title: "Error!",
-            text: "Hubo un problema con la conexión. Intenta nuevamente.",
-            icon: "error",
-            confirmButtonText: "Aceptar"
-          });
+        }, function () {
+          paymentModal.hide();
+          $("#IDpagarGrupo").html("Girar en Grupo").prop("disabled", true);
+          listarTasas(procedciudadano_id);
+          listarGiros(procedciudadano_id);
         });
     });
   }
