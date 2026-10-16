@@ -14,6 +14,12 @@ if (formCiudadanosDetalles) {
         } else if (typeof limitabuscadni === "function") {
           limitabuscadni(e.target);
         }
+      } else if (e.target.id === "empr_ruc") {
+        if (typeof ejecutarBusquedaRucAdmin === "function") {
+          ejecutarBusquedaRucAdmin();
+        } else if (typeof buscaRUC === "function") {
+          buscaRUC();
+        }
       }
     }
   });
@@ -125,6 +131,9 @@ function detalleEditar(e) {
           }
           $("#detalle_data").DataTable().ajax.reload();
           $("#modalmantenimiento").modal("hide");
+          if (typeof limpiarFormularioMantenimientoAdmin === "function") {
+            limpiarFormularioMantenimientoAdmin();
+          }
 
           Swal.fire({
             title: "Correcto!",
@@ -159,8 +168,54 @@ var tupa_id = 0;
 var proced_id = 0;
 var registrationPickerVersion = 0;
 var registrationModalProcedure = null;
+function limpiarFormularioMantenimientoAdmin() {
+  const form = document.getElementById("ciudadanosdetalles_form");
+  if (form) {
+    form.reset();
+  }
+
+  $("#procedciudadano_id").val("");
+  $("#ciud_id").val("");
+  $("#empr_id").val("");
+  $("#tipo").val("");
+  $("#tiv_id").val("");
+  $("#menor_edad").val("");
+  $("#esCarnet").val("0");
+  $("#esCPP").val("0");
+  $("#ruc_checkbox").val("").prop("checked", false);
+  $("#tipo_admin").val("");
+
+  $("#ciudadano_doc").val("").removeAttr("readonly");
+  $("#ciudadano_nombre").val("").attr("readonly", "readonly");
+  $("#ciudadano_apep").val("").attr("readonly", "readonly");
+  $("#ciudadano_apem").val("").attr("readonly", "readonly");
+  $("#imagen_ciudadano").attr("src", "../../public/img/perfil.jpeg");
+
+  if (typeof seleccionarTipoAdmin === "function") {
+    seleccionarTipoAdmin("DNI");
+  } else {
+    $("#name_select_tipo").text("DNI");
+    $("#ciudadano_doc")
+      .attr("maxlength", "8")
+      .attr("inputmode", "numeric")
+      .attr("pattern", "[0-9]*")
+      .attr("placeholder", "Ingresa el DNI (8 dígitos)");
+  }
+
+  $("#empr_ruc").val("").removeAttr("readonly");
+  $("#empr_razon_social").val("").prop("readonly", true).attr("readonly", "readonly");
+  $("#empr_nombre_comercial").val("").attr("readonly", "readonly");
+
+  $("#ciud_mensaje").html("").attr("class", "alert d-none py-1 mb-0").removeAttr("style");
+  $("#mensaje_empresa").html("").attr("class", "alert d-none py-1 mb-0").removeAttr("style");
+  $("#info_procedimiento").html("").attr("class", "alert d-none py-1 mb-0").removeAttr("style");
+
+  $("#btnguardar").prop("disabled", false);
+}
+
 $('#modalmantenimiento').on('hidden.bs.modal', function () {
   registrationModalProcedure = null;
+  limpiarFormularioMantenimientoAdmin();
 });
 $('#proced_id').on('change', function () {
   registrationPickerVersion++;
@@ -393,7 +448,7 @@ function buscaRUC() {
           console.log(data);
           if (response.empr_ruc) {
             // Llenar los campos del formulario con los datos de la empresa
-            $("#empr_razon_social").val(response.empr_razon_social);
+            $("#empr_razon_social").val(response.empr_razon_social).prop("readonly", true).attr("readonly", "readonly");
             $("#empr_nombre_comercial").val(response.empr_nombre_comercial);
             $("#empr_giro").val(response.empr_nombres_giros);
             $("#empr_id").val(response.empr_id);
@@ -639,6 +694,9 @@ function combo_proced(area_id, tupa_id) {
 }
 
 function nuevo() {
+  if (typeof limpiarFormularioMantenimientoAdmin === "function") {
+    limpiarFormularioMantenimientoAdmin();
+  }
   $("#ciudadano_doc").removeAttr("readonly");
   $("#empr_ruc").removeAttr("readonly");
 
@@ -648,6 +706,7 @@ function nuevo() {
   $("#ciudadano_nombre").attr("readonly", "readonly");
   $("#ciudadano_apep").attr("readonly", "readonly");
   $("#ciudadano_apem").attr("readonly", "readonly");
+  $("#empr_razon_social").attr("readonly", "readonly");
   var procedId = $("#proced_id").val();
   if (
     $("#proced_id").val() === "" ||
@@ -672,7 +731,7 @@ function nuevo() {
     $("#ciudadano_apem").val("");
     $("#ciudadano_doc").val("");
     $("#empr_ruc").val("");
-    $("#empr_razon_social").val("");
+    $("#empr_razon_social").val("").attr("readonly", "readonly");
     $("#empr_nombre_comercial").val("");
     $("#esCarnet").val("");
     $("#esCPP").val("");

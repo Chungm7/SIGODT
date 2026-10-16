@@ -38,7 +38,7 @@
                                         <li><a class="dropdown-item" href="#" onclick="seleccionarTipo('CPP', event)">CPP</a></li>
                                     </ul>
                                     <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="8" name="ciudadano_doc" id="ciudadano_doc" class="form-control" placeholder="Ingresa el DNI (8 dígitos)" oninput="limitabuscadni(this)" required>
-                                    <button class="btn btn-outline-secondary" type="button" id="btn_buscar_doc" onclick="ejecutarBusquedaDoc()" title="Buscar documento">
+                                    <button class="btn btn-outline-secondary btn-buscar-doc" type="button" id="btn_buscar_doc" onclick="ejecutarBusquedaDoc()" title="Buscar documento">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                             <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
@@ -158,6 +158,13 @@
                                         </svg>
                                     </span>
                                     <input type="text" name="empr_ruc" id="empr_ruc" class="form-control" placeholder="Ingresa el RUC (11 dígitos)" oninput="limitarbuscarruc(this)">
+                                    <button class="btn btn-outline-secondary btn-buscar-doc" type="button" id="btn_buscar_ruc" onclick="ejecutarBusquedaRuc()" title="Buscar RUC">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                            <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
+                                            <path d="M21 21l-6 -6" />
+                                        </svg>
+                                    </button>
                                 </div>
                             </div>
 
@@ -173,7 +180,7 @@
                                             <path d="M3 13a20 20 0 0 0 18 0" />
                                         </svg>
                                     </span>
-                                    <input type="text" id="empr_razon_social" class="form-control" placeholder="Razón Social" readonly>
+                                    <input type="text" id="empr_razon_social" name="empr_razon_social" class="form-control" placeholder="Razón Social" readonly tabindex="-1" style="background-color: var(--tblr-bg-surface-secondary, #f8fafc); cursor: not-allowed;">
                                 </div>
                             </div>
 

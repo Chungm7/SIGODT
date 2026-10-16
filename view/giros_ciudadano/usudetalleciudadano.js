@@ -14,8 +14,12 @@ if (formCiudadanosDetalles) {
         } else if (typeof limitabuscadni === "function") {
           limitabuscadni(e.target);
         }
-      } else if (e.target.id === "empr_ruc" && typeof limitarbuscarruc === "function") {
-        limitarbuscarruc(e.target);
+      } else if (e.target.id === "empr_ruc") {
+        if (typeof ejecutarBusquedaRuc === "function") {
+          ejecutarBusquedaRuc();
+        } else if (typeof buscaRUC === "function") {
+          buscaRUC();
+        }
       }
     }
   });
@@ -172,6 +176,9 @@ function detalleEditar(e) {
       if (res.success) {
         $("#detalle_data").DataTable().ajax.reload();
         $("#modalmantenimiento").modal("hide");
+        if (typeof limpiarFormularioMantenimiento === "function") {
+          limpiarFormularioMantenimiento();
+        }
 
         if (res.procedciudadano_id) {
           const Toast = Swal.mixin({
@@ -285,8 +292,86 @@ $(document).on("click", "#tab-giros-link", function (e) {
   activarTab("giros");
 });
 
+function limpiarFormularioMantenimiento() {
+  const form = document.getElementById("ciudadanosdetalles_form");
+  if (form) {
+    form.reset();
+  }
+
+  $("#procedciudadano_id").val("");
+  $("#ciud_id").val("");
+  $("#empr_id").val("");
+  $("#tipo").val("");
+  $("#tiv_id").val("");
+  $("#menor_edad").val("");
+  $("#esCarnet").val("0");
+  $("#esCPP").val("0");
+  $("#ruc_checkbox").val("").prop("checked", false);
+  $("#tipo_admin").val("");
+
+  $("#ciudadano_doc").val("").removeAttr("readonly");
+  $("#ciudadano_nombre").val("").attr("readonly", "readonly");
+  $("#ciudadano_apep").val("").attr("readonly", "readonly");
+  $("#ciudadano_apem").val("").attr("readonly", "readonly");
+  $("#imagen_ciudadano").attr("src", "../../public/img/perfil.jpeg");
+
+  if (typeof seleccionarTipo === "function") {
+    seleccionarTipo("DNI");
+  } else {
+    $("#name_select_tipo").text("DNI");
+    $("#ciudadano_doc")
+      .attr("maxlength", "8")
+      .attr("inputmode", "numeric")
+      .attr("pattern", "[0-9]*")
+      .attr("placeholder", "Ingresa el DNI (8 dígitos)");
+  }
+
+  $("#empr_ruc").val("").removeAttr("readonly");
+  $("#empr_razon_social").val("").prop("readonly", true).attr("readonly", "readonly");
+  $("#empr_nombre_comercial").val("").attr("readonly", "readonly");
+  $("#select_direccion").html("");
+
+  $("#ciud_mensaje").html("").attr("class", "alert d-none py-1 mb-0").removeAttr("style");
+  $("#mensaje_empresa").html("").attr("class", "alert d-none py-1 mb-0").removeAttr("style");
+  $("#info_procedimiento").html("").attr("class", "alert d-none py-1 mb-0").removeAttr("style");
+
+  $("#btnguardar").prop("disabled", false);
+}
+
+function ejecutarBusquedaRuc() {
+  const input = document.getElementById("empr_ruc");
+  if (!input) return;
+  const valor = input.value.trim();
+  const mensaje = document.getElementById("mensaje_empresa");
+
+  if (!valor) {
+    if (mensaje) {
+      $(mensaje).removeClass("d-none alert-success alert-info").addClass("alert-warning").text("Ingrese un número de RUC").show();
+    }
+    input.focus();
+    return;
+  }
+
+  if (valor.length !== 11) {
+    if (mensaje) {
+      $(mensaje).removeClass("d-none alert-success alert-info").addClass("alert-warning").text("El RUC debe tener 11 dígitos (actual: " + valor.length + ")").show();
+    }
+    input.focus();
+    return;
+  }
+
+  $("#empr_razon_social").val("").prop("readonly", true).attr("readonly", "readonly");
+  $("#empr_nombre_comercial").val("");
+  $("#empr_id").val("");
+  if (mensaje) {
+    $(mensaje).removeClass("d-none alert-warning alert-danger").addClass("alert-info").text("Buscando información de empresa...").show();
+  }
+  buscaRUC();
+}
+
 $('#modalmantenimiento').on('hidden.bs.modal', function () {
   registrationModalProcedure = null;
+  limpiarFormularioMantenimiento();
 });
 
 $(document).ready(function () {
@@ -518,7 +603,7 @@ function buscaRUC() {
         let condicion = empresa.empr_condicion_sunat;
 
         // 🔹 Llenar razón social
-        $("#empr_razon_social").val(razon);
+        $("#empr_razon_social").val(razon).prop("readonly", true).attr("readonly", "readonly");
 
         let colorEstado = (estado === "ACTIVO") ? "#198754" : "#dc3545";
         let colorCondicion = (condicion === "HABIDO") ? "#198754" : "#dc3545";
@@ -1009,31 +1094,32 @@ function mostrarDetalleProcedimiento(data) {
 }
 
 function nuevo() {
-  $("#procedciudadano_id").val('');
-  $("#ciud_id").val('');
-  $("#empr_id").val('');
-  $("#tipo").val('');
-  $("#tiv_id").val('');
-  $("#menor_edad").val('');
-  $("#esCarnet").val('');
-  $("#esCPP").val('');
-  $("#ruc_checkbox").val('');
-  $("#tipo_admin").val('');
-
-  if (typeof seleccionarTipo === 'function') {
-    seleccionarTipo('DNI');
+  if (typeof limpiarFormularioMantenimiento === 'function') {
+    limpiarFormularioMantenimiento();
   } else {
+    $("#procedciudadano_id").val('');
+    $("#ciud_id").val('');
+    $("#empr_id").val('');
+    $("#tipo").val('');
+    $("#tiv_id").val('');
+    $("#menor_edad").val('');
+    $("#esCarnet").val('');
+    $("#esCPP").val('');
+    $("#ruc_checkbox").val('');
+    $("#tipo_admin").val('');
     $("#name_select_tipo").text('DNI');
     $("#ciudadano_doc").attr('maxlength', '8').attr('inputmode', 'numeric').attr('placeholder', 'Ingresa el DNI (8 dígitos)');
+    $("#ciudadano_doc").removeAttr("readonly");
+    $("#empr_ruc").removeAttr("readonly");
+    $("#ruc_checkbox").prop("checked", false);
+    $("#ruc_checkbox").change();
+    $("#ciudadano_nombre, #ciudadano_apep, #ciudadano_apem, #empr_razon_social").attr("readonly", "readonly");
+    $("#ciudadano_nombre, #ciudadano_apep, #ciudadano_apem, #ciudadano_doc, #empr_ruc, #empr_nombre_comercial, #empr_razon_social").val("");
+    $("#select_direccion").html('');
+    $("#empr_id").val("");
+    $("#imagen_ciudadano").attr("src", "../../public/img/perfil.jpeg");
+    $("#info_procedimiento, #ciud_mensaje, #mensaje_empresa").html("").removeClass("alert-danger alert-warning alert-info").addClass("d-none");
   }
-
-  $("#ciudadano_doc").removeAttr("readonly");
-  $("#empr_ruc").removeAttr("readonly");
-
-  $("#ruc_checkbox").prop("checked", false);
-  $("#ruc_checkbox").change();
-
-  $("#ciudadano_nombre, #ciudadano_apep, #ciudadano_apem").attr("readonly", "readonly");
 
   var procedId = $("#proced_id").val();
 
@@ -1041,28 +1127,6 @@ function nuevo() {
     $("#info_procedimiento").html(`<div class="alert alert-danger">Seleccionar procedimiento</div>`);
     return;
   }
-
-  // Resetear campos
-
-  $("#ciudadano_nombre, #ciudadano_apep, #ciudadano_apem, #ciudadano_doc, #empr_ruc, #empr_nombre_comercial, #empr_razon_social").val("");
-	/*
-  $("#empr_razon_social")
-    .empty()
-    .append('<option value="">Seleccione razón social</option>');
-*/
-  // $("#select_direccion")
-  //   .empty()
-  //   .append('<option value="">Seleccione dirección</option>')
-  //   .prop("disabled", true);
-
-  $("#select_direccion").html('');
-
-  $("#empr_id").val("");
-
-  $("#imagen_ciudadano").attr("src", "../../public/img/perfil.jpeg");
-
-  // Ocultar alertas
-  $("#info_procedimiento, #ciud_mensaje, #mensaje_empresa").html("").removeClass("alert-danger alert-warning alert-info").addClass("d-none");
 
   // Validar la selección actual en el servidor antes de abrir el registro.
   const version = ++registrationPickerVersion;

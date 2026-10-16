@@ -215,10 +215,9 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
 
           if (valor.length === max_length) {
             resetearCampos();
-            buscarDNI(valor, tipo_documento);
             if (mensaje) {
-              mensaje.className = "alert alert-success py-1 mb-2";
-              mensaje.innerHTML = "Buscando información...";
+              mensaje.className = "alert alert-info py-1 mb-2";
+              mensaje.innerHTML = `Presione <b>Enter</b> o el botón buscar`;
               mensaje.classList.remove("d-none");
             }
           } else if (valor.length > 0) {
@@ -323,23 +322,69 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
         const mensaje = document.getElementById("mensaje_empresa");
 
         if (valor.length === 11) {
-          $("#empr_razon_social").val('');
+          $("#empr_razon_social").val('').prop("readonly", true).attr("readonly", "readonly");
           $("#empr_nombre_comercial").val('');
           $("#empr_id").val('');
-          buscaRUC();
-          mensaje.className = "alert alert-success";
-          mensaje.innerHTML = "RUC válido, buscando información...";
-          mensaje.classList.remove("d-none");
+          if (mensaje) {
+            mensaje.className = "alert alert-info py-1 mb-2";
+            mensaje.innerHTML = `Presione <b>Enter</b> o el botón buscar`;
+            mensaje.classList.remove("d-none");
+          }
         } else if (valor.length > 0 && valor.length < 11) {
+          $("#empr_razon_social").val('').prop("readonly", true).attr("readonly", "readonly");
+          $("#empr_nombre_comercial").val('');
+          $("#empr_id").val('');
           const faltantesRuc = 11 - valor.length;
-          mensaje.className = "alert alert-info py-1 mb-2";
-          mensaje.innerHTML = `Ingrese 11 dígitos de RUC (faltan ${faltantesRuc})`;
-          mensaje.classList.remove("d-none");
+          if (mensaje) {
+            mensaje.className = "alert alert-info py-1 mb-2";
+            mensaje.innerHTML = `Ingrese 11 dígitos de RUC (faltan ${faltantesRuc})`;
+            mensaje.classList.remove("d-none");
+          }
         } else {
-          mensaje.classList.add("d-none");
+          $("#empr_razon_social").val('').prop("readonly", true).attr("readonly", "readonly");
+          $("#empr_nombre_comercial").val('');
+          $("#empr_id").val('');
+          if (mensaje) mensaje.classList.add("d-none");
         }
 
         input.value = valor;
+      }
+
+      function ejecutarBusquedaRuc() {
+        const input = document.getElementById("empr_ruc");
+        if (!input) return;
+        const valor = input.value.trim();
+        const mensaje = document.getElementById("mensaje_empresa");
+
+        if (!valor) {
+          if (mensaje) {
+            mensaje.className = "alert alert-warning py-1 mb-2";
+            mensaje.innerHTML = "Ingrese un número de RUC";
+            mensaje.classList.remove("d-none");
+          }
+          input.focus();
+          return;
+        }
+
+        if (valor.length !== 11) {
+          if (mensaje) {
+            mensaje.className = "alert alert-warning py-1 mb-2";
+            mensaje.innerHTML = `El RUC debe tener 11 dígitos (actual: ${valor.length})`;
+            mensaje.classList.remove("d-none");
+          }
+          input.focus();
+          return;
+        }
+
+        $("#empr_razon_social").val('').prop("readonly", true).attr("readonly", "readonly");
+        $("#empr_nombre_comercial").val('');
+        $("#empr_id").val('');
+        if (mensaje) {
+          mensaje.className = "alert alert-info py-1 mb-2";
+          mensaje.innerHTML = "Buscando información de empresa...";
+          mensaje.classList.remove("d-none");
+        }
+        buscaRUC();
       }
     </script>
   </body>
