@@ -82,6 +82,15 @@ foreach (['csv', 'print'] as $op) {
     check(!str_contains($export, '002-2025') && str_contains($export, '5.50'), 'S6/S7: same filtered full export');
 }
 echo "PASS S6: full authorized/filter-consistent CSV and print escaping\n";
+check(str_contains($html, '<strong>SIGODT</strong>') && str_contains($html, 'aria-label="Contexto del reporte"'), 'S9: institutional heading and grouped context');
+check(str_contains($html, 'size: A4 landscape') && str_contains($html, 'table-layout: fixed') && str_contains($html, 'table-header-group'), 'S9: readable landscape print with repeated headers and proportional columns');
+check(str_contains($html, 'break-inside: avoid') && !str_contains($html, 'text-overflow: ellipsis') && !str_contains($html, 'overflow: hidden'), 'S3/S9: keep short rows together without clipping long content');
+check(str_contains($html, 'Imprimir / Guardar como PDF') && str_contains($html, '.print-toolbar { display: none; }'), 'S6/S9: honest browser PDF action hidden on paper');
+$longName = str_repeat('Nombre sintético extenso & <seguro> ', 30);
+[$longHtml] = reportEndpoint($session, $period, 'print', [array_replace($base, ['citizen' => $longName, 'procedure' => $longName])]);
+check(substr_count($longHtml, htmlspecialchars($longName, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')) >= 2, 'S3/S9: full long names and procedure content preserved');
+check(substr_count(substr($html, strpos($html, '<thead>'), strpos($html, '</thead>') - strpos($html, '<thead>')), '<th>') === 8, 'S3: all eight detail columns');
+echo "PASS S3/S6/S9: institutional print, complete columns, long content and pagination styling\n";
 // Snapshot unchanged links and active groups, plus the new report entry.
 foreach (['inicio', 'dashboard', 'giros_ciudadano', 'admin_giros_ciudadano', 'consultar_documento', 'consultar_nombre', 'consultar_og', 'mnt_ciudadano', 'mnt_empresa', 'mnt_tupa', 'mnt_procedimiento', 'mnt_tasas', 'mnt_tributos', 'mnt_permisos', 'reporte_usuario'] as $route) {
     $_SERVER['PHP_SELF'] = '/SIGODT/view/' . $route . '/index.php';

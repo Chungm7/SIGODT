@@ -68,7 +68,8 @@ test('S1-S7: mounted UI renders server totals, paginates and exports applied fil
   assert.equal(calls[0].options.credentials, 'same-origin');
   assert.equal(get('reportResults').hidden, false);
   assert.match(get('reportIdentity').textContent, /<script>emitter<\/script>/);
-  assert.match(get('reportSummary').textContent, /21.*2.*25.*120.00/);
+  assert.deepEqual(['reportOrders', 'reportCancelled', 'reportLines', 'reportAmount'].map(id => get(id).textContent), ['21', '2', '25', 'S/ 120.00']);
+  assert.equal(get('reportSummary').innerHTML, undefined);
   assert.equal(get('reportDetails').children[0].children[2].textContent, 'Citizen / Business');
   assert.equal(get('reportDocument').children[1].textContent, '<b>Historical</b>');
   assert.equal(get('reportPrev').disabled, true);

@@ -7,7 +7,7 @@ En **Mis emisiones**, cada trabajador consulta exclusivamente las órdenes que e
 1. Abra **Mis emisiones** en el menú. El periodo inicial es el mes actual.
 2. Ajuste **Desde** y **Hasta**; ambos días están incluidos según la fecha de emisión, no la fecha de pago.
 3. Opcionalmente seleccione un documento y un procedimiento. Pulse **Consultar** después de cada cambio.
-4. Revise el resumen, el desglose y el detalle paginado. Los botones **Anterior** y **Siguiente** no cambian los totales.
+4. Revise las cuatro métricas del resumen, el desglose y el detalle paginado. Los botones **Anterior** y **Siguiente**, al pie del detalle, no cambian los totales. En pantallas estrechas, desplace las tablas horizontalmente para ver todas las columnas.
 5. Use **Exportar CSV para Excel** o **Imprimir / PDF** para obtener todos los resultados del filtro, no solo la página visible.
 
 ## Cómo interpretar los resultados
@@ -37,7 +37,7 @@ El detalle conserva todos los nombres distintos de ciudadanos/razones sociales, 
 
 **CSV para Excel** es un archivo de texto UTF-8 con separador punto y coma, no un archivo XLSX. Si Excel no separa columnas automáticamente, importe el archivo como UTF-8 y seleccione «punto y coma». Incluye emisor, periodo, filtros por ID, fecha de generación, resumen, detalle completo y desglose. Los textos que podrían ejecutarse como fórmulas se prefijan con apóstrofo.
 
-**Imprimir / PDF** abre una página HTML con todos los resultados filtrados. Pulse **Imprimir / Guardar como PDF** y seleccione la impresora o el destino PDF del navegador. Los textos se presentan escapados, sin ejecutar contenido de nombres o catálogos.
+**Imprimir / PDF** abre una página HTML con todos los resultados filtrados. Pulse **Imprimir / Guardar como PDF** y seleccione la impresora o el destino PDF del navegador. El documento incluye encabezado SIGODT, contexto del filtro, resumen y tablas completas; está preparado para A4 horizontal con encabezados de tabla repetidos. La barra de impresión no aparece en papel. Los nombres largos se ajustan en varias líneas, sin recortarse. Los textos se presentan escapados, sin ejecutar contenido de nombres o catálogos.
 
 Cada exportación vuelve a consultar la misma sesión y los mismos filtros. Si los datos cambian entre consulta y exportación, los resultados reflejan ese nuevo momento; no son un cierre contable.
 

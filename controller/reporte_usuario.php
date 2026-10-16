@@ -92,18 +92,45 @@ function reportHtmlRow($cells, $tag = 'td') {
 <!doctype html>
 <html lang="es"><head><meta charset="utf-8"><title>Reporte de mis emisiones</title>
 <style>
-body { font: 14px sans-serif; margin: 2rem; } table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
-th, td { border: 1px solid #777; padding: .4rem; text-align: left; overflow-wrap: anywhere; }
-@media print { button { display: none; } thead { display: table-header-group; } tr { break-inside: avoid; } @page { size: landscape; } }
+* { box-sizing: border-box; }
+body { font: 11px/1.45 Arial, sans-serif; color: #182433; background: #eef1f4; margin: 0; }
+.print-toolbar { padding: 16px 24px; background: white; border-bottom: 1px solid #ccd4dd; }
+.print-toolbar button { min-height: 44px; padding: 8px 16px; cursor: pointer; }
+.print-document { background: white; max-width: 1400px; margin: 24px auto; padding: 32px; }
+.report-heading { border-bottom: 2px solid #206bc4; padding-bottom: 16px; }
+.report-heading strong { color: #206bc4; font-size: 20px; letter-spacing: 1px; }
+h1 { font-size: 24px; margin: 8px 0; } h2 { font-size: 15px; margin: 24px 0 8px; }
+dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 24px; margin: 16px 0; }
+dl div { overflow-wrap: anywhere; } dt { color: #526171; } dd { margin: 2px 0 0; font-weight: bold; }
+.report-note { padding: 8px 0; border-top: 1px solid #ccd4dd; }
+table { border-collapse: collapse; table-layout: fixed; width: 100%; margin: 8px 0 16px; }
+th, td { border-bottom: 1px solid #ccd4dd; padding: 7px 6px; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+th { color: #174f85; background: #eef3f8; font-size: 10px; }
+tbody tr:nth-child(even) { background: #f7f9fb; }
+td:last-child, th:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+.breakdown :is(td, th):nth-last-child(-n+3) { text-align: right; }
+@page { size: A4 landscape; margin: 12mm; }
+@media print {
+  body { background: white; font-size: 9pt; }
+  .print-toolbar { display: none; }
+  .print-document { margin: 0; padding: 0; max-width: none; }
+  thead { display: table-header-group; }
+  tr { break-inside: avoid; page-break-inside: avoid; }
+  h2 { break-after: avoid; }
+}
 </style></head><body>
-<h1>Reporte de mis emisiones</h1>
-<button type="button" onclick="window.print()">Imprimir / Guardar como PDF</button>
-<dl><?php foreach ($metadata as $row) { echo '<dt>' . reportEscape($row[0]) . '</dt><dd>' . reportEscape($row[1]) . '</dd>'; } ?></dl>
+<div class="print-toolbar"><button type="button" onclick="window.print()">Imprimir / Guardar como PDF</button> <span>Seleccione el destino PDF en el diálogo del navegador.</span></div>
+<main class="print-document">
+<header class="report-heading"><strong>SIGODT</strong><h1>Reporte de mis emisiones</h1><p>Órdenes emitidas · Detalle completo del filtro</p></header>
+<dl aria-label="Contexto del reporte"><?php foreach (array_slice($metadata, 0, 5) as $row) { echo '<div><dt>' . reportEscape($row[0]) . '</dt><dd>' . reportEscape($row[1]) . '</dd></div>'; } ?></dl>
+<h2>Resumen de emisiones</h2>
+<dl aria-label="Totales del filtro"><?php foreach (array_slice($metadata, 5, 4) as $row) { echo '<div><dt>' . reportEscape($row[0]) . '</dt><dd>' . reportEscape($row[1]) . '</dd></div>'; } ?></dl>
+<p class="report-note"><?php echo reportEscape($metadata[9][1]); ?></p>
 <h2>Detalle completo filtrado</h2>
-<table><thead><?php reportHtmlRow($headings, 'th'); ?></thead><tbody>
+<table><colgroup><col style="width:9%"><col style="width:12%"><col style="width:18%"><col style="width:10%"><col style="width:10%"><col style="width:23%"><col style="width:9%"><col style="width:9%"></colgroup><thead><?php reportHtmlRow($headings, 'th'); ?></thead><tbody>
 <?php foreach ($report['details'] as $row) { reportHtmlRow(reportDetailCells($row)); } ?>
 </tbody></table>
 <h2>Desglose por documento y procedimiento</h2>
-<table><thead><?php reportHtmlRow(['Documento', 'Código', 'Procedimiento', 'Órdenes (no aditivas)', 'Conceptos', 'Importe (S/)'], 'th'); ?></thead><tbody>
+<table class="breakdown"><colgroup><col style="width:18%"><col style="width:12%"><col style="width:37%"><col style="width:11%"><col style="width:10%"><col style="width:12%"></colgroup><thead><?php reportHtmlRow(['Documento', 'Código', 'Procedimiento', 'Órdenes (no aditivas)', 'Conceptos', 'Importe (S/)'], 'th'); ?></thead><tbody>
 <?php foreach ($report['breakdown'] as $row) { reportHtmlRow(array_values($row)); } ?>
-</tbody></table></body></html>
+</tbody></table></main></body></html>

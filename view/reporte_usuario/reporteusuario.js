@@ -73,7 +73,10 @@
         options('reportProcedure', data.options.procedures, filters.procedure);
         get('reportIdentity').textContent = `Emisor: ${data.emitter} · Periodo: ${filters.start} al ${filters.end} · Generado: ${data.generated_at}`;
         const summary = data.summary;
-        get('reportSummary').textContent = `Total de órdenes emitidas: ${summary.orders} · Órdenes anuladas y extornadas: ${summary.cancelled} · Conceptos coincidentes: ${summary.lines} · Importe emitido: S/ ${summary.amount}`;
+        get('reportOrders').textContent = String(summary.orders);
+        get('reportCancelled').textContent = String(summary.cancelled);
+        get('reportLines').textContent = String(summary.lines);
+        get('reportAmount').textContent = `S/ ${summary.amount}`;
         table('reportBreakdown', data.breakdown.map(row => [row.document, row.code, row.procedure, row.orders, row.lines, row.amount]));
         table('reportDetails', data.details.map(row => [row.order_id, row.emitted_at, row.citizens, row.documents, row.codes, row.procedures, row.state_label, row.amount]));
         get('reportCsv').href = reportUrl(applied, 'csv');
