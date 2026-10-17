@@ -47,15 +47,44 @@ final class Captcha
         $level = ob_get_level();
         set_error_handler(function ($severity, $message) { throw new RuntimeException($message); });
         try {
-            $image = imagecreatetruecolor(160, 44);
+            $width = 240;
+            $height = 60;
+            $image = imagecreatetruecolor($width, $height);
             if (!$image) { throw new RuntimeException('Error de imagen'); }
             $background = imagecolorallocate($image, 255, 255, 255);
-            $foreground = imagecolorallocate($image, 0, 0, 0);
+            $foreground = imagecolorallocate($image, 20, 30, 45);
             if ($background === false || $foreground === false
-                || !imagefill($image, 0, 0, $background)
-                || !imagestring($image, 5, 53, 14, $answer, $foreground)) {
+                || !imagefill($image, 0, 0, $background)) {
                 throw new RuntimeException('Error de renderizado');
             }
+
+            // Escala la fuente bitmap de GD (fuente 5 = 9x15 px) para lograr letras grandes y legibles.
+            $scale = 3;
+            $charW = 9;
+            $charH = 15;
+            $charGap = 8;
+            $totalW = (6 * $charW * $scale) + (5 * $charGap);
+            $startX = (int)(($width - $totalW) / 2);
+            $startY = (int)(($height - ($charH * $scale)) / 2);
+
+            $temp = imagecreatetruecolor($charW, $charH);
+            if (!$temp) { throw new RuntimeException('Error de imagen temporal'); }
+            $tempBg = imagecolorallocate($temp, 255, 255, 255);
+            $tempFg = imagecolorallocate($temp, 20, 30, 45);
+
+            for ($i = 0; $i < 6; $i++) {
+                imagefill($temp, 0, 0, $tempBg);
+                imagestring($temp, 5, 0, 0, $answer[$i], $tempFg);
+                $destX = $startX + $i * ($charW * $scale + $charGap);
+                imagecopyresampled(
+                    $image, $temp,
+                    $destX, $startY,
+                    0, 0,
+                    $charW * $scale, $charH * $scale,
+                    $charW, $charH
+                );
+            }
+
             ob_start();
             if (!imagepng($image)) { throw new RuntimeException('Error de PNG'); }
             $png = ob_get_contents();
@@ -65,6 +94,7 @@ final class Captcha
             while (ob_get_level() > $level) { ob_end_clean(); }
             // GD libera automáticamente GdImage; imagedestroy está obsoleto en PHP 8.5.
             $image = null;
+            $temp = null;
             restore_error_handler();
         }
     }
