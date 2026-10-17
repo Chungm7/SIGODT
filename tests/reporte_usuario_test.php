@@ -46,7 +46,7 @@ foreach ([[], ['start' => '2025-02-30', 'end' => '2025-03-01'], ['start' => [], 
 }
 echo "PASS S4: required real calendar range and typed filters\n";
 $base = ['order_id' => '003-2025', 'emitted_at' => '2025-01-31 23:59:59', 'state' => '0', 'citizen' => '<img onerror=1>', 'document_id' => '1', 'document' => 'TUPA', 'procedure_id' => '10', 'code' => '=A1', 'procedure' => 'Licencia', 'amount' => '30.25', 'line_id' => '1'];
-$rows = [$base, array_replace($base, ['line_id' => '2', 'amount' => '10.00']), array_replace($base, ['line_id' => '3', 'document_id' => '2', 'document' => 'Histórico', 'procedure_id' => '20', 'code' => 'B', 'procedure' => 'Permiso', 'citizen' => 'Empresa / Otro ciudadano', 'amount' => '5.50']), array_replace($base, ['order_id' => '002-2025', 'line_id' => '4', 'state' => '6', 'amount' => '2.00']), array_replace($base, ['order_id' => '001-2025', 'line_id' => null, 'state' => '99', 'document_id' => null, 'procedure_id' => null, 'amount' => null])];
+$rows = [$base, array_replace($base, ['line_id' => '2', 'amount' => '10.00']), array_replace($base, ['line_id' => '3', 'document_id' => '2', 'document' => 'Histórico', 'procedure_id' => '20', 'code' => 'B', 'procedure' => 'Permiso', 'citizen' => 'Empresa / Otro ciudadano', 'amount' => '5.50']), array_replace($base, ['order_id' => '002-2025', 'line_id' => '4', 'state' => '6', 'amount' => '2.00']), array_replace($base, ['order_id' => '001-2025', 'line_id' => '5', 'state' => '99', 'document_id' => '1', 'procedure_id' => '10', 'amount' => '15.00'])];
 function result($session, $input, $rows) {
     [$out, $err] = reportEndpoint($session, $input, 'json', $rows);
     check($err === 'HTTP:200', 'Successful endpoint: ' . $err . ' ' . $out);
@@ -54,14 +54,14 @@ function result($session, $input, $rows) {
     return $data;
 }
 $data = result($session, $period + ['limit' => 1, 'usua_id' => 999, 'emitter' => 999], $rows);
-check($data['summary'] === ['orders' => 3, 'cancelled' => 2, 'lines' => 4, 'amount' => '47.75'], 'S1/S5: count headers, sum persisted totals once, retain historical states');
+check($data['summary'] === ['orders' => 1, 'cancelled' => 2, 'lines' => 1, 'amount' => '15.00'], 'S1/S5: count active headers, sum persisted totals once, separate cancelled');
 check(count($data['details']) === 1 && $data['total'] === 3 && $data['page'] === 1, 'S3: paginated unique headers');
 check(count($data['details'][0]['citizens']) === 2 && count($data['details'][0]['procedures']) === 2, 'S3: preserve multi-citizen and multi-procedure labels');
 check($data['details'][0]['state_label'] === 'Anulado', 'S5: current state');
 check(count($data['options']['documents']) === 2, 'S4: historical document options');
-check($data['breakdown'][0]['orders'] === 2 && $data['breakdown'][0]['amount'] === '42.25', 'S5: distinct breakdown counts and line totals');
+check($data['breakdown'][0]['orders'] === 1 && $data['breakdown'][0]['amount'] === '15.00', 'S5: distinct breakdown counts and line totals');
 $filtered = result($session, $period + ['document' => '2', 'procedure' => '20'], $rows);
-check($filtered['summary'] === ['orders' => 1, 'cancelled' => 1, 'lines' => 1, 'amount' => '5.50'] && $filtered['details'][0]['amount'] === '5.50', 'S7: matching lines consistently aggregated');
+check($filtered['summary'] === ['orders' => 0, 'cancelled' => 1, 'lines' => 0, 'amount' => '0.00'] && $filtered['details'][0]['amount'] === '5.50', 'S7: matching lines consistently aggregated');
 check(result($session, $period + ['document' => '1', 'procedure' => '20'], $rows)['total'] === 0, 'S4/S7: inconsistent filters yield no matches');
 $last = result($session, $period + ['page' => 999, 'limit' => 1], $rows);
 check($last['page'] === 3 && $last['details'][0]['state_label'] === 'Estado 99', 'S3: page clamp and unknown state retained');

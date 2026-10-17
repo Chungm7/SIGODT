@@ -89,13 +89,17 @@ SQL;
             if (($f['document'] !== null && (string)$docId !== (string)$f['document']) ||
                 ($f['procedure'] !== null && (string)$procId !== (string)$f['procedure'])) { continue; }
             $id = $row['order_id'];
+            $state = (string)$row['state'];
+            $isCancelled = in_array($state, ['0', '6'], true);
             if (!isset($orders[$id])) {
-                $state = (string)$row['state'];
                 $orders[$id] = ['order_id' => $id, 'emitted_at' => $row['emitted_at'], 'state' => $row['state'],
                     'state_label' => ['0' => 'Anulado', '1' => 'Girado', '6' => 'Extornado'][$state] ?? 'Estado ' . $state,
                     'citizens' => [], 'documents' => [], 'codes' => [], 'procedures' => [], 'amount' => 0];
-                $summary['orders']++;
-                if (in_array($state, ['0', '6'], true)) { $summary['cancelled']++; }
+                if ($isCancelled) {
+                    $summary['cancelled']++;
+                } else {
+                    $summary['orders']++;
+                }
             }
             foreach (['citizens' => $row['citizen'] ?: 'Sin ciudadano / razón social', 'documents' => $doc,
                 'codes' => $row['code'] ?: 'Sin código', 'procedures' => $procedure] as $key => $label) {
@@ -106,14 +110,20 @@ SQL;
             $seen[$row['line_id']] = true;
             $amount = self::cents($row['amount']);
             $orders[$id]['amount'] += $amount;
-            $summary['amount'] += $amount; $summary['lines']++;
+            if (!$isCancelled) {
+                $summary['amount'] += $amount;
+                $summary['lines']++;
+            }
             $key = ($docId ?? 'none') . ':' . ($procId ?? 'none');
             if (!isset($groups[$key])) {
                 $groups[$key] = ['document' => $doc, 'code' => $row['code'] ?: 'Sin código', 'procedure' => $procedure,
                     'orders' => [], 'lines' => 0, 'amount' => 0];
             }
-            $groups[$key]['orders'][$id] = true;
-            $groups[$key]['lines']++; $groups[$key]['amount'] += $amount;
+            if (!$isCancelled) {
+                $groups[$key]['orders'][$id] = true;
+                $groups[$key]['lines']++;
+                $groups[$key]['amount'] += $amount;
+            }
         }
         foreach ($orders as &$order) {
             foreach (['citizens', 'documents', 'codes', 'procedures'] as $key) { $order[$key] = array_values($order[$key]); }
