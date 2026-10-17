@@ -41,8 +41,8 @@ foreach ([[], ['usua_id_SIGODT' => []], ['usua_id_SIGODT' => '1 OR 1=1'], ['usua
     }
 }
 echo "PASS S2: unauthenticated/malformed boundary\n";
-foreach ([[], ['start' => '2025-02-30', 'end' => '2025-03-01'], ['start' => [], 'end' => '2025-01-31'], ['start' => '2025-02-01', 'end' => '2025-01-01'], $period + ['document' => []], $period + ['procedure' => '-1'], $period + ['page' => 0]] as $invalid) {
-    check(str_contains(reportEndpoint($session, $invalid)[1], 'HTTP:400'), 'S4: invalid range/filter/page');
+foreach ([[], ['start' => '2025-02-30', 'end' => '2025-03-01'], ['start' => [], 'end' => '2025-01-31'], ['start' => '2025-02-01', 'end' => '2025-01-01'], $period + ['document' => []], $period + ['procedure' => '-1'], $period + ['page' => 0], $period + ['state' => 'invalido']] as $invalid) {
+    check(str_contains(reportEndpoint($session, $invalid)[1], 'HTTP:400'), 'S4: invalid range/filter/page/state');
 }
 echo "PASS S4: required real calendar range and typed filters\n";
 $base = ['order_id' => '003-2025', 'emitted_at' => '2025-01-31 23:59:59', 'state' => '0', 'citizen' => '<img onerror=1>', 'document_id' => '1', 'document' => 'TUPA', 'procedure_id' => '10', 'code' => '=A1', 'procedure' => 'Licencia', 'amount' => '30.25', 'line_id' => '1'];
@@ -63,6 +63,14 @@ check($data['breakdown'][0]['orders'] === 1 && $data['breakdown'][0]['amount'] =
 $filtered = result($session, $period + ['document' => '2', 'procedure' => '20'], $rows);
 check($filtered['summary'] === ['orders' => 0, 'cancelled' => 1, 'lines' => 0, 'amount' => '0.00'] && $filtered['details'][0]['amount'] === '5.50', 'S7: matching lines consistently aggregated');
 check(result($session, $period + ['document' => '1', 'procedure' => '20'], $rows)['total'] === 0, 'S4/S7: inconsistent filters yield no matches');
+$emitidosOnly = result($session, $period + ['state' => 'emitidos'], $rows);
+check($emitidosOnly['total'] === 1 && $emitidosOnly['details'][0]['order_id'] === '001-2025', 'S5: emitidos filter excludes cancelled orders from details');
+check($emitidosOnly['summary'] === ['orders' => 1, 'cancelled' => 0, 'lines' => 1, 'amount' => '15.00'], 'S5: emitidos summary has 0 cancelled and only active emissions');
+check(count($emitidosOnly['breakdown']) === 1 && $emitidosOnly['breakdown'][0]['orders'] === 1, 'S5: emitidos breakdown only includes active orders');
+$anuladosOnly = result($session, $period + ['state' => 'anulados'], $rows);
+check($anuladosOnly['total'] === 2 && $anuladosOnly['summary']['orders'] === 0 && $anuladosOnly['summary']['cancelled'] === 2, 'S5: anulados filter includes only cancelled orders');
+$pagado = result($session, $period, [array_replace($base, ['state' => '4'])]);
+check($pagado['details'][0]['state_label'] === 'Pagado', 'S5: state 4 maps to Pagado');
 $last = result($session, $period + ['page' => 999, 'limit' => 1], $rows);
 check($last['page'] === 3 && $last['details'][0]['state_label'] === 'Estado 99', 'S3: page clamp and unknown state retained');
 $girado = result($session, $period, [array_replace($base, ['state' => '1'])]);

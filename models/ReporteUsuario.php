@@ -24,6 +24,13 @@ class ReporteUsuario extends Conectar {
             $value = $input[$key] ?? '';
             $filters[$key] = $value === '' ? null : self::positiveId($value);
         }
+        $state = (string)($input['state'] ?? 'todos');
+        if ($state === '') { $state = 'todos'; }
+        $allowedStates = ['todos', 'emitidos', 'anulados', '0', '1', '2', '3', '4', '5', '6'];
+        if (!in_array($state, $allowedStates, true)) {
+            throw new InvalidArgumentException('Estado inválido.');
+        }
+        $filters['state'] = $state;
         foreach (['page' => 1000000000, 'limit' => 100] as $key => $max) {
             $value = self::positiveId($input[$key] ?? ($key === 'page' ? 1 : 20));
             if ($value > $max) { throw new InvalidArgumentException('Paginación inválida.'); }
@@ -78,6 +85,27 @@ SQL;
         $rows = $statement->fetchAll(PDO::FETCH_ASSOC);
         $orders = []; $groups = []; $documents = []; $procedures = []; $seen = [];
         $summary = ['orders' => 0, 'cancelled' => 0, 'lines' => 0, 'amount' => 0];
+        $stateLabels = [
+            '0' => 'Anulado',
+            '1' => 'Girado',
+            '2' => 'Girado',
+            '3' => 'Improcedente',
+            '4' => 'Pagado',
+            '5' => 'Usado',
+            '6' => 'Extornado',
+        ];
+        $filterStateLabels = [
+            'todos' => 'Todos los estados',
+            'emitidos' => 'Solo emitidos (Girados y Pagados)',
+            'anulados' => 'Solo anuladas y extornadas',
+            '0' => 'Solo Anulados',
+            '1' => 'Solo Girados',
+            '2' => 'Solo Girados',
+            '3' => 'Solo Improcedentes',
+            '4' => 'Solo Pagados',
+            '5' => 'Solo Usados',
+            '6' => 'Solo Extornados',
+        ];
         foreach ($rows as $row) {
             $docId = $row['document_id']; $procId = $row['procedure_id'];
             $doc = $row['document'] ?: 'Sin documento';
@@ -91,9 +119,12 @@ SQL;
             $id = $row['order_id'];
             $state = (string)$row['state'];
             $isCancelled = in_array($state, ['0', '6'], true);
+            if ($f['state'] === 'emitidos' && $isCancelled) { continue; }
+            if ($f['state'] === 'anulados' && !$isCancelled) { continue; }
+            if (in_array($f['state'], ['0', '1', '2', '3', '4', '5', '6'], true) && $state !== $f['state']) { continue; }
             if (!isset($orders[$id])) {
                 $orders[$id] = ['order_id' => $id, 'emitted_at' => $row['emitted_at'], 'state' => $row['state'],
-                    'state_label' => ['0' => 'Anulado', '1' => 'Girado', '6' => 'Extornado'][$state] ?? 'Estado ' . $state,
+                    'state_label' => $stateLabels[$state] ?? 'Estado ' . $state,
                     'citizens' => [], 'documents' => [], 'codes' => [], 'procedures' => [], 'amount' => 0];
                 if ($isCancelled) {
                     $summary['cancelled']++;
@@ -110,16 +141,22 @@ SQL;
             $seen[$row['line_id']] = true;
             $amount = self::cents($row['amount']);
             $orders[$id]['amount'] += $amount;
-            if (!$isCancelled) {
+            if ($f['state'] === 'todos') {
+                if (!$isCancelled) {
+                    $summary['amount'] += $amount;
+                    $summary['lines']++;
+                }
+            } else {
                 $summary['amount'] += $amount;
                 $summary['lines']++;
             }
-            $key = ($docId ?? 'none') . ':' . ($procId ?? 'none');
-            if (!isset($groups[$key])) {
-                $groups[$key] = ['document' => $doc, 'code' => $row['code'] ?: 'Sin código', 'procedure' => $procedure,
-                    'orders' => [], 'lines' => 0, 'amount' => 0];
-            }
-            if (!$isCancelled) {
+            $includeInBreakdown = $f['state'] === 'todos' ? !$isCancelled : true;
+            if ($includeInBreakdown) {
+                $key = ($docId ?? 'none') . ':' . ($procId ?? 'none');
+                if (!isset($groups[$key])) {
+                    $groups[$key] = ['document' => $doc, 'code' => $row['code'] ?: 'Sin código', 'procedure' => $procedure,
+                        'orders' => [], 'lines' => 0, 'amount' => 0];
+                }
                 $groups[$key]['orders'][$id] = true;
                 $groups[$key]['lines']++;
                 $groups[$key]['amount'] += $amount;
@@ -130,14 +167,19 @@ SQL;
             $order['amount'] = self::money($order['amount']);
         }
         unset($order);
-        foreach ($groups as &$group) {
-            $group['orders'] = count($group['orders']); $group['amount'] = self::money($group['amount']);
+        $formattedGroups = [];
+        foreach ($groups as $group) {
+            if ($group['lines'] > 0) {
+                $group['orders'] = count($group['orders']);
+                $group['amount'] = self::money($group['amount']);
+                $formattedGroups[] = $group;
+            }
         }
-        unset($group);
         $summary['amount'] = self::money($summary['amount']);
         $total = count($orders);
         $page = min($f['page'], max(1, (int)ceil($total / $f['limit'])));
-        return ['filters' => $f, 'summary' => $summary, 'breakdown' => array_values($groups),
+        return ['filters' => $f, 'state_label' => $filterStateLabels[$f['state']] ?? $f['state'],
+            'summary' => $summary, 'breakdown' => $formattedGroups,
             'options' => ['documents' => array_values($documents), 'procedures' => array_values($procedures)],
             'details' => $full ? array_values($orders) : array_slice(array_values($orders), ($page - 1) * $f['limit'], $f['limit']),
             'total' => $total, 'page' => $page, 'limit' => $f['limit']];

@@ -28,7 +28,7 @@ test('S10: actual browser distributions create selectable multipage landscape PD
   if (extracted.error?.code === 'ENOENT') return;
   assert.equal(extracted.status, 0, extracted.stderr.toString());
   const text = extracted.stdout.toString();
-  for (const expected of ['SIGODT', 'José Muñoz', 'María Peña', 'Resolución', 'Autorización', 'CIUDADANO-FIN', 'ORDEN-64-FIN', 'CÓDIGO-Ñ-ENTERO', '123.45', 'no equivale', 'no son aditivos', 'Documento (ID): 3', 'Procedimiento (ID): 4']) assert.ok(text.includes(expected), expected);
+  for (const expected of ['SIGODT', 'José Muñoz', 'María Peña', 'Resolución', 'Autorización', 'CIUDADANO-FIN', 'ORDEN-64-FIN', 'CÓDIGO-Ñ-ENTERO', '123.45', 'no equivale', 'no son aditivos', 'Estado: Todos', 'Documento (ID): 3', 'Procedimiento (ID): 4']) assert.ok(text.includes(expected), expected);
   for (const heading of ['N.º de orden', 'Fecha y hora', 'Ciudadano /', 'Documento', 'Código del', 'Nombre del', 'Estado actual', 'Importe']) assert.ok(text.includes(heading), heading);
   const pages = text.split('\f').filter(s => s.trim());
   assert.equal(pages.length, doc.getNumberOfPages());

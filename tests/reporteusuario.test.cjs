@@ -8,9 +8,10 @@ test('S4: local current-month dates do not drift through UTC', () => {
 });
 test('S2/S6/S7: export reuses filters, never page or emitter, accurate format', () => {
   for (const operation of ['csv', 'pdf']) {
-    const url = report.reportUrl({ start: '2025-01-01', end: '2025-01-31', document: '1', procedure: '2', page: 9, emitter: 100, worker: 3, full: true }, operation);
+    const url = report.reportUrl({ start: '2025-01-01', end: '2025-01-31', state: 'emitidos', document: '1', procedure: '2', page: 9, emitter: 100, worker: 3, full: true }, operation);
     const query = new URL(url, 'https://example.invalid').searchParams;
     assert.equal(query.get('op'), operation);
+    assert.equal(query.get('state'), 'emitidos');
     assert.equal(query.get('document'), '1');
     assert.equal(query.get('procedure'), '2');
     for (const key of ['page', 'emitter', 'worker', 'full']) assert.equal(query.has(key), false);
@@ -81,12 +82,13 @@ test('S1-S7: mounted UI renders server totals, paginates and exports applied fil
   assert.match(calls[1].url, /page=2/);
   assert.equal(get('reportNext').disabled, true);
   assert.equal(get('reportPrev').disabled, false);
+  get('reportState').value = 'emitidos';
   get('reportDocument').value = '1';
   get('reportProcedure').value = '2';
   get('reportForm').fire('submit');
   await flush();
   assert.equal(get('reportCsv'), null);
-  assert.match(get('reportPrint').href, /op=print.*document=1.*procedure=2/);
+  assert.match(get('reportPrint').href, /op=print.*state=emitidos.*document=1.*procedure=2/);
   assert.doesNotMatch(get('reportPrint').href, /page=/);
   get('reportForm').fire('change', get('reportDocument'));
   assert.equal(get('reportProcedure').value, '');

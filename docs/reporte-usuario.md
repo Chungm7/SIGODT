@@ -6,7 +6,7 @@ En **Reportes**, cada trabajador consulta exclusivamente las órdenes que emiti�
 
 1. Abra **Reportes** en el menú. El periodo inicial es el mes actual.
 2. Ajuste **Desde** y **Hasta**; ambos días están incluidos según la fecha de emisión, no la fecha de pago.
-3. Opcionalmente seleccione un documento y un procedimiento. Pulse **Consultar** después de cada cambio.
+3. Opcionalmente seleccione el **Estado** (todos los estados, solo emitidos, solo anuladas/extornadas o estados puntuales), documento y procedimiento. Pulse **Consultar** después de cada cambio.
 4. Revise las cuatro métricas del resumen, el desglose y el detalle paginado. Los botones **Anterior** y **Siguiente**, al pie del detalle, no cambian los totales. En pantallas estrechas, desplace las tablas horizontalmente para ver todas las columnas.
 5. Use **Descargar PDF** o **Imprimir / PDF** para obtener todos los resultados del filtro aplicado, no solo la página visible.
 
@@ -14,12 +14,12 @@ En **Reportes**, cada trabajador consulta exclusivamente las órdenes que emiti�
 
 | Dato | Significado |
 |---|---|
-| Total de órdenes emitidas | Cada número de orden coincidente se cuenta una sola vez, aunque tenga varias tasas, ciudadanos o procedimientos. |
-| Órdenes anuladas y extornadas | Órdenes coincidentes cuyo estado actual es Anulado (0) o Extornado (6). También están incluidas en el total emitido. |
-| Total de tasas emitidas | Cantidad de líneas de detalle / tasas emitidas, no cantidad de unidades ni de órdenes. |
-| Importe emitido | Suma del importe total persistido de cada concepto coincidente. Ya incluye su cantidad; no se multiplica nuevamente ni se usa la tarifa actual. **No equivale a dinero recaudado.** |
+| Total de órdenes emitidas | Cada número de orden coincidente se cuenta una sola vez, excluyendo anuladas y extornadas. |
+| Órdenes anuladas y extornadas | Órdenes coincidentes cuyo estado actual es Anulado (0) o Extornado (6). |
+| Total de tasas emitidas | Cantidad de líneas de detalle / tasas emitidas activas, excluyendo anuladas y extornadas. |
+| Importe emitido | Suma del importe total persistido de cada concepto coincidente activo. Ya incluye su cantidad; no se multiplica nuevamente ni se usa la tarifa actual. **No equivale a dinero recaudado.** |
 | Desglose | Agrupa conceptos por documento y procedimiento. Sus conteos de órdenes **no son aditivos**: una misma orden puede aparecer en varios grupos. |
-| Estado actual | 1 significa Girado; 0 Anulado; 6 Extornado. Otros códigos se conservan como «Estado N», sin excluirlos. |
+| Estado actual | 1 o 2 significa Girado; 4 Pagado; 0 Anulado; 6 Extornado. Otros códigos se conservan como «Estado N». |
 
 **Los filtros restringen conceptos antes de sumar.** Si una orden tiene S/ 20 en un procedimiento y S/ 30 en otro, filtrar el primero muestra una orden y S/ 20, no S/ 50. La misma regla se aplica al resumen, desglose, detalle y exportaciones. Una combinación documento/procedimiento sin conceptos coincidentes devuelve cero resultados.
 
@@ -27,6 +27,7 @@ El detalle conserva todos los nombres distintos de ciudadanos/razones sociales, 
 
 ## Histórico y filtros
 
+- El filtro **Estado** permite consultar todos los registros o aislar únicamente órdenes emitidas (Girados y Pagados), órdenes anuladas/extornadas o estados específicos en listado, tablas y exportaciones.
 - Los documentos y procedimientos disponibles provienen de sus propias órdenes del periodo, incluidos los catálogos inactivos; los procedimientos se restringen al documento seleccionado.
 - No se excluyen órdenes ni conceptos por su estado actual.
 - Una cabecera histórica sin detalle aparece sin filtros opcionales con importe S/ 0.00 y etiquetas «Sin…». No coincide con un documento o procedimiento concreto.

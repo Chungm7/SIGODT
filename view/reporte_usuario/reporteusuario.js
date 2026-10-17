@@ -7,7 +7,7 @@
   }
   function reportUrl(filters, operation = 'json') {
     const params = new URLSearchParams({ op: operation });
-    for (const key of ['start', 'end', 'document', 'procedure']) {
+    for (const key of ['start', 'end', 'state', 'document', 'procedure']) {
       if (filters[key] !== undefined && filters[key] !== '') params.set(key, filters[key]);
     }
     if (operation === 'json') params.set('page', filters.page || 1);
@@ -35,7 +35,13 @@
       pdfButton.disabled = true;
       pdfButton.textContent = 'Descargar PDF';
     };
-    const readFilters = () => ({ start: get('reportStart').value, end: get('reportEnd').value, document: get('reportDocument').value, procedure: get('reportProcedure').value });
+    const readFilters = () => ({
+      start: get('reportStart').value,
+      end: get('reportEnd').value,
+      state: get('reportState') ? get('reportState').value : 'todos',
+      document: get('reportDocument').value,
+      procedure: get('reportProcedure').value
+    });
     const table = (id, rows) => {
       const body = get(id);
       body.replaceChildren();
@@ -79,7 +85,7 @@
         page = data.page;
         options('reportDocument', data.options.documents, filters.document);
         options('reportProcedure', data.options.procedures, filters.procedure);
-        get('reportIdentity').textContent = `Emisor: ${data.emitter} · Periodo: ${filters.start} al ${filters.end} · Generado: ${data.generated_at}`;
+        get('reportIdentity').textContent = `Emisor: ${data.emitter} · Periodo: ${filters.start} al ${filters.end} · Estado: ${data.state_label || 'Todos'} · Generado: ${data.generated_at}`;
         const summary = data.summary;
         get('reportOrders').textContent = String(summary.orders);
         get('reportCancelled').textContent = String(summary.cancelled);

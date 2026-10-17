@@ -46,6 +46,7 @@ if ($operation === 'json' || $operation === 'pdf') {
 $metadata = [
     ['Emisor', $report['emitter']],
     ['Periodo inclusivo', $filters['start'] . ' al ' . $filters['end']],
+    ['Estado', $report['state_label']],
     ['Documento (ID)', $filters['document'] ?? 'Todos'],
     ['Procedimiento (ID)', $filters['procedure'] ?? 'Todos'],
     ['Fecha de generación', $report['generated_at']],
@@ -122,10 +123,10 @@ td:last-child, th:last-child { text-align: right; font-variant-numeric: tabular-
 <div class="print-toolbar"><button type="button" onclick="window.print()">Imprimir / Guardar como PDF</button> <span>Seleccione el destino PDF en el diálogo del navegador.</span></div>
 <main class="print-document">
 <header class="report-heading"><strong>SIGODT</strong><h1>Reporte</h1><p>Órdenes emitidas · Detalle completo del filtro</p></header>
-<dl aria-label="Contexto del reporte"><?php foreach (array_slice($metadata, 0, 5) as $row) { echo '<div><dt>' . reportEscape($row[0]) . '</dt><dd>' . reportEscape($row[1]) . '</dd></div>'; } ?></dl>
+<dl aria-label="Contexto del reporte"><?php foreach (array_slice($metadata, 0, 6) as $row) { echo '<div><dt>' . reportEscape($row[0]) . '</dt><dd>' . reportEscape($row[1]) . '</dd></div>'; } ?></dl>
 <h2>Resumen de emisiones</h2>
-<dl aria-label="Totales del filtro"><?php foreach (array_slice($metadata, 5, 4) as $row) { echo '<div><dt>' . reportEscape($row[0]) . '</dt><dd>' . reportEscape($row[1]) . '</dd></div>'; } ?></dl>
-<p class="report-note"><?php echo reportEscape($metadata[9][1]); ?></p>
+<dl aria-label="Totales del filtro"><?php foreach (array_slice($metadata, 6, 4) as $row) { echo '<div><dt>' . reportEscape($row[0]) . '</dt><dd>' . reportEscape($row[1]) . '</dd></div>'; } ?></dl>
+<p class="report-note"><?php echo reportEscape($metadata[10][1]); ?></p>
 <h2>Detalle completo filtrado</h2>
 <table><colgroup><col style="width:9%"><col style="width:12%"><col style="width:18%"><col style="width:10%"><col style="width:10%"><col style="width:23%"><col style="width:9%"><col style="width:9%"></colgroup><thead><?php reportHtmlRow($headings, 'th'); ?></thead><tbody>
 <?php foreach ($report['details'] as $row) { reportHtmlRow(reportDetailCells($row)); } ?>
