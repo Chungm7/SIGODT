@@ -16,7 +16,7 @@ En **Reportes**, cada trabajador consulta exclusivamente las órdenes que emiti�
 |---|---|
 | Total de órdenes emitidas | Cada número de orden coincidente se cuenta una sola vez, aunque tenga varias tasas, ciudadanos o procedimientos. |
 | Órdenes anuladas y extornadas | Órdenes coincidentes cuyo estado actual es Anulado (0) o Extornado (6). También están incluidas en el total emitido. |
-| Conceptos coincidentes | Cantidad de líneas de detalle, no cantidad de unidades ni de órdenes. |
+| Total de tasas emitidas | Cantidad de líneas de detalle / tasas emitidas, no cantidad de unidades ni de órdenes. |
 | Importe emitido | Suma del importe total persistido de cada concepto coincidente. Ya incluye su cantidad; no se multiplica nuevamente ni se usa la tarifa actual. **No equivale a dinero recaudado.** |
 | Desglose | Agrupa conceptos por documento y procedimiento. Sus conteos de órdenes **no son aditivos**: una misma orden puede aparecer en varios grupos. |
 | Estado actual | 1 significa Girado; 0 Anulado; 6 Extornado. Otros códigos se conservan como «Estado N», sin excluirlos. |

@@ -44,7 +44,7 @@ catch (InvalidArgumentException $error) {
       <dl id="reportSummary" class="report-metrics">
         <div><dt>Total de órdenes emitidas</dt><dd id="reportOrders"></dd></div>
         <div><dt>Órdenes anuladas y extornadas</dt><dd id="reportCancelled"></dd></div>
-        <div><dt>Conceptos coincidentes</dt><dd id="reportLines"></dd></div>
+        <div><dt>Total de tasas emitidas</dt><dd id="reportLines"></dd></div>
         <div><dt>Importe emitido</dt><dd id="reportAmount"></dd></div>
       </dl>
       <p class="mb-2"><strong>El importe emitido no equivale a dinero recaudado.</strong></p>

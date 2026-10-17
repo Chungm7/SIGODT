@@ -51,7 +51,7 @@ $metadata = [
     ['Fecha de generación', $report['generated_at']],
     ['Total de órdenes emitidas', $report['summary']['orders']],
     ['Órdenes anuladas y extornadas', $report['summary']['cancelled']],
-    ['Conceptos coincidentes', $report['summary']['lines']],
+    ['Total de tasas emitidas', $report['summary']['lines']],
     ['Importe emitido (S/)', $report['summary']['amount']],
     ['Advertencia', 'No equivale a dinero recaudado. Solo conceptos coincidentes; los conteos del desglose no son aditivos.']
 ];

@@ -30,7 +30,7 @@
       [`Periodo inclusivo: ${filters.start} al ${filters.end} · Generado: ${text(data.generated_at)}`],
       [`Documento (ID): ${filters.document || 'Todos'} · Procedimiento (ID): ${filters.procedure || 'Todos'}`]
     ] });
-    table({ head: [['Total de órdenes emitidas', 'Órdenes anuladas y extornadas', 'Conceptos coincidentes', 'Importe emitido (S/)']],
+    table({ head: [['Total de órdenes emitidas', 'Órdenes anuladas y extornadas', 'Total de tasas emitidas', 'Importe emitido (S/)']],
       body: [[data.summary.orders, data.summary.cancelled, data.summary.lines, data.summary.amount]], theme: 'grid',
       columnStyles: { 3: { halign: 'right' } } });
     table({ theme: 'plain', body: [['El importe emitido no equivale a dinero recaudado. Solo conceptos coincidentes. Se incluyen estados históricos.']] });
