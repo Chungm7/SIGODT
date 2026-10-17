@@ -171,6 +171,10 @@ class tasa extends Conectar
         parent::set_names();
         try {
             $conectar->beginTransaction();
+            $bitaStmt = $conectar->prepare("SELECT COALESCE(MAX(bita_id), 0) FROM sc_seguridad.tb_bitacora");
+            $bitaStmt->execute();
+            $bitaMin = (int) $bitaStmt->fetchColumn();
+
             $orden = $this->crearOrdenini($usu_id, $comentario, $conectar)[0]['ogciud_id'];
             $importes = [];
             // Stable lock order reduces deadlocks for overlapping selections.
@@ -179,11 +183,12 @@ class tasa extends Conectar
             foreach ($indices as $i) {
                 $importes[$i] = $this->emitirDetalle($conectar, $ids[$i], $orden, $cantidades[$i]);
             }
-            // Only audit rows created by THIS transaction, not a global MAX range.
+            // Only audit rows created by THIS transaction, bounded by PK index to avoid full table scans.
             $audit = $conectar->prepare("UPDATE sc_seguridad.tb_bitacora SET pers_id = ?
-                WHERE (pers_id IS NULL OR pers_id = 0)
+                WHERE bita_id > ?
+                  AND (pers_id IS NULL OR pers_id = 0)
                   AND xmin::text::bigint = (txid_current() % 4294967296)");
-            $audit->execute([$usu_id]);
+            $audit->execute([$usu_id, $bitaMin]);
             $conectar->commit();
             return ['ogciud_id' => $orden, 'importes' => $importes, 'data' => array_map(function ($id) { return [$id]; }, $ids)];
         } catch (Throwable $e) {
