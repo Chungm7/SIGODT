@@ -47,8 +47,8 @@ final class Captcha
         $level = ob_get_level();
         set_error_handler(function ($severity, $message) { throw new RuntimeException($message); });
         try {
-            $width = 240;
-            $height = 60;
+            $width = 160;
+            $height = 44;
             $image = imagecreatetruecolor($width, $height);
             if (!$image) { throw new RuntimeException('Error de imagen'); }
             $background = imagecolorallocate($image, 255, 255, 255);
@@ -58,31 +58,57 @@ final class Captcha
                 throw new RuntimeException('Error de renderizado');
             }
 
-            // Escala la fuente bitmap de GD (fuente 5 = 9x15 px) para lograr letras grandes y legibles.
-            $scale = 3;
-            $charW = 9;
-            $charH = 15;
-            $charGap = 8;
-            $totalW = (6 * $charW * $scale) + (5 * $charGap);
-            $startX = (int)(($width - $totalW) / 2);
-            $startY = (int)(($height - ($charH * $scale)) / 2);
+            $fontFile = dirname(__DIR__) . '/public/lib/report-pdf-fonts/PT_Sans-Web-Regular.ttf';
+            $rendered = false;
 
-            $temp = imagecreatetruecolor($charW, $charH);
-            if (!$temp) { throw new RuntimeException('Error de imagen temporal'); }
-            $tempBg = imagecolorallocate($temp, 255, 255, 255);
-            $tempFg = imagecolorallocate($temp, 20, 30, 45);
+            if (function_exists('imagettftext') && is_file($fontFile)) {
+                $fontSize = 18;
+                $charGap = 4;
+                $chars = str_split($answer);
+                $charWidths = [];
+                $totalWidth = 0;
 
-            for ($i = 0; $i < 6; $i++) {
-                imagefill($temp, 0, 0, $tempBg);
-                imagestring($temp, 5, 0, 0, $answer[$i], $tempFg);
-                $destX = $startX + $i * ($charW * $scale + $charGap);
-                imagecopyresampled(
-                    $image, $temp,
-                    $destX, $startY,
-                    0, 0,
-                    $charW * $scale, $charH * $scale,
-                    $charW, $charH
-                );
+                for ($i = 0; $i < count($chars); $i++) {
+                    $cBox = imagettfbbox($fontSize, 0, $fontFile, $chars[$i]);
+                    if ($cBox === false) {
+                        $charWidths = null;
+                        break;
+                    }
+                    $cW = abs($cBox[2] - $cBox[0]);
+                    $charWidths[] = $cW;
+                    $totalWidth += $cW + ($i > 0 ? $charGap : 0);
+                }
+
+                if ($charWidths !== null && $totalWidth < ($width - 10)) {
+                    $boxAll = imagettfbbox($fontSize, 0, $fontFile, $answer);
+                    $textH = $boxAll !== false ? abs($boxAll[1] - $boxAll[7]) : 18;
+                    $startX = (int)(($width - $totalWidth) / 2);
+                    $baseY = (int)(($height + $textH) / 2) - 2;
+
+                    $ok = true;
+                    $curX = $startX;
+                    for ($i = 0; $i < count($chars); $i++) {
+                        if (imagettftext($image, $fontSize, 0, $curX, $baseY, $foreground, $fontFile, $chars[$i]) === false) {
+                            $ok = false;
+                            break;
+                        }
+                        $curX += $charWidths[$i] + $charGap;
+                    }
+                    if ($ok) {
+                        $rendered = true;
+                    }
+                }
+            }
+
+            if (!$rendered) {
+                // Fallback a fuente bitmap integrada 5 (9x15 px), centrada limpiamente
+                $charW = 9;
+                $totalW = strlen($answer) * $charW;
+                $startX = (int)(($width - $totalW) / 2);
+                $startY = (int)(($height - 15) / 2);
+                if (!imagestring($image, 5, $startX, $startY, $answer, $foreground)) {
+                    throw new RuntimeException('Error de renderizado');
+                }
             }
 
             ob_start();
@@ -94,7 +120,6 @@ final class Captcha
             while (ob_get_level() > $level) { ob_end_clean(); }
             // GD libera automáticamente GdImage; imagedestroy está obsoleto en PHP 8.5.
             $image = null;
-            $temp = null;
             restore_error_handler();
         }
     }

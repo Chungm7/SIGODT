@@ -181,27 +181,33 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
                 <div class="mb-3">
                   <!-- <label class="form-label">Captcha</label> -->
 
-                  <div id="contcap" class="d-flex align-items-center justify-content-center gap-2 mb-2">
-                    <div class="d-flex align-items-center justify-content-center bg-white rounded px-2"
-                      style="border-bottom: 2px solid #0054a6; min-height: 56px;">
-                      <img id="captchaImage" src="" alt="CAPTCHA" style="height: 52px; max-width: 240px; object-fit: contain; display: block;">
-                    </div>
+                  <div class="input-group input-group-flat" id="contcap" style="text-align: center; display: flex;justify-content: space-evenly;">
+                    <div>
+                      <div class="row">
+                        <div class="col-11"
+                          style="display: flex; scale: 0.8; justify-content: space-around;border-bottom: 2px solid #0054a6;">
+                          <img id="captchaImage" style="min-height: 40px; margin:0px 25px 0px 25px" src="" alt="CAPTCHA">
+                        </div>
 
-                    <button type="button" id="btcap" class="btn btn-outline-primary btn-refresh"
-                      aria-label="Actualizar CAPTCHA" title="Actualizar CAPTCHA"
-                      style="width: 48px; height: 48px; min-width: 48px; border: 2px solid #0054a6; color: #0054a6; padding: 0; display: inline-flex; align-items: center; justify-content: center;">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-reload">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path d="M19.933 13.041a8 8 0 1 1 -9.925 -8.788c3.899 -1 7.935 1.007 9.425 4.747" />
-                        <path d="M20 4v5h-5" />
-                      </svg>
-                    </button>
+                        <div class="col-1" style="display: flex; scale: 1; justify-content: space-around;">
+                          <button type="button" id="btcap" class="btn btn-primary btn-refresh"
+                            aria-label="Actualizar CAPTCHA"
+                            style="width:50px;background: none; color: #0054a6; border: 2px solid #0054a6; cursor: pointer; padding: 0; margin: 0; display: flex; align-items: center; justify-content: center;">
+                            <svg style="margin-left: 5px;" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-reload" style="display: block;">
+                              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                              <path d="M19.933 13.041a8 8 0 1 1 -9.925 -8.788c3.899 -1 7.935 1.007 9.425 4.747" />
+                              <path d="M20 4v5h-5" />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
-                  <input type="text" id="captchaInput" name="captchaInput" class="form-control text-center fs-2 text-uppercase fw-bold"
+                  <input type="text" id="captchaInput" name="captchaInput" class="form-control"
                         placeholder="Ingrese el captcha" aria-label="Código CAPTCHA" aria-describedby="captchaStatus"
-                        minlength="6" maxlength="6" pattern="[A-Za-z2-9]{6}" required disabled style="letter-spacing: 3px;" />
-                  <div id="captchaStatus" role="status" aria-live="polite" class="form-text text-center mt-1">Cargando CAPTCHA…</div>
+                        minlength="6" maxlength="6" pattern="[A-Za-z2-9]{6}" required disabled />
+                  <div id="captchaStatus" role="status" aria-live="polite">Cargando CAPTCHA…</div>
                   <noscript>Active JavaScript para cargar el CAPTCHA e ingresar.</noscript>
 
                   <!-- <div class="hr-text">otros</div>
