@@ -29,11 +29,11 @@ test('S10: actual browser distributions create selectable multipage landscape PD
   assert.equal(extracted.status, 0, extracted.stderr.toString());
   const text = extracted.stdout.toString();
   for (const expected of ['SIGODT', 'José Muñoz', 'María Peña', 'Resolución', 'Autorización', 'CIUDADANO-FIN', 'ORDEN-64-FIN', 'CÓDIGO-Ñ-ENTERO', '123.45', 'no equivale', 'no son aditivos', 'Estado: Todos', 'Documento (ID): 3', 'Procedimiento (ID): 4']) assert.ok(text.includes(expected), expected);
-  for (const heading of ['N.º de orden', 'Fecha y hora', 'Ciudadano /', 'Documento', 'Código del', 'Nombre del', 'Estado actual', 'Importe']) assert.ok(text.includes(heading), heading);
+  for (const heading of ['N° ODT', 'Fecha y hora', 'Ciudadano /', 'Documento', 'Código del', 'Nombre del', 'Estado actual', 'Importe']) assert.ok(text.includes(heading), heading);
   const pages = text.split('\f').filter(s => s.trim());
   assert.equal(pages.length, doc.getNumberOfPages());
   pages.forEach((page, i) => { assert.ok(page.includes('SIGODT')); assert.ok(page.includes(`Página ${i + 1} de ${pages.length}`)); });
-  assert.ok((text.match(/N.º de orden/g) || []).length > 1);
+  assert.ok((text.match(/N° ODT/g) || []).length > 1);
   assert.equal((text.match(/CIUDADANO-FIN/g) || []).length, 65);
   assert.equal((text.replace(/\s+/g, ' ').match(/Nombre extenso/g) || []).length, 220 + 64 * 3);
 });

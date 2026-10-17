@@ -1,7 +1,7 @@
 /* Vector-only export: all data comes from the authenticated full-report endpoint. */
 (function (root) {
   'use strict';
-  const headings = ['N.º de orden', 'Fecha y hora de emisión', 'Ciudadano / Razón social', 'Documento', 'Código del procedimiento', 'Nombre del procedimiento', 'Estado actual', 'Importe (S/)'];
+  const headings = ['N° ODT', 'Fecha y hora de emisión', 'Ciudadano / Razón social', 'Documento', 'Código del procedimiento', 'Nombre del procedimiento', 'Estado actual', 'Importe (S/)'];
   const text = value => Array.isArray(value) ? value.join(' / ') : String(value ?? '');
   function filename(filters) {
     if (![filters.start, filters.end].every(value => /^\d{4}-\d{2}-\d{2}$/.test(value))) throw new Error('Periodo PDF inválido.');

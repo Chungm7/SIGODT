@@ -56,7 +56,7 @@ $metadata = [
     ['Importe emitido (S/)', $report['summary']['amount']],
     ['Advertencia', 'No equivale a dinero recaudado. Solo conceptos coincidentes; los conteos del desglose no son aditivos.']
 ];
-$headings = ['N.º de orden', 'Fecha y hora de emisión', 'Ciudadano / Razón social', 'Documento', 'Código del procedimiento', 'Nombre del procedimiento', 'Estado actual', 'Importe (S/)'];
+$headings = ['N° ODT', 'Fecha y hora de emisión', 'Ciudadano / Razón social', 'Documento', 'Código del procedimiento', 'Nombre del procedimiento', 'Estado actual', 'Importe (S/)'];
 function reportDetailCells($row) {
     return [$row['order_id'], $row['emitted_at'], implode(' / ', $row['citizens']), implode(' / ', $row['documents']),
         implode(' / ', $row['codes']), implode(' / ', $row['procedures']), $row['state_label'], $row['amount']];
