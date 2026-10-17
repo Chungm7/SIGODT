@@ -36,7 +36,7 @@ PHP;
 $period = ['start' => '2025-01-01', 'end' => '2025-01-31'];
 $session = ['usua_id_SIGODT' => '7', 'nombre_completo_SIGODT' => '=Emisor <script>'];
 foreach ([[], ['usua_id_SIGODT' => []], ['usua_id_SIGODT' => '1 OR 1=1'], ['usua_id_SIGODT' => 0]] as $invalid) {
-    foreach (['json', 'csv', 'print', 'pdf'] as $op) {
+    foreach (['json', 'print', 'pdf'] as $op) {
         check(str_contains(reportEndpoint($invalid, $period, $op)[1], 'HTTP:401'), 'S2: reject invalid sessions on every output');
     }
 }
@@ -77,18 +77,11 @@ $girado = result($session, $period, [array_replace($base, ['state' => '1'])]);
 check($girado['details'][0]['state_label'] === 'Girado', 'S5: emission state 1');
 check(result($session, $period, [])['summary']['amount'] === '0.00', 'S1: empty report');
 echo "PASS S1/S3/S4/S5/S7: amounts, unique headers, matching-line filters, pagination and historical labels\n";
-[$csv] = reportEndpoint($session, $period + ['limit' => 1], 'csv', $rows);
-check(str_contains($csv, '001-2025') && str_contains($csv, '002-2025') && str_contains($csv, "'=A1") && str_contains($csv, "'=Emisor"), 'S6: full CSV and formula neutralization');
-foreach (["\t=1+1", "\r@SUM(A1)", '  +1', '-1', "\u{FEFF}=1", "\u{00A0}=1", 'A;"B"'] as $unsafe) {
-    [$export] = reportEndpoint($session, $period, 'csv', [array_replace($base, ['citizen' => $unsafe])]);
-    check(str_contains($export, $unsafe === 'A;"B"' ? '"A;""B"""' : "'" . $unsafe), 'S6: spreadsheet text must be safe and CSV quotes valid');
-}
+check(str_contains(reportEndpoint($session, $period, 'csv')[1], 'HTTP:400'), 'S6: CSV export is disabled');
 [$html] = reportEndpoint($session, $period + ['limit' => 1], 'print', $rows);
 check(str_contains($html, '001-2025') && str_contains($html, '&lt;img onerror=1&gt;') && !str_contains($html, '<img onerror=1>'), 'S6: full escaped print HTML');
-foreach (['csv', 'print'] as $op) {
-    [$export] = reportEndpoint($session, $period + ['procedure' => '20'], $op, $rows);
-    check(!str_contains($export, '002-2025') && str_contains($export, '5.50'), 'S6/S7: same filtered full export');
-}
+[$export] = reportEndpoint($session, $period + ['procedure' => '20'], 'print', $rows);
+check(!str_contains($export, '002-2025') && str_contains($export, '5.50'), 'S6/S7: same filtered full export');
 foreach ([[], $period + ['document' => []], $period + ['procedure' => '-1']] as $invalid) {
     check(reportEndpoint($session, $invalid, 'pdf')[1] === 'HTTP:400', 'PDF validates before database access');
 }

@@ -12,7 +12,7 @@ if ((!is_string($emitter) && !is_int($emitter)) || !preg_match('/^[1-9][0-9]*$/D
     exit;
 }
 $operation = $_GET['op'] ?? 'json';
-if (!in_array($operation, ['json', 'csv', 'print', 'pdf'], true)) {
+if (!in_array($operation, ['json', 'print', 'pdf'], true)) {
     http_response_code(400);
     echo json_encode(['error' => 'Operación inválida.']);
     exit;
@@ -60,27 +60,6 @@ $headings = ['N° ODT', 'Fecha y hora de emisión', 'Ciudadano / Razón social',
 function reportDetailCells($row) {
     return [$row['order_id'], $row['emitted_at'], implode(' / ', $row['citizens']), implode(' / ', $row['documents']),
         implode(' / ', $row['codes']), implode(' / ', $row['procedures']), $row['state_label'], $row['amount']];
-}
-if ($operation === 'csv') {
-    header('Content-Type: text/csv; charset=utf-8');
-    header('Content-Disposition: attachment; filename="reporte-emisiones.csv"');
-    $stream = fopen('php://output', 'w');
-    fwrite($stream, "\xEF\xBB\xBF");
-    // Treat every value as text; neutralize formulas even after whitespace/control prefixes.
-    $write = function ($cells) use ($stream) {
-        $safe = array_map(function ($value) {
-            $value = (string)$value;
-            return preg_match('/^[\s\p{Z}\x00-\x20\x{FEFF}]*[=+@-]/u', $value) || preg_match('/^[\t\r\n]/', $value) ? "'" . $value : $value;
-        }, $cells);
-        fputcsv($stream, $safe, ';', '"', '');
-    };
-    foreach ($metadata as $row) { $write($row); }
-    $write([]); $write($headings);
-    foreach ($report['details'] as $row) { $write(reportDetailCells($row)); }
-    $write([]); $write(['Documento', 'Código', 'Procedimiento', 'Órdenes (no aditivas)', 'Conceptos', 'Importe (S/)']);
-    foreach ($report['breakdown'] as $row) { $write(array_values($row)); }
-    fclose($stream);
-    exit;
 }
 header('Content-Type: text/html; charset=utf-8');
 function reportEscape($value) { return htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); }

@@ -7,7 +7,7 @@ test('S4: local current-month dates do not drift through UTC', () => {
   assert.deepEqual(report.monthRange(new Date(2024, 1, 15)), { start: '2024-02-01', end: '2024-02-29' });
 });
 test('S2/S6/S7: export reuses filters, never page or emitter, accurate format', () => {
-  for (const operation of ['csv', 'pdf']) {
+  for (const operation of ['print', 'pdf']) {
     const url = report.reportUrl({ start: '2025-01-01', end: '2025-01-31', state: 'emitidos', document: '1', procedure: '2', page: 9, emitter: 100, worker: 3, full: true }, operation);
     const query = new URL(url, 'https://example.invalid').searchParams;
     assert.equal(query.get('op'), operation);
