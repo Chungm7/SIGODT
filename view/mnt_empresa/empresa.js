@@ -2,9 +2,10 @@
 
 let tabla_empresa;
 
-function listar_todos() {
-    if ($.fn.DataTable.isDataTable("#tabla-empresa")) {
-        $("#tabla-empresa").DataTable().destroy();
+function listar_todos(resetPaging = false) {
+    if ($.fn.DataTable.isDataTable("#tabla-empresa") && tabla_empresa) {
+        tabla_empresa.ajax.reload(null, resetPaging);
+        return;
     }
     tabla_empresa = $("#tabla-empresa").DataTable({
         processing: true,

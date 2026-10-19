@@ -80,11 +80,18 @@ $(document).ready(function () {
     });
 });
 
+var tabla_detalle = null;
+var tabla_detalle_params = { proced_id: 0, area_id: 0, tupa_id: 0 };
+
 function cargardata() {
-    if ($.fn.DataTable.isDataTable('#detalle_data')) {
-        $('#detalle_data').DataTable().destroy();
+    tabla_detalle_params.proced_id = proced_id;
+    tabla_detalle_params.area_id = area_id;
+    tabla_detalle_params.tupa_id = tupa_id;
+    if ($.fn.DataTable.isDataTable('#detalle_data') && tabla_detalle) {
+        tabla_detalle.ajax.reload(null, false);
+        return;
     }
-    $('#detalle_data').DataTable({
+    tabla_detalle = $('#detalle_data').DataTable({
         "aProcessing": true,
         "aServerSide": true,
         dom: 'Bfrtip',
@@ -92,7 +99,7 @@ function cargardata() {
         "ajax": {
             url: "../../controller/tasa.php?op=listar_proceds_tasa",
             type: "post",
-            data: { proced_id: proced_id, area_id: area_id, tupa_id: tupa_id },
+            data: tabla_detalle_params,
         },
         "bDestroy": true,
         "responsive": true,
@@ -279,11 +286,16 @@ function eliminar(tasaproced_id) {
     });
 }
 
+var tabla_tasa = null;
+var tabla_tasa_params = { proced_id: 0 };
+
 function listar_tasa(proced_id_param) {
-    if ($.fn.DataTable.isDataTable('#tasa_data')) {
-        $('#tasa_data').DataTable().destroy();
+    tabla_tasa_params.proced_id = proced_id_param;
+    if ($.fn.DataTable.isDataTable('#tasa_data') && tabla_tasa) {
+        tabla_tasa.ajax.reload(null, false);
+        return;
     }
-    $('#tasa_data').DataTable({
+    tabla_tasa = $('#tasa_data').DataTable({
         "aProcessing": true,
         "aServerSide": false,
         dom: 'Bfrtip',
@@ -291,7 +303,7 @@ function listar_tasa(proced_id_param) {
         "ajax": {
             url: "../../controller/tasa.php?op=listar_detalle_tasa",
             type: "post",
-            data: { proced_id: proced_id_param }
+            data: tabla_tasa_params
         },
         "bDestroy": true,
         "responsive": true,

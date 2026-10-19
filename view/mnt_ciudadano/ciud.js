@@ -28,9 +28,10 @@ function cargarTiposDocumento() {
     });
 }
 
-function listar_todos() {
-    if ($.fn.DataTable.isDataTable("#tabla-ciudadano")) {
-        $("#tabla-ciudadano").DataTable().destroy();
+function listar_todos(resetPaging = false) {
+    if ($.fn.DataTable.isDataTable("#tabla-ciudadano") && tabla_ciudadano) {
+        tabla_ciudadano.ajax.reload(null, resetPaging);
+        return;
     }
     tabla_ciudadano = $("#tabla-ciudadano").DataTable({
         processing: true,

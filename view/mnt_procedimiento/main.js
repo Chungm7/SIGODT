@@ -75,12 +75,15 @@ function guardaryeditar(e) {
   });
 }
 
+var tabla_proceds = null;
+
 function updateDataTable() {
-  if ($.fn.DataTable.isDataTable("#proceds_data")) {
-    $("#proceds_data").DataTable().destroy();
+  if ($.fn.DataTable.isDataTable("#proceds_data") && tabla_proceds) {
+    tabla_proceds.ajax.reload(null, false);
+    return;
   }
 
-  $("#proceds_data").DataTable({
+  tabla_proceds = $("#proceds_data").DataTable({
     aProcessing: true,
     aServerSide: true,
     dom: "Bfrtip",
@@ -88,7 +91,10 @@ function updateDataTable() {
     ajax: {
       url: "../../controller/procedimiento.php?op=listar",
       type: "post",
-      data: { area_id: area_id, tupa_id: tupa_id },
+      data: {
+        get area_id() { return area_id; },
+        get tupa_id() { return tupa_id; },
+      },
     },
     bDestroy: true,
     responsive: true,

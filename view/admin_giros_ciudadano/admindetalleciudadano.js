@@ -497,11 +497,14 @@ function validarCheckEmpresa() {
 function validarCheckCiud() {
   // Verificación de estado de ciudadano seleccionado
 }
+var tabla_admin_detalle = null;
+
 function cargardata() {
-  if ($.fn.DataTable.isDataTable("#detalle_data")) {
-    $("#detalle_data").DataTable().destroy();
+  if ($.fn.DataTable.isDataTable("#detalle_data") && tabla_admin_detalle) {
+    tabla_admin_detalle.ajax.reload(null, false);
+    return;
   }
-  $("#detalle_data").DataTable({
+  tabla_admin_detalle = $("#detalle_data").DataTable({
     aProcessing: true,
     aServerSide: true,
     dom: "Bfrtip",
@@ -509,13 +512,15 @@ function cargardata() {
     ajax: {
       url: "../../controller/procedimiento.php?op=listar_proced_ciudadano",
       type: "post",
-      data: { proced_id: proced_id }
+      data: function (d) {
+        d.proced_id = $("#proced_id").val() || proced_id || 0;
+      }
     },
     bDestroy: true,
     responsive: true,
     bInfo: true,
     iDisplayLength: 10,
-    order: [[3, "des"]],
+    order: [[3, "desc"]],
     language: {
       sProcessing: "Procesando...",
       sLengthMenu: "Mostrar _MENU_ registros",
@@ -544,7 +549,6 @@ function cargardata() {
       }
     }
   });
-  proced_id = 0;
 }
 function recargarTabla() {
   var button = document.getElementById("btnRecargar") || document.querySelector(".card-actions button") || document.querySelector(".btn-group button");
@@ -564,15 +568,7 @@ function recargarTabla() {
   // Ejecutar cargardata_reload dentro de un try...catch
   try {
     var procediminto_id = $("#proced_id").val();
-    if (
-      typeof procediminto_id !== "undefined" &&
-      procediminto_id !== null &&
-      procediminto_id !== ""
-    ) {
-      cargardata_reload(procediminto_id);
-    } else if ($.fn.DataTable.isDataTable("#detalle_data")) {
-      $("#detalle_data").DataTable().ajax.reload();
-    }
+    cargardata_reload(procediminto_id);
   } catch (error) {
     console.error("Error al ejecutar cargardata_reload:", error);
   }
@@ -585,66 +581,14 @@ function recargarTabla() {
     }
   }, 800);
 }
-function cargardata_reload(proced_id) {
+function cargardata_reload(proced_id_param) {
   try {
-    if (
-      typeof procediminto_id !== "undefined" &&
-      procediminto_id !== null &&
-      procediminto_id !== ""
-    ) {
-      if ($.fn.DataTable.isDataTable("#detalle_data")) {
-        $("#detalle_data").DataTable().destroy();
-      }
-      $("#detalle_data").DataTable({
-        aProcessing: true,
-        aServerSide: true,
-        dom: "Bfrtip",
-        buttons: [],
-        ajax: {
-          url: "../../controller/procedimiento.php?op=listar_proced_ciudadano",
-          type: "post",
-          data: { proced_id: proced_id }
-        },
-        bDestroy: true,
-        responsive: false,
-        bInfo: true,
-        iDisplayLength: 10,
-        order: [[3, "desc"]],
-        language: {
-          sProcessing: "Procesando...",
-          sLengthMenu: "Mostrar _MENU_ registros",
-          sZeroRecords: "No se encontraron resultados",
-          sEmptyTable: "Ningún dato disponible en esta tabla",
-          sInfo:
-            "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
-          sInfoEmpty:
-            "Mostrando registros del 0 al 0 de un total de 0 registros",
-          sInfoFiltered: "(filtrado de un total de _MAX_ registros)",
-          sInfoPostFix: "",
-          sSearch: "Buscar:",
-          sUrl: "",
-          sInfoThousands: ",",
-          sLoadingRecords: "Cargando...",
-          oPaginate: {
-            sFirst: "Primero",
-            sLast: "Último",
-            sNext: "Siguiente",
-            sPrevious: "Anterior"
-          },
-          oAria: {
-            sSortAscending:
-              ": Activar para ordenar la columna de manera ascendente",
-            sSortDescending:
-              ": Activar para ordenar la columna de manera descendente"
-          }
-        }
-      });
+    if (proced_id_param) {
+      proced_id = proced_id_param;
     }
-    proced_id = 0;
+    cargardata();
   } catch (error) {
     console.error("Error al ejecutar cargardata_reload:", error);
-    // Manejar el error aquí
-    // Puedes realizar acciones adicionales si deseas, como mostrar un mensaje de error personalizado
   }
 }
 function combo_areas() {
@@ -797,9 +741,16 @@ function mostrarError() {
   });
 }
 
+var tabla_tasas_ciudadano = null;
+var proceciudadano_id_tasas_actual = null;
+
 function tablatasasciudadano(proceciudadano_id) {
-  console.log(proceciudadano_id);
-  $("#data_tasa").DataTable({
+  proceciudadano_id_tasas_actual = proceciudadano_id;
+  if ($.fn.DataTable.isDataTable("#data_tasa") && tabla_tasas_ciudadano) {
+    tabla_tasas_ciudadano.ajax.reload(null, false);
+    return;
+  }
+  tabla_tasas_ciudadano = $("#data_tasa").DataTable({
     aProcessing: true,
     aServerSide: true,
     searching: false,
@@ -809,7 +760,9 @@ function tablatasasciudadano(proceciudadano_id) {
     ajax: {
       url: "../../controller/tasa.php?op=listar_proceds_tasa_x_procedciudadano",
       type: "post",
-      data: { proceciudadano_id: proceciudadano_id }
+      data: function (d) {
+        d.proceciudadano_id = proceciudadano_id_tasas_actual;
+      }
     },
     bDestroy: true,
     responsive: true,
@@ -903,11 +856,16 @@ function cambiarcomentario(ogciud_id) {
   });
 }
 
+var tabla_ordenes = null;
+var procedciudadano_id_ordenes_actual = null;
+
 function tablaGiros(procedciudadano_id) {
-  if ($.fn.DataTable.isDataTable("#data_ordenes")) {
-    $("#data_ordenes").DataTable().destroy();
+  procedciudadano_id_ordenes_actual = procedciudadano_id;
+  if ($.fn.DataTable.isDataTable("#data_ordenes") && tabla_ordenes) {
+    tabla_ordenes.ajax.reload(null, false);
+    return;
   }
-  $("#data_ordenes").DataTable({
+  tabla_ordenes = $("#data_ordenes").DataTable({
     aProcessing: true,
     aServerSide: false,
     dom: "Bfrtip",
@@ -917,7 +875,9 @@ function tablaGiros(procedciudadano_id) {
     ajax: {
       url: "../../controller/rc.php?op=listargiros",
       type: "post",
-      data: { procedciudadano_id: procedciudadano_id },
+      data: function (d) {
+        d.procedciudadano_id = procedciudadano_id_ordenes_actual;
+      },
       dataSrc: ""
     },
     columns: [

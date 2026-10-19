@@ -432,6 +432,18 @@ WITH params AS (
            COUNT(*) FILTER (WHERE est <> 0)::integer AS total,
            COUNT(*) FILTER (WHERE est IN (2,4,5))::integer AS pagadas
     FROM fees GROUP BY tasatciud_procedciud
+), pending_fee_procedures AS (
+    SELECT DISTINCT f.tasatciud_procedciud AS procedciudadano_id
+    FROM fees f
+    WHERE f.est IN (1,3)
+      AND NOT EXISTS (
+          SELECT 1 FROM sc_giros.td_giro_tasa_ciudadano valid_link
+          JOIN sc_giros.td_ordengirociud valid_order ON valid_order.ogciud_id = valid_link.girot_giro
+          WHERE valid_link.tasaciud_id = f.tasatciud_id AND valid_link.est = 1
+            AND valid_order.est NOT IN (0,3,6)
+      )
+), fee_procedure_ids AS (
+    SELECT DISTINCT tasatciud_procedciud AS procedciudadano_id FROM fees
 ), order_rows AS (
     SELECT DISTINCT a.procedciudadano_id, og.ogciud_id::text AS ogciud_id, og.est::integer AS est,
            'order'::text AS row_kind,
@@ -443,20 +455,12 @@ WITH params AS (
 ), procedure_candidates AS (
     SELECT a.procedciudadano_id, a.est,
            (a.est IN (1,2) AND (
-               EXISTS (
-                   SELECT 1 FROM fees f
-                   WHERE f.tasatciud_procedciud = a.procedciudadano_id AND f.est IN (1,3)
-                     AND NOT EXISTS (
-                         SELECT 1 FROM sc_giros.td_giro_tasa_ciudadano valid_link
-                         JOIN sc_giros.td_ordengirociud valid_order ON valid_order.ogciud_id = valid_link.girot_giro
-                         WHERE valid_link.tasaciud_id = f.tasatciud_id AND valid_link.est = 1
-                           AND valid_order.est NOT IN (0,3,6)
-                     )
-               ) OR (a.est = 1 AND NOT EXISTS (
-                   SELECT 1 FROM fees f WHERE f.tasatciud_procedciud = a.procedciudadano_id
-               ))
+               pfp.procedciudadano_id IS NOT NULL
+               OR (a.est = 1 AND fpi.procedciudadano_id IS NULL)
            )) AS pending
     FROM authorized a
+    LEFT JOIN pending_fee_procedures pfp ON pfp.procedciudadano_id = a.procedciudadano_id
+    LEFT JOIN fee_procedure_ids fpi ON fpi.procedciudadano_id = a.procedciudadano_id
 ), procedure_rows AS (
     SELECT c.procedciudadano_id, NULL::text AS ogciud_id,
            CASE WHEN c.pending THEN 9 ELSE c.est END::integer AS est,
