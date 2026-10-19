@@ -36,3 +36,23 @@ test('usudetalleciudadano.js has limpiarFormularioMantenimiento and cleans on hi
   assert.match(source, /function ejecutarBusquedaRuc\(\)/);
   assert.match(source, /function buscaRUC\(\)/);
 });
+
+test('buscaRUC in usudetalleciudadano.js and admindetalleciudadano.js updates mensaje_empresa to Empresa no encontrada and handles failures', () => {
+  const usuSource = fs.readFileSync(usuJsPath, 'utf8');
+  const adminSource = fs.readFileSync('view/admin_giros_ciudadano/admindetalleciudadano.js', 'utf8');
+  const controllerSource = fs.readFileSync('controller/empresa.php', 'utf8');
+
+  // Verify controller returns empty empresas array with error when not found
+  assert.match(controllerSource, /'empresas'\s*=>\s*\[\],\s*'error'\s*=>\s*'Empresa no encontrada'/);
+
+  // Verify usudetalleciudadano.js handles not found and fail cases
+  assert.match(usuSource, /"Empresa no encontrada"/);
+  assert.match(usuSource, /\$\("#mensaje_empresa"\)[\s\S]*?\.attr\("class",\s*"alert alert-danger py-1 mb-2"\)/);
+  assert.match(usuSource, /\.fail\(function\s*\(\)/);
+
+  // Verify admindetalleciudadano.js handles not found and fail cases
+  assert.match(adminSource, /"Empresa no encontrada"/);
+  assert.match(adminSource, /\$\("#mensaje_empresa"\)[\s\S]*?\.attr\("class",\s*"alert alert-danger py-1 mb-2"\)/);
+  assert.match(adminSource, /\.fail\(function\s*\(\)/);
+});
+

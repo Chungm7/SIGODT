@@ -577,7 +577,7 @@ function buscarDNI(ciudadano_doc, tipo_documento) {
 }
 function buscaRUC() {
 
-  let empr_ruc = $("#empr_ruc").val().trim();
+  let empr_ruc = ($("#empr_ruc").val() || "").trim();
   if (!empr_ruc) return;
 
   $.post(
@@ -587,23 +587,29 @@ function buscaRUC() {
 
       let response;
       try {
-        response = JSON.parse(data);
+        response = typeof data === "object" ? data : JSON.parse(data);
       } catch (e) {
         console.error("Respuesta inválida:", data);
-        return;
+        response = null;
       }
       console.log(response);
 
-      if (response.empresas && response.empresas.length > 0) {
+      if (response && response.empresas && response.empresas.length > 0) {
 
         let empresa = response.empresas[0];
         let ruc = empresa.empr_ruc;
         let razon = empresa.empr_razon_social;
-        let estado = empresa.empr_estado_sunat;
-        let condicion = empresa.empr_condicion_sunat;
+        let estado = empresa.empr_estado_sunat || "ACTIVO";
+        let condicion = empresa.empr_condicion_sunat || "HABIDO";
 
         // 🔹 Llenar razón social
         $("#empr_razon_social").val(razon).prop("readonly", true).attr("readonly", "readonly");
+        if (empresa.empr_id) {
+          $("#empr_id").val(empresa.empr_id);
+        }
+        if (empresa.empr_nombre_comercial) {
+          $("#empr_nombre_comercial").val(empresa.empr_nombre_comercial);
+        }
 
         let colorEstado = (estado === "ACTIVO") ? "#198754" : "#dc3545";
         let colorCondicion = (condicion === "HABIDO") ? "#198754" : "#dc3545";
@@ -662,19 +668,36 @@ function buscaRUC() {
         });
 
         $("#mensaje_empresa")
-          .removeClass("d-none")
+          .removeAttr("style")
+          .attr("class", "alert alert-success py-1 mb-2")
           .text("Empresa encontrada")
-          .css("color", "green");
+          .removeClass("d-none")
+          .show();
 
       } else {
 
+        $("#empr_razon_social").val("").prop("readonly", true).attr("readonly", "readonly");
+        $("#empr_nombre_comercial").val("");
+        $("#empr_id").val("");
         $("#mensaje_empresa")
+          .removeAttr("style")
+          .attr("class", "alert alert-danger py-1 mb-2")
+          .text((response && response.error) || "Empresa no encontrada")
           .removeClass("d-none")
-          .text("Empresa no encontrada")
-          .css("color", "red");
+          .show();
       }
     }
-  );
+  ).fail(function () {
+    $("#empr_razon_social").val("").prop("readonly", true).attr("readonly", "readonly");
+    $("#empr_nombre_comercial").val("");
+    $("#empr_id").val("");
+    $("#mensaje_empresa")
+      .removeAttr("style")
+      .attr("class", "alert alert-danger py-1 mb-2")
+      .text("Empresa no encontrada")
+      .removeClass("d-none")
+      .show();
+  });
 }
 
 

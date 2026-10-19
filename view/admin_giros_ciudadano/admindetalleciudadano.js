@@ -437,43 +437,57 @@ function buscarDNI(ciudadano_doc) {
   }
 }
 function buscaRUC() {
-  var empr_ruc = $("#empr_ruc").val();
+  var empr_ruc = ($("#empr_ruc").val() || "").trim();
+  if (!empr_ruc) return;
   $.post(
     "../../controller/empresa.php?op=consultar_sunat",
     { empr_ruc: empr_ruc },
     function (data) {
-      if (data) {
-        if (data.trim() !== "") {
-          var response = JSON.parse(data);
-          console.log(data);
-          if (response.empr_ruc) {
-            // Llenar los campos del formulario con los datos de la empresa
-            $("#empr_razon_social").val(response.empr_razon_social).prop("readonly", true).attr("readonly", "readonly");
-            $("#empr_nombre_comercial").val(response.empr_nombre_comercial);
-            $("#empr_giro").val(response.empr_nombres_giros);
-            $("#empr_id").val(response.empr_id);
+      var response = null;
+      try {
+        response = typeof data === "object" ? data : JSON.parse(data);
+      } catch (e) {
+        response = null;
+      }
+      var empresa = (response && response.empresas && response.empresas[0]) || (response && response.empr_ruc ? response : null);
+      if (empresa) {
+        // Llenar los campos del formulario con los datos de la empresa
+        $("#empr_razon_social").val(empresa.empr_razon_social).prop("readonly", true).attr("readonly", "readonly");
+        $("#empr_nombre_comercial").val(empresa.empr_nombre_comercial || "");
+        $("#empr_giro").val(empresa.empr_nombres_giros || "");
+        $("#empr_id").val(empresa.empr_id || "");
 
-            // Otros campos
-            $("#mensaje_empresa")
-              .text("Empresa encontrada")
-              .css("color", "green")
-              .show();
-            validarCheckEmpresa();
-          } else {
-            $("#mensaje_empresa")
-              .text("Empresa no encontrada")
-              .css("color", "red")
-              .show();
-          }
-        } else {
-          $("#mensaje_empresa")
-            .text("Empresa no encontrada")
-            .css("color", "red")
-            .show();
-        }
+        // Otros campos
+        $("#mensaje_empresa")
+          .removeAttr("style")
+          .attr("class", "alert alert-success py-1 mb-2")
+          .text("Empresa encontrada")
+          .removeClass("d-none")
+          .show();
+        validarCheckEmpresa();
+      } else {
+        $("#empr_razon_social").val("").prop("readonly", true).attr("readonly", "readonly");
+        $("#empr_nombre_comercial").val("");
+        $("#empr_id").val("");
+        $("#mensaje_empresa")
+          .removeAttr("style")
+          .attr("class", "alert alert-danger py-1 mb-2")
+          .text((response && response.error) || "Empresa no encontrada")
+          .removeClass("d-none")
+          .show();
       }
     }
-  );
+  ).fail(function () {
+    $("#empr_razon_social").val("").prop("readonly", true).attr("readonly", "readonly");
+    $("#empr_nombre_comercial").val("");
+    $("#empr_id").val("");
+    $("#mensaje_empresa")
+      .removeAttr("style")
+      .attr("class", "alert alert-danger py-1 mb-2")
+      .text("Empresa no encontrada")
+      .removeClass("d-none")
+      .show();
+  });
 }
 
 function validarCheckEmpresa() {

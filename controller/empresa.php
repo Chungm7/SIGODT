@@ -277,11 +277,19 @@ switch ($_GET["op"]) {
             echo json_encode([
                 'source'   => 'sunat',
                 'empresas' => [[
+                    'empr_id'               => $datos[0]['empr_id'] ?? null,
                     'empr_razon_social'     => $datos[0]['empr_razon_social'],
-                    'empr_ruc'        => $ruc,
-                    'empr_estado_sunat' => "ACTIVO",
-                    'empr_condicion_sunat' => "HABIDO"
+                    'empr_nombre_comercial' => $datos[0]['empr_nombre_comercial'] ?? '',
+                    'empr_ruc'              => $ruc,
+                    'empr_estado_sunat'     => "ACTIVO",
+                    'empr_condicion_sunat'  => "HABIDO"
                 ]]
+            ]);
+        } else {
+            echo json_encode([
+                'source'   => 'sunat',
+                'empresas' => [],
+                'error'    => 'Empresa no encontrada'
             ]);
         }
 
