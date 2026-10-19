@@ -11,7 +11,9 @@ class empresa extends conectar
                 MIN(empr_id) AS empr_id,
                 empr_razon_social,
                 empr_nombre_comercial,
-                ARRAY_AGG(empr_direccion) AS direcciones
+                ARRAY_AGG(empr_direccion) AS direcciones,
+                MAX(empr_sunat_estado) AS empr_estado_sunat,
+                MAX(empr_sunat_condicion) AS empr_condicion_sunat
             FROM public.tb_empresa
             WHERE empr_ruc = ?
             GROUP BY empr_razon_social, empr_nombre_comercial
@@ -91,7 +93,7 @@ class empresa extends conectar
 
         return $resultado = $stmt->fetchAll();
     }
-    public function registrarEmpresa($empr_categoria, $empr_ruc, $empr_razon_social, $empr_nombre_comercial, $empr_direccion, $empr_telefono, $empr_area_establecimiento, $empr_correo, $empr_estado, $gico_id)
+    public function registrarEmpresa($empr_categoria, $empr_ruc, $empr_razon_social, $empr_nombre_comercial, $empr_direccion, $empr_telefono, $empr_area_establecimiento, $empr_correo, $empr_estado, $gico_id, $sunat_estado = null, $sunat_condicion = null)
     {
         $conectar = parent::conexion();
         parent::set_names();
@@ -99,9 +101,9 @@ class empresa extends conectar
         $sql = "INSERT INTO public.tb_empresa(
                 empr_categoria, empr_ruc, empr_razon_social, empr_nombre_comercial,
                 empr_direccion, empr_telefono, empr_correo, empr_area_establecimiento,
-                empr_estado, gico_id
+                empr_estado, gico_id, empr_sunat_estado, empr_sunat_condicion
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             RETURNING empr_id;";
 
         $stmt = $conectar->prepare($sql);
@@ -115,6 +117,8 @@ class empresa extends conectar
         $stmt->bindValue(8, $empr_area_establecimiento);
         $stmt->bindValue(9, $empr_estado);
         $stmt->bindValue(10, $gico_id, PDO::PARAM_STR);
+        $stmt->bindValue(11, $sunat_estado);
+        $stmt->bindValue(12, $sunat_condicion);
 
         $stmt->execute();
         $resultado = $stmt->fetch(PDO::FETCH_ASSOC);

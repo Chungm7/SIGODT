@@ -5,21 +5,24 @@ require_once(__DIR__ . "/../models/Empresa.php");
 require_once(__DIR__ . "/../models/Bitacora.php");
 
 class TokenHelper {
-    const SECRET_KEY = 'sgd*2023'; // Debe coincidir con el servidor
+    public static function getKey(): string
+    {
+        return Conectar::getEnv('PIDE_SECRET_KEY', 'sgd*2023');
+    }
 
     public static function encrypt(string $plain): string
     {
-        return openssl_encrypt($plain, 'AES-128-ECB', self::SECRET_KEY);
+        return openssl_encrypt($plain, 'AES-128-ECB', self::getKey());
     }
 
     public static function decrypt(string $cipher): ?string
     {
-        return openssl_decrypt($cipher, 'AES-128-ECB', self::SECRET_KEY);
+        return openssl_decrypt($cipher, 'AES-128-ECB', self::getKey());
     }   
 }
 
-$usuario = '20250001';
-$contrasena = '20250001@';
+$usuario = Conectar::getEnv('PIDE_RENIEC_USER', '20250001');
+$contrasena = Conectar::getEnv('PIDE_RENIEC_PASS', '20250001@');
 
 $bitacora = new Bitacora();
 $empresa = new Empresa();
@@ -218,81 +221,128 @@ switch ($_GET["op"]) {
         break;
 	*/
 	case 'consultar_sunat':
-        $ruc = $_POST['empr_ruc'] ?? '';
+        $ruc = trim($_POST['empr_ruc'] ?? '');
         if (empty($ruc)) {
-            echo json_encode(['error' => 'RUC no proporcionado']);
-            break;
-        }
-
-        // $token = TokenHelper::encrypt($contrasena);
-        // $url = 'https://www.munichiclayo.gob.pe/Pide/Sunat/' . $_POST["empr_ruc"];
-        // $data = [
-        //     'usu_dni' => $usuario,
-        //     'usu_contrasena' => $token
-        // ];
-        // $curl = curl_init();
-        // // Configurar la solicitud cURL
-        // curl_setopt($curl, CURLOPT_URL, $url);
-        // curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        // curl_setopt($curl, CURLOPT_POST, true);
-        // curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($data));
-        // curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
-        // $resp = curl_exec($curl);
-
-        // if (curl_errno($curl)) {
-        //     echo json_encode(['error' => 'cURL: ' . curl_error($curl)]);
-        //     curl_close($curl);
-        //     break;
-        // }
-        // curl_close($curl);
-
-        // $sun = json_decode($resp, true);
-        // if (empty($sun['success']) || empty($sun['data']['ruc'])) {
-        //     echo json_encode(['error' => 'RUC inválido o sin datos SUNAT']);
-        //     break;
-        // }
-
-        // $d = $sun['data'];
-
-        // $estado = ($d['estado_ruc'] === 'ACTIVO') ? 'A' : 'I';
-        // $nomCom = ($d['nom_comercial'] === '-') ? '' : $d['nom_comercial'];
-
-
-        // $bitacora->update_bitacora($_SESSION['usua_id_SIGODT']);
-
-        // echo json_encode([
-        //     'source'   => 'sunat',
-        //     'empresas' => [[
-        //         'empr_razon_social'     => $d['raz_social'],
-        //         'empr_ruc'        => $d['ruc'],
-        //         'empr_estado_sunat' => $d['estado_ruc'],
-        //         'empr_condicion_sunat' => $d['condicion']
-        //     ]]
-        // ]);
-
-
-        $datos = $empresa->get_empresa_x_RUC($ruc);
-
-        if (!empty($datos)) {
-            echo json_encode([
-                'source'   => 'sunat',
-                'empresas' => [[
-                    'empr_id'               => $datos[0]['empr_id'] ?? null,
-                    'empr_razon_social'     => $datos[0]['empr_razon_social'],
-                    'empr_nombre_comercial' => $datos[0]['empr_nombre_comercial'] ?? '',
-                    'empr_ruc'              => $ruc,
-                    'empr_estado_sunat'     => "ACTIVO",
-                    'empr_condicion_sunat'  => "HABIDO"
-                ]]
-            ]);
-        } else {
             echo json_encode([
                 'source'   => 'sunat',
                 'empresas' => [],
                 'error'    => 'Empresa no encontrada'
             ]);
+            break;
         }
 
+        // 1) Consultar primero en la base de datos local
+        $datos = $empresa->get_empresa_x_RUC($ruc);
+
+        if (!empty($datos)) {
+            echo json_encode([
+                'source'   => 'bd',
+                'empresas' => [[
+                    'empr_id'               => $datos[0]['empr_id'] ?? null,
+                    'empr_razon_social'     => $datos[0]['empr_razon_social'],
+                    'empr_nombre_comercial' => $datos[0]['empr_nombre_comercial'] ?? '',
+                    'empr_ruc'              => $ruc,
+                    'empr_estado_sunat'     => !empty($datos[0]['empr_estado_sunat']) ? $datos[0]['empr_estado_sunat'] : 'ACTIVO',
+                    'empr_condicion_sunat'  => !empty($datos[0]['empr_condicion_sunat']) ? $datos[0]['empr_condicion_sunat'] : 'HABIDO'
+                ]]
+            ]);
+            break;
+        }
+
+        // 2) Si no existe en la BD local, consultar en vivo a SUNAT vía PIDE
+        $pideBaseUrl = Conectar::getEnv('PIDE_BASE_URL', 'https://www.munichiclayo.gob.pe/');
+        $token = TokenHelper::encrypt($contrasena);
+        $url = rtrim($pideBaseUrl, '/') . '/Pide/Sunat/' . urlencode($ruc);
+        $postData = [
+            'usu_dni'        => $usuario,
+            'usu_contrasena' => $token
+        ];
+
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL            => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => http_build_query($postData),
+            CURLOPT_HTTPHEADER     => ['Content-Type: application/x-www-form-urlencoded'],
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_TIMEOUT        => 15
+        ]);
+        $resp = curl_exec($curl);
+        $curlError = curl_errno($curl) ? curl_error($curl) : null;
+        curl_close($curl);
+
+        if ($curlError) {
+            echo json_encode([
+                'source'   => 'sunat',
+                'empresas' => [],
+                'error'    => 'Empresa no encontrada'
+            ]);
+            break;
+        }
+
+        $sun = json_decode($resp, true);
+        if (empty($sun['success']) || empty($sun['data']['ruc'])) {
+            echo json_encode([
+                'source'   => 'sunat',
+                'empresas' => [],
+                'error'    => 'Empresa no encontrada'
+            ]);
+            break;
+        }
+
+        $d = $sun['data'];
+        $razonSocial    = trim($d['raz_social'] ?? '');
+        $nomComercial   = ($d['nom_comercial'] ?? '') === '-' ? '' : trim($d['nom_comercial'] ?? '');
+        $domicilio      = trim($d['domicilio'] ?? '');
+        $estadoSunat    = trim($d['estado_ruc'] ?? 'ACTIVO');
+        $condicionSunat = trim($d['condicion'] ?? 'HABIDO');
+        $giroNombre     = trim($d['ciiu'] ?? '');
+
+        // Obtener o registrar giro comercial si viene en la respuesta
+        $giroId = null;
+        if ($giroNombre !== '') {
+            $giroId = $empresa->getIdGiro($giroNombre);
+            if (empty($giroId)) {
+                $empresa->registrarGiro($giroNombre);
+                $giroId = $empresa->getIdGiro($giroNombre);
+            }
+        }
+        $gico_id = $giroId ? '{' . $giroId . '}' : '{}';
+        $estado = ($estadoSunat === 'ACTIVO') ? 'A' : 'I';
+
+        // Registrar empresa en la base de datos local para persistirla
+        $emprId = $empresa->registrarEmpresa(
+            'E',
+            $d['ruc'],
+            $razonSocial,
+            $nomComercial,
+            $domicilio,
+            '000000000',
+            '0',
+            '',
+            $estado,
+            $gico_id,
+            $estadoSunat,
+            $condicionSunat
+        );
+
+        if (!empty($_SESSION['usua_id_SIGODT'])) {
+            $bitacora->update_bitacora($_SESSION['usua_id_SIGODT']);
+        }
+
+        echo json_encode([
+            'source'   => 'sunat',
+            'empresas' => [[
+                'empr_id'               => $emprId,
+                'empr_razon_social'     => $razonSocial,
+                'empr_nombre_comercial' => $nomComercial,
+                'empr_ruc'              => $d['ruc'],
+                'empr_direccion'        => $domicilio,
+                'empr_estado_sunat'     => $estadoSunat,
+                'empr_condicion_sunat'  => $condicionSunat
+            ]]
+        ]);
         break;
     case "combo_empresa":
         $datos = $empresa->get_direcciones($_POST['empr_ruc']);
