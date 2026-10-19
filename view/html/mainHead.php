@@ -20,25 +20,25 @@
 <link href="../../public/css/loader.css" rel="stylesheet" />
 <link href="../../public/css/emision.css" rel="stylesheet" />
 
-<!-- CSS de Librerías / CDN -->
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
-<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.dataTables.min.css">
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<link href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@1.5.2/dist/select2-bootstrap4.min.css" rel="stylesheet">
+<!-- CSS de Librerías / Locales -->
+<link rel="stylesheet" href="../../public/lib/datatables/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="../../public/lib/datatables/buttons.dataTables.min.css">
+<link rel="stylesheet" href="../../public/lib/datatables/responsive.dataTables.min.css">
+<link href="../../public/lib/select2/css/select2.min.css" rel="stylesheet" />
+<link href="../../public/lib/select2/css/select2-bootstrap4.min.css" rel="stylesheet">
 <link href="../html/global/css/select2.css" rel="stylesheet" />
 
-<!-- FontAwesome 5.15.4 (CDN) -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+<!-- FontAwesome 5.15.4 (Local) -->
+<link href="../../public/lib/fontawesome/css/all.min.css" rel="stylesheet">
 
 <!-- Toastr & SweetAlert CSS -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
-<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.6.8/dist/sweetalert2.min.css" rel="stylesheet" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link href="../../public/lib/toastr/toastr.min.css" rel="stylesheet" />
+<link href="../../public/lib/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+<script src="../../public/lib/xlsx/xlsx.full.min.js"></script>
 
-<!-- Tipografía Inter -->
+<!-- Tipografía Inter (Local) -->
 <style>
-    @import url('https://rsms.me/inter/inter.css');
+    @import url('../../public/lib/inter/inter.css');
 
     :root {
         --tblr-font-sans-serif: 'Inter Var', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;

@@ -1,5 +1,5 @@
 <!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="../../public/lib/jquery/jquery.min.js"></script>
 
 <!-- Tabler Core -->
 <script src="../../public/tabler/js/tabler.min.js" defer></script>
@@ -14,20 +14,18 @@
 <script src="../../public/tabler/libs/countup.js/dist/countUp.umd.js"></script>
 
 <!-- Toastr JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<script src="../../public/lib/toastr/toastr.min.js"></script>
 
-<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js"></script>
+<script src="../../public/lib/datatables/jquery.dataTables.min.js"></script>
+<script src="../../public/lib/datatables/dataTables.buttons.min.js"></script>
+<script src="../../public/lib/datatables/buttons.html5.min.js"></script>
+<script src="../../public/lib/datatables/buttons.print.min.js"></script>
 
-
-
-<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+<script src="../../public/lib/select2/js/select2.min.js"></script>
 
 <!-- SweetAlert2 JS -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.6.8/dist/sweetalert2.min.js"></script>
-<script src="https://unpkg.com/@popperjs/core@2"></script>
+<script src="../../public/lib/sweetalert2/sweetalert2.min.js"></script>
+<script src="../../public/lib/popper/popper.min.js"></script>
 
 <script>
     $(document).ready(function() {

@@ -21,7 +21,7 @@
   <link href="../../public/tabler/css/tabler-vendors.min.css?1692870487" rel="stylesheet" />
   <link href="../../public/tabler/css/demo.min.css?1692870487" rel="stylesheet" />
   <style>
-    @import url('https://rsms.me/inter/inter.css');
+    @import url('../../public/lib/inter/inter.css');
 
     :root {
       --tblr-font-sans-serif: 'Inter Var', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;

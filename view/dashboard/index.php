@@ -274,8 +274,8 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
             </div>
         </div>
         <?php require_once("../html/mainjs.php"); ?>
-        <!-- ApexCharts CDN -->
-        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+        <!-- ApexCharts Local -->
+        <script src="../../public/tabler/libs/apexcharts/dist/apexcharts.min.js"></script>
         <script src="dashboard.js"></script>
     </body>
 

@@ -239,7 +239,7 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
   </div>
   <!-- Libs JS -->
   <!-- Tabler Core -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="public/lib/jquery/jquery.min.js"></script>
   <script src="public/tabler/js/tabler.min.js?1692870487" defer></script>
   <script src="public/tabler/js/demo.min.js?1692870487" defer></script>
 
