@@ -92,5 +92,20 @@ class Conectar {
         $url = self::getEnv('APP_URL', 'http://10.10.10.16/SIGODT/');
         return rtrim($url, '/') . '/';
     }
+
+    /**
+     * Valida si la sesión actual pertenece a un usuario con rol Administrador
+     */
+    public static function esAdministrador(): bool {
+        if (!isset($_SESSION["usua_id_SIGODT"])) {
+            return false;
+        }
+        $roleId = filter_var($_SESSION["rol_id_SIGODT"] ?? null, FILTER_VALIDATE_INT);
+        if ($roleId === 9) {
+            return true;
+        }
+        $roleName = $_SESSION["rol_nombre_SIGODT"] ?? '';
+        return is_string($roleName) && strcasecmp(trim($roleName), 'ADMINISTRADOR') === 0;
+    }
 }
 ?>

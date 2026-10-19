@@ -1,7 +1,7 @@
 <!-- index.php -->
 <?php
 require_once("../../config/conexion.php");
-if (isset($_SESSION["usua_id_SIGODT"])) {
+if (Conectar::esAdministrador()) {
 ?>
     <!DOCTYPE html>
     <html lang="es">
@@ -109,5 +109,6 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
 <?php
 } else {
     header("Location:" . Conectar::ruta() . "view/404/");
+    exit();
 }
 ?>

@@ -6,6 +6,14 @@ $isProcesosActive = (strpos($currentPage, '/giros_ciudadano/') !== false || strp
 $isConsultasActive = (strpos($currentPage, '/consultar_nombre/') !== false || strpos($currentPage, '/consultar_documento/') !== false || strpos($currentPage, '/consultar_og/') !== false || strpos($currentPage, '/consultar_mes/') !== false);
 $isMntActive = (strpos($currentPage, '/mnt_') !== false);
 $isReportActive = (strpos($currentPage, '/reporte_usuario/') !== false);
+$isMntAllowed = false;
+if (class_exists('Conectar') && method_exists('Conectar', 'esAdministrador')) {
+    $isMntAllowed = Conectar::esAdministrador();
+} elseif (isset($_SESSION["usua_id_SIGODT"])) {
+    $roleId = filter_var($_SESSION["rol_id_SIGODT"] ?? null, FILTER_VALIDATE_INT);
+    $roleName = $_SESSION["rol_nombre_SIGODT"] ?? '';
+    $isMntAllowed = ($roleId === 9) || (is_string($roleName) && strcasecmp(trim($roleName), 'ADMINISTRADOR') === 0);
+}
 ?>
 <header class="navbar-expand-md">
   <div class="collapse navbar-collapse" id="navbar-menu">
@@ -124,6 +132,7 @@ $isReportActive = (strpos($currentPage, '/reporte_usuario/') !== false);
               </span>
             </a>
           </li>
+          <?php if ($isMntAllowed): ?>
           <li class="nav-item dropdown <?php echo $isMntActive ? 'active' : ''; ?>">
             <a class="nav-link dropdown-toggle" href="#navbar-mantenimientos" data-bs-toggle="dropdown"
               data-bs-auto-close="outside" role="button" aria-expanded="false">
@@ -200,6 +209,7 @@ $isReportActive = (strpos($currentPage, '/reporte_usuario/') !== false);
               </div>
             </div>
           </li>
+          <?php endif; ?>
         </ul>
       </div>
     </div>

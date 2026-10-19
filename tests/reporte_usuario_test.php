@@ -100,7 +100,8 @@ $longName = str_repeat('Nombre sintético extenso & <seguro> ', 30);
 check(substr_count($longHtml, htmlspecialchars($longName, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')) >= 2, 'S3/S9: full long names and procedure content preserved');
 check(substr_count(substr($html, strpos($html, '<thead>'), strpos($html, '</thead>') - strpos($html, '<thead>')), '<th>') === 8, 'S3: all eight detail columns');
 echo "PASS S3/S6/S9: institutional print, complete columns, long content and pagination styling\n";
-// Snapshot unchanged links and active groups, plus the new report entry.
+// Snapshot unchanged links and active groups, plus the new report entry (in admin session).
+$_SESSION = ['usua_id_SIGODT' => 1, 'rol_id_SIGODT' => 9];
 foreach (['inicio', 'dashboard', 'giros_ciudadano', 'admin_giros_ciudadano', 'consultar_documento', 'consultar_nombre', 'consultar_og', 'mnt_ciudadano', 'mnt_empresa', 'mnt_tupa', 'mnt_procedimiento', 'mnt_tasas', 'mnt_tributos', 'mnt_permisos', 'reporte_usuario'] as $route) {
     $_SERVER['PHP_SELF'] = '/SIGODT/view/' . $route . '/index.php';
     ob_start(); include __DIR__ . '/../view/html/menu.php'; $menu = ob_get_clean();
