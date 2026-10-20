@@ -1,29 +1,113 @@
-  .breadcrumb {
-      display: flex;
-      align-items: center;
-      font-family: Arial, sans-serif;
-      font-size: 14px;
-      color: #333;
-      gap: 6px;
-    }
+/* ==========================================================================
+   🍞 Breadcrumb - Light & Dark Mode Navigation
+   ========================================================================== */
 
-    .breadcrumb a {
-      color: #007bff;
-      text-decoration: none;
-      font-weight: 500;
-    }
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    font-family: inherit;
+    font-size: 0.875rem;
+    color: var(--tblr-body-color, #182433);
+    gap: 6px;
+    margin-bottom: 1rem;
+    padding: 0;
+    list-style: none;
+}
 
-    .breadcrumb a:hover {
-      text-decoration: underline;
-    }
+.breadcrumb a,
+.breadcrumb-item a {
+    color: var(--tblr-link-color, #0054a6);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.15s ease-in-out;
+}
 
-    .breadcrumb-icon {
-      width: 10px;
-      height: 10px;
-      fill: #999;
-    }
+.breadcrumb a:hover,
+.breadcrumb-item a:hover {
+    color: var(--tblr-link-hover-color, #003e7e);
+    text-decoration: underline;
+}
 
-    .breadcrumb span {
-      color: #555;
-    }
-        
+.breadcrumb-icon {
+    width: 10px;
+    height: 10px;
+    fill: var(--tblr-gray-500, #929dab);
+}
+
+/* Sección activa donde te encuentras (modo claro) */
+.breadcrumb span,
+.breadcrumb-item.active,
+.breadcrumb-item[aria-current="page"] {
+    color: var(--tblr-body-color, #182433);
+    font-weight: 600;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    color: var(--tblr-gray-500, #929dab);
+}
+
+/* --------------------------------------------------------------------------
+   🌙 MODO OSCURO (Tabler Dark Theme Integration)
+   Letras blancas nítidas para la sección activa donde te encuentras
+   -------------------------------------------------------------------------- */
+
+[data-bs-theme="dark"] .breadcrumb,
+body.theme-dark .breadcrumb,
+body[data-bs-theme="dark"] .breadcrumb {
+    color: #fcfdfe !important;
+}
+
+/* Enlaces navegables en modo oscuro (azul claro visible) */
+[data-bs-theme="dark"] .breadcrumb a,
+[data-bs-theme="dark"] .breadcrumb-item a:not(.active),
+body.theme-dark .breadcrumb a,
+body.theme-dark .breadcrumb-item a:not(.active),
+body[data-bs-theme="dark"] .breadcrumb a,
+body[data-bs-theme="dark"] .breadcrumb-item a:not(.active) {
+    color: #4299e1 !important;
+}
+
+[data-bs-theme="dark"] .breadcrumb a:hover,
+[data-bs-theme="dark"] .breadcrumb-item a:hover,
+body.theme-dark .breadcrumb a:hover,
+body.theme-dark .breadcrumb-item a:hover,
+body[data-bs-theme="dark"] .breadcrumb a:hover,
+body[data-bs-theme="dark"] .breadcrumb-item a:hover {
+    color: #70b8ff !important;
+}
+
+/* Sección activa donde se encuentra el usuario: BLANCO NÍTIDO */
+[data-bs-theme="dark"] .breadcrumb span,
+[data-bs-theme="dark"] .breadcrumb-item.active,
+[data-bs-theme="dark"] .breadcrumb-item[aria-current="page"],
+[data-bs-theme="dark"] .breadcrumb-item.active a,
+[data-bs-theme="dark"] .breadcrumb-item.active span,
+body.theme-dark .breadcrumb span,
+body.theme-dark .breadcrumb-item.active,
+body.theme-dark .breadcrumb-item[aria-current="page"],
+body.theme-dark .breadcrumb-item.active a,
+body.theme-dark .breadcrumb-item.active span,
+body[data-bs-theme="dark"] .breadcrumb span,
+body[data-bs-theme="dark"] .breadcrumb-item.active,
+body[data-bs-theme="dark"] .breadcrumb-item[aria-current="page"],
+body[data-bs-theme="dark"] .breadcrumb-item.active a,
+body[data-bs-theme="dark"] .breadcrumb-item.active span {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+/* Separadores / íconos de flecha en modo oscuro */
+[data-bs-theme="dark"] .breadcrumb-icon,
+body.theme-dark .breadcrumb-icon,
+body[data-bs-theme="dark"] .breadcrumb-icon {
+    fill: #869ab8 !important;
+}
+
+[data-bs-theme="dark"] .breadcrumb-item + .breadcrumb-item::before,
+[data-bs-theme="dark"] .breadcrumb-arrows .breadcrumb-item + .breadcrumb-item::before,
+body.theme-dark .breadcrumb-item + .breadcrumb-item::before,
+body.theme-dark .breadcrumb-arrows .breadcrumb-item + .breadcrumb-item::before,
+body[data-bs-theme="dark"] .breadcrumb-item + .breadcrumb-item::before,
+body[data-bs-theme="dark"] .breadcrumb-arrows .breadcrumb-item + .breadcrumb-item::before {
+    color: #869ab8 !important;
+}

@@ -112,34 +112,6 @@
         box-shadow: 0 7px 20px rgba(0, 0, 0, .12);
     }
 
-    /* Select2 ajustes consistentes */
-    .select2-container .select2-selection--single {
-        height: 38px !important;
-        padding: 5px 0;
-    }
-
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-        line-height: 28px !important;
-        padding-left: 10px;
-    }
-
-    .select2-container--default .select2-selection--single .select2-selection__arrow {
-        height: 36px !important;
-    }
-
-    .select2-dropdown {
-        border: 1px solid #dee2e6;
-        border-radius: 0.375rem;
-    }
-
-    .select2-container--default .select2-results__option {
-        padding: 8px 12px;
-    }
-
-    .select2-container--default .select2-results__option--highlighted {
-        background-color: #0d6efd;
-    }
-
     /* Modales estilo sisGitse (bg-gradient-dark y cierre blanco) */
     .modal-header {
         background: linear-gradient(135deg, #141E30 0%, #243B55 100%) !important;

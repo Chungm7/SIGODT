@@ -273,4 +273,42 @@ describe('Theme Switcher - demo-theme.js', () => {
     assert.equal(env.root.classList.contains('theme-dark'), false);
     assert.equal(env.localStorage.getItem('tablerTheme'), 'light');
   });
+
+  test('select2.css provides clear option visibility and dark mode parity with form-select', () => {
+    const select2Css = fs.readFileSync(path.join(__dirname, '../view/html/global/css/select2.css'), 'utf8');
+
+    // Dark mode dropdown background is dark (#182433), not white
+    assert.match(select2Css, /\[data-bs-theme="dark"\]\s+\.select2-dropdown[\s\S]*?background-color:\s*#182433/);
+
+    // Dark mode closed selector background is #151f2c (matching .form-select)
+    assert.match(select2Css, /\[data-bs-theme="dark"\]\s+\.select2-container\s+\.select2-selection--single[\s\S]*?background-color:\s*#151f2c/);
+
+    // Unhovered options in dark mode have bright white text (#fcfdfe), ensuring readability
+    assert.match(select2Css, /\[data-bs-theme="dark"\]\s+\.select2-container--default\s+\.select2-results__option[\s\S]*?color:\s*#fcfdfe/);
+
+    // Highlighted/hovered option is Tabler blue (#206bc4) with white text
+    assert.match(select2Css, /\.select2-container--default\s+\.select2-results__option--highlighted[\s\S]*?background-color:\s*#206bc4/);
+
+    // Search field inside dark dropdown has dark background and light text
+    assert.match(select2Css, /\[data-bs-theme="dark"\]\s+\.select2-search--dropdown\s+\.select2-search__field[\s\S]*?background-color:\s*#151f2c/);
+    assert.match(select2Css, /\[data-bs-theme="dark"\]\s+\.select2-search--dropdown\s+\.select2-search__field[\s\S]*?color:\s*#fcfdfe/);
+
+    // Light mode has dark text for options (#182433)
+    assert.match(select2Css, /\.select2-container--default\s+\.select2-results__option\s*\{[\s\S]*?color:\s*#182433/);
+  });
+
+  test('Breadcrumb.css provides white text for active section in dark mode', () => {
+    const breadcrumbCss = fs.readFileSync(path.join(__dirname, '../public/css/Breadcrumb.css'), 'utf8');
+
+    // Active breadcrumb item where user is located must be white in dark mode
+    assert.match(breadcrumbCss, /\[data-bs-theme="dark"\]\s+\.breadcrumb-item\.active[\s\S]*?color:\s*#ffffff/);
+    assert.match(breadcrumbCss, /\[data-bs-theme="dark"\]\s+\.breadcrumb\s+span[\s\S]*?color:\s*#ffffff/);
+    assert.match(breadcrumbCss, /\[data-bs-theme="dark"\]\s+\.breadcrumb-item\[aria-current="page"\][\s\S]*?color:\s*#ffffff/);
+
+    // Navigable links in dark mode are clear light blue (#4299e1)
+    assert.match(breadcrumbCss, /\[data-bs-theme="dark"\]\s+\.breadcrumb\s+a[\s\S]*?color:\s*#4299e1/);
+
+    // Dividers and icons in dark mode are clean #869ab8
+    assert.match(breadcrumbCss, /\[data-bs-theme="dark"\]\s+\.breadcrumb-item\s*\+\s*\.breadcrumb-item::before[\s\S]*?color:\s*#869ab8/);
+  });
 });
