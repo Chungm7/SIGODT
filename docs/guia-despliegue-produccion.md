@@ -9,11 +9,12 @@
 
 ## 1. Resumen de Componentes Clave Desplegados
 
-Esta versión incorpora cuatro mejoras críticas de infraestructura y arquitectura:
+Esta versión incorpora cinco mejoras críticas de infraestructura y arquitectura:
 1. **Correlativos Atómicos por Año:** Eliminación de colisiones y duplicados (`duplicate key 000001-2026`) mediante un contador transaccional serializado a nivel de motor PostgreSQL.
 2. **Workers de Pagos y Extornos SATCH:** Detección continua de pagos (`buscar_automatizado.php`) y conciliación de extornos de ventanilla (`reconciliar_extornos.php`) con estrategia de doble velocidad y soporte de backfill histórico.
 3. **Consulta en Dos Niveles de Empresas/RUC:** Búsqueda local en `public.tb_empresa` con fallback automático a la API SUNAT PIDE (`https://www.munichiclayo.gob.pe/Pide/Sunat/{ruc}`) y autorregistro instantáneo.
 4. **Optimización de Índices:** Índices B-Tree compuestos sobre `sc_giros.td_ordengirociud` y tablas de trámites para acelerar las búsquedas operativas y el reporte de recaudación.
+5. **Reglas de Pago en Transporte (1 Fase vs 2 Fases):** Separación técnica de los 16 trámites multitasa de Transporte: 9 trámites de liquidación en paquete único (1 Fase, `proced_tipocampo = 3`) y 7 trámites con evaluación previa de Costo Administrativo (2 Fases, `proced_tipocampo = 2`), junto con la corrección de filtros dinámicos en DataTables.
 
 ---
 
@@ -184,6 +185,12 @@ ON CONFLICT (year) DO UPDATE SET last_value = GREATEST(c.last_value, EXCLUDED.la
 #### Caso 4.3: Aplicar migración de índices de optimización (Recomendado):
 ```bash
 psql -U postgres -d <nombre_bd> -f /var/www/html/SIGODT/database/migrations/20261019_optimize_giros_and_search_indexes.sql
+```
+
+#### Caso 4.4: Aplicar migración de reglas de pago en Transporte (1 Fase vs 2 Fases):
+Actualiza `sc_giros.tm_procedimiento` para asignar `proced_tipocampo = 3` (1 Fase) a los 9 trámites de renovación, sustitución e incremento de flota, y `proced_tipocampo = 2` (2 Fases) a los 7 trámites de autorización nueva:
+```bash
+psql -U postgres -d <nombre_bd> -f /var/www/html/SIGODT/database/migrations/20261021_update_proced_tipocampo_transporte_1_fase.sql
 ```
 
 ---
