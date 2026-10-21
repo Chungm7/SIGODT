@@ -201,7 +201,21 @@ chmod -R 775 /var/www/html/SIGODT/logs /var/www/html/SIGODT/api/logs
 chown -R apache:apache /var/www/html/SIGODT/logs /var/www/html/SIGODT/api/logs
 ```
 
-#### 2. Alineación Histórica Inicial (Initial Backfill Único):
+#### 2. Smoke Tests de Validación Previa:
+Antes de correr procesos sobre la base de datos o programar el cron, ejecuta los dos smoke tests:
+
+```bash
+# 2.1 Smoke test de código/contratos (se ejecuta en 1 segundo):
+php /var/www/html/SIGODT/tests/buscar_automatizado_test.php
+php /var/www/html/SIGODT/tests/reconciliar_extornos_test.php
+
+# 2.2 Smoke test de conectividad en caliente (prueba 1 día para verificar conexión a DB y SATCH):
+/usr/bin/php /var/www/html/SIGODT/api/reconciliar_extornos.php dias=1
+tail -n 15 /var/www/html/SIGODT/api/logs/reconciliacion_extornos_$(date +%Y_%m_%d).log
+```
+*Si ambos tests imprimen `PASS` y el log confirma `TOKEN SATCH ACTIVO OK`, procede con el paso 3.*
+
+#### 3. Alineación Histórica Inicial (Initial Backfill Único):
 Antes de dejar los crons periódicos desatendidos, es fundamental sincronizar y sanear la base de datos completa por única vez:
 
 ```bash
@@ -216,7 +230,7 @@ Antes de dejar los crons periódicos desatendidos, es fundamental sincronizar y 
 > 2. Inmediatamente después, el reconciliador con `dias=0` toma **todas las órdenes en estado 4 de la historia** y verifica contra SATCH si alguna fue extornada en el pasado para actualizarla a `6`.  
 > 3. Al finalizar ambos comandos, **el sistema queda 100% alineado y saneado**. A partir de ahí, los crons periódicos solo necesitan vigilar la ventana corta (`dias=2` diurno / `dias=30` nocturno) y el de pagos sigue revisando continuamente las nuevas órdenes giradas.
 
-#### 3. Instalar ambos workers en el Crontab:
+#### 4. Instalar ambos workers en el Crontab:
 Ejecuta:
 ```bash
 crontab -e
@@ -237,12 +251,12 @@ Pega el bloque completo:
 30 2 * * * /usr/bin/php /var/www/html/SIGODT/api/reconciliar_extornos.php dias=30 >> /var/www/html/SIGODT/logs/cron_extornos_deep.log 2>&1
 ```
 
-#### 4. Confirmar que se registraron correctamente:
+#### 5. Confirmar que se registraron correctamente:
 ```bash
 crontab -l
 ```
 
-#### 5. Verificar que están corriendo en vivo:
+#### 6. Verificar que están corriendo en vivo:
 Espera 5 minutos y revisa que los archivos de log se estén alimentando:
 ```bash
 tail -f /var/www/html/SIGODT/logs/cron_pagos.log
