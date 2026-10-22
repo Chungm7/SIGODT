@@ -2,10 +2,12 @@
 class Ordengiro extends conectar
 {
     /** Typed owner membership, deliberately independent of all state/date filters. */
-    private function nombre_association_sql()
+    private function nombre_association_sql($filterClause = '', $preCte = '')
     {
-        return <<<'SQL'
-WITH source AS (
+        $with = $preCte !== '' ? "WITH $preCte\nsource AS (" : "WITH source AS (";
+        $where = $filterClause !== '' ? "    WHERE $filterClause\n" : '';
+        return <<<SQL
+$with
     SELECT og.ogciud_id, tt.ciud_id, tt.empr_id, tt.procedciudadano_id,
            BTRIM(CONCAT_WS(' ', c.ciud_nombre, c.ciud_primer_apellido, c.ciud_segundo_apellido)) AS ciudadano,
            c.ciud_numero_documento::text AS documento,
@@ -20,7 +22,7 @@ WITH source AS (
     JOIN sc_giros.td_procedciudadano tt ON ttc.tasatciud_procedciud = tt.procedciudadano_id
     JOIN public.tb_ciudadano c ON c.ciud_id = tt.ciud_id
     LEFT JOIN public.tb_empresa e ON e.empr_id = tt.empr_id
-), entities AS (
+$where), entities AS (
     SELECT 'ciudadano'::text AS entity_type, ciud_id::text AS entity_key,
            ogciud_id, COALESCE(NULLIF(ciudadano, ''), 'Ciudadano sin nombre') AS nombre,
            documento
@@ -103,7 +105,27 @@ SQL;
     public function buscar_entidades_nombre($search, $page = 1, $limit = 10)
     {
         list($search, $page, $limit) = self::validar_nombre_input('buscar_entidades_nombre', compact('search', 'page', 'limit'));
-        $cte = $this->nombre_association_sql() . <<<'SQL'
+        $preCte = <<<'SQL'
+matched_ciud AS (
+    SELECT c.ciud_id
+    FROM public.tb_ciudadano c
+    WHERE (c.ciud_nombre || ' ' || c.ciud_primer_apellido || ' ' || COALESCE(c.ciud_segundo_apellido, '')) ILIKE :search ESCAPE '!'
+), matched_empr_ids AS (
+    SELECT empr_id
+    FROM public.tb_empresa
+    WHERE empr_razon_social ILIKE :search ESCAPE '!' OR empr_nombre_comercial ILIKE :search ESCAPE '!'
+), matched_proced_ids AS (
+    SELECT procedciudadano_id
+    FROM sc_giros.td_procedciudadano
+    WHERE empresa_razon_social ILIKE :search ESCAPE '!'
+    UNION
+    SELECT procedciudadano_id
+    FROM sc_giros.td_procedciudadano
+    WHERE empr_id IN (SELECT empr_id FROM matched_empr_ids)
+),
+SQL;
+        $filter = 'tt.ciud_id IN (SELECT ciud_id FROM matched_ciud) OR tt.procedciudadano_id IN (SELECT procedciudadano_id FROM matched_proced_ids)';
+        $cte = $this->nombre_association_sql($filter, $preCte) . <<<'SQL'
 , matched AS (
     SELECT DISTINCT entity_type, entity_key FROM entities WHERE nombre ILIKE :search ESCAPE '!'
 ), labels AS (
@@ -122,9 +144,25 @@ SQL;
     public function historial_entidad($entity_type, $entity_key, $page = 1, $limit = 10)
     {
         list($entity_type, $entity_key, $page, $limit) = self::validar_nombre_input('historial_entidad', compact('entity_type', 'entity_key', 'page', 'limit'));
-        $cte = $this->nombre_association_sql() . <<<'SQL'
+        if ($entity_type === 'ciudadano') {
+            $filter = 'tt.ciud_id = :key_filter';
+            $bindings = [':type' => $entity_type, ':key' => $entity_key, ':key_filter' => (int)$entity_key];
+        } else {
+            if (strpos($entity_key, 'ruc:') === 0) {
+                $filter = "COALESCE(NULLIF(BTRIM(e.empr_ruc::text), ''), NULLIF(BTRIM(tt.empresa_ruc::text), '')) = :key_filter";
+                $bindings = [':type' => $entity_type, ':key' => $entity_key, ':key_filter' => substr($entity_key, 4)];
+            } elseif (strpos($entity_key, 'id:') === 0) {
+                $filter = 'tt.empr_id = :key_filter';
+                $bindings = [':type' => $entity_type, ':key' => $entity_key, ':key_filter' => (int)substr($entity_key, 3)];
+            } else {
+                $filter = 'tt.procedciudadano_id = :key_filter';
+                $bindings = [':type' => $entity_type, ':key' => $entity_key, ':key_filter' => (int)substr($entity_key, 4)];
+            }
+        }
+        $cte = $this->nombre_association_sql($filter) . <<<'SQL'
 , rate_rows AS (
     SELECT DISTINCT girot_id, girot_giro, importe FROM sc_giros.td_giro_tasa_ciudadano
+    WHERE girot_giro IN (SELECT ogciud_id FROM pairs)
 ), amounts AS (
     SELECT girot_giro, SUM(importe) AS importe FROM rate_rows GROUP BY girot_giro
 )
@@ -137,7 +175,7 @@ SQL;
             WHERE p.entity_type = :type AND p.entity_key = :key";
         // The same sort is used inside and outside paged; no ambiguous table aliases there.
         return $this->nombre_page($cte, $selection, 'fechacrea DESC NULLS LAST, ogciud_id DESC',
-            [':type' => $entity_type, ':key' => $entity_key], $page, $limit, 'ogciud_id');
+            $bindings, $page, $limit, 'ogciud_id');
     }
 
     public function get_orden_id($orden_id)
