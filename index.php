@@ -127,7 +127,14 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
               
 
               <!-- Mensajes de error -->
-              <?php if (isset($_GET["m"])): ?>
+              <?php if (isset($_SESSION["login_error"])): ?>
+                <div class="alert alert-danger" role="alert">
+                  <?php
+                  echo htmlspecialchars($_SESSION["login_error"], ENT_QUOTES, "UTF-8");
+                  unset($_SESSION["login_error"]);
+                  ?>
+                </div>
+              <?php elseif (isset($_GET["m"])): ?>
                 <div class="alert alert-danger" role="alert">
                   <?php
                   $mensajes = [
