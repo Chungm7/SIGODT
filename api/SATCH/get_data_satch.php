@@ -1,6 +1,6 @@
 <?php
 header("Content-Type: application/json");
-include('../db.php');
+require_once __DIR__ . '/../db.php';
 
 function response($message, $data = [], $success = false, $httpStatusCode = 200)
 {

@@ -155,10 +155,12 @@ test('ordinary individual/manual and type 3 grouped presentation remain availabl
   h.context.calcularTotalTasas();
   assert.equal(h.rows[0].checkbox.checked, true, 'Ordinary selection stays independent');
   assert.match(h.button.html, /\(1\) - S\/ 18.00/);
-  const joint = listing(3, [1, 1]);
-  assert.match(joint.aaData[0][0], /disabled checked/);
-  assert.equal(joint.aaData[0][5], '');
-  assert.equal(harness(joint).button.disabled, false);
+  for (const type of [3, '3']) {
+    const joint = listing(type, [1, 1]);
+    assert.match(joint.aaData[0][0], /disabled checked/);
+    assert.equal(joint.aaData[0][5], '');
+    assert.equal(harness(joint).button.disabled, false);
+  }
 });
 
 test('single-fee procedures adapt UI: no checkbox, prominent emitir button, hidden group button, and conditional tabs', () => {

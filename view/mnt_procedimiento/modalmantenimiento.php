@@ -34,9 +34,9 @@
                         <div class="col-lg-4 mb-3">
                             <label for="tipo_campo" class="form-label fw-semibold">Tipo de Pago <span class="text-danger">*</span></label>
                             <select class="form-select select2" name="tipo_campo" id="tipo_campo" data-placeholder="Seleccione" style="width: 100%;">
-                                <option value="1">No Obligatorios</option>
-                                <option value="2" selected>Obligatorios</option>
-                                <option value="3">Obligatorios (Sin unidad)</option>
+                                <option value="1">No Obligatorios (Independientes)</option>
+                                <option value="2" selected>2 Fases (Costo adm. previo)</option>
+                                <option value="3">1 Fase (Pago conjunto total)</option>
                             </select>
                             <small class="form-hint">Regla de pago de tasas asociadas</small>
                         </div>

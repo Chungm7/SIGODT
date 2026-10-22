@@ -187,9 +187,9 @@ switch ($_GET["op"]) {
             if ($obligatorio == "1") {
                 $sub_array[] = '<span class="badge bg-secondary-lt" title="No obligatorios: se pagan de forma independiente.">No Obligatorios</span>';
             } else if ($obligatorio == "2") {
-                $sub_array[] = '<span class="badge bg-blue-lt" title="Obligatorios: se pagan en estricto orden de prioridad.">Obligatorios</span>';
+                $sub_array[] = '<span class="badge bg-blue-lt" title="Obligatorios: se pagan en estricto orden de prioridad.">2 Fases</span>';
             } else {
-                $sub_array[] = '<span class="badge bg-warning-lt" title="Obligatorio sin unidad: pago conjunto de tasas.">Obligatorios (Sin Unidad)</span>';
+                $sub_array[] = '<span class="badge bg-warning-lt" title="Obligatorio sin unidad: pago conjunto de tasas.">1 Fase</span>';
             }
 
             $administrado_tipo = $row["proced_administradotipo"];

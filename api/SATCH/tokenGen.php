@@ -1,6 +1,6 @@
 <?php
 header("Content-Type: application/json");
-include('../db.php');
+require_once __DIR__ . '/../db.php';
 
 // Datos de autenticación desde entorno
 $username = Conectar::getEnv('SATCH_CLIENT_ID', 'satchapitest');
@@ -19,7 +19,8 @@ $url = Conectar::getEnv('SATCH_AUTH_URL', 'http://satch.gob.pe:81/api.test/oauth
 // Configurar opciones de la solicitud
 $options = array(
     'http' => array(
-        'header' => "Authorization: Basic " . base64_encode("$username:$password"),
+        'header' => "Authorization: Basic " . base64_encode("$username:$password") . "\r\n" .
+                    "Content-Type: application/x-www-form-urlencoded\r\n",
         'method' => 'POST',
         'content' => http_build_query($data),
     )

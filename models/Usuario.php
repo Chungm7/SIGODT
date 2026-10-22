@@ -90,6 +90,13 @@ class usuario extends conectar
                     $_SESSION["historial_login_SIGODT"] = $data["hise_id"];
                     $_SESSION["usu_depe_id_SIGODT"] = $data["depe_id"];
 
+                    // Auto-aprovisionamiento de área por defecto (JIT Provisioning)
+                    if (!empty($data["pers_id"]) && !empty($data["depe_id"])) {
+                        require_once __DIR__ . '/Area.php';
+                        $areaModel = new Area();
+                        $areaModel->sincronizar_area_defecto($data["pers_id"], $data["depe_id"]);
+                    }
+
                     switch ($_SESSION["rol_id_SIGODT"]) {
 
                         case 8:

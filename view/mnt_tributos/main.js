@@ -81,12 +81,8 @@ $(document).ready(function () {
 });
 
 var tabla_detalle = null;
-var tabla_detalle_params = { proced_id: 0, area_id: 0, tupa_id: 0 };
 
 function cargardata() {
-    tabla_detalle_params.proced_id = proced_id;
-    tabla_detalle_params.area_id = area_id;
-    tabla_detalle_params.tupa_id = tupa_id;
     if ($.fn.DataTable.isDataTable('#detalle_data') && tabla_detalle) {
         tabla_detalle.ajax.reload(null, false);
         return;
@@ -99,7 +95,11 @@ function cargardata() {
         "ajax": {
             url: "../../controller/tasa.php?op=listar_proceds_tasa",
             type: "post",
-            data: tabla_detalle_params,
+            data: function (d) {
+                d.proced_id = $('#proced_id').val() || proced_id || 0;
+                d.area_id = $('#area_id').val() || area_id || 0;
+                d.tupa_id = $('#tupa_id').val() || tupa_id || 0;
+            },
         },
         "bDestroy": true,
         "responsive": true,
@@ -287,10 +287,10 @@ function eliminar(tasaproced_id) {
 }
 
 var tabla_tasa = null;
-var tabla_tasa_params = { proced_id: 0 };
+var proced_id_tasa_seleccionada = 0;
 
 function listar_tasa(proced_id_param) {
-    tabla_tasa_params.proced_id = proced_id_param;
+    proced_id_tasa_seleccionada = proced_id_param || $('#proced_id').val() || 0;
     if ($.fn.DataTable.isDataTable('#tasa_data') && tabla_tasa) {
         tabla_tasa.ajax.reload(null, false);
         return;
@@ -303,7 +303,9 @@ function listar_tasa(proced_id_param) {
         "ajax": {
             url: "../../controller/tasa.php?op=listar_detalle_tasa",
             type: "post",
-            data: tabla_tasa_params
+            data: function (d) {
+                d.proced_id = proced_id_tasa_seleccionada;
+            }
         },
         "bDestroy": true,
         "responsive": true,

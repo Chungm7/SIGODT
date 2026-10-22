@@ -3,6 +3,49 @@
   'use strict';
   const headings = ['N° ODT', 'Fecha y hora de emisión', 'Ciudadano / Razón social', 'Documento', 'Código del procedimiento', 'Nombre del procedimiento', 'Estado actual', 'Importe (S/)'];
   const text = value => Array.isArray(value) ? value.join(' / ') : String(value ?? '');
+  function getPdfSummaryCopy(state) {
+    switch (String(state ?? 'todos')) {
+      case '4':
+        return {
+          ordersLabel: 'Total de órdenes pagadas',
+          linesLabel: 'Total de tasas pagadas',
+          amountLabel: 'Importe pagado',
+          warningPdf: 'Importe efectivamente recaudado en caja. Solo conceptos coincidentes.'
+        };
+      case '1':
+      case '2':
+        return {
+          ordersLabel: 'Total de órdenes giradas',
+          linesLabel: 'Total de tasas giradas',
+          amountLabel: 'Importe pendiente',
+          warningPdf: 'El importe girado no equivale a dinero recaudado. Solo conceptos coincidentes pendientes de pago.'
+        };
+      case 'anulados':
+      case '0':
+      case '6':
+        return {
+          ordersLabel: 'Total de órdenes anuladas/extornadas',
+          linesLabel: 'Total de tasas anuladas/extornadas',
+          amountLabel: 'Importe anulado / extornado',
+          warningPdf: 'Órdenes anuladas o extornadas no constituyen recaudación. Solo conceptos coincidentes.'
+        };
+      case 'emitidos':
+        return {
+          ordersLabel: 'Total de órdenes emitidas',
+          linesLabel: 'Total de tasas emitidas',
+          amountLabel: 'Importe emitido',
+          warningPdf: 'El importe emitido no equivale a dinero recaudado. Solo conceptos coincidentes. Incluye órdenes giradas y pagadas.'
+        };
+      case 'todos':
+      default:
+        return {
+          ordersLabel: 'Total de órdenes',
+          linesLabel: 'Total de tasas',
+          amountLabel: 'Importe total',
+          warningPdf: 'El importe emitido no equivale a dinero recaudado. Solo conceptos coincidentes. Se incluyen estados históricos.'
+        };
+    }
+  }
   function filename(filters) {
     if (![filters.start, filters.end].every(value => /^\d{4}-\d{2}-\d{2}$/.test(value))) throw new Error('Periodo PDF inválido.');
     return `emisiones-${filters.start}-${filters.end}.pdf`;
@@ -30,10 +73,11 @@
       [`Periodo inclusivo: ${filters.start} al ${filters.end} · Generado: ${text(data.generated_at)}`],
       [`Estado: ${data.state_label || filters.state || 'Todos'} · Documento (ID): ${filters.document || 'Todos'} · Procedimiento (ID): ${filters.procedure || 'Todos'}`]
     ] });
-    table({ head: [['Total de órdenes emitidas', 'Órdenes anuladas y extornadas', 'Total de tasas emitidas', 'Importe emitido (S/)']],
+    const copy = getPdfSummaryCopy(filters.state);
+    table({ head: [[copy.ordersLabel, 'Órdenes anuladas y extornadas', copy.linesLabel, `${copy.amountLabel} (S/)`]],
       body: [[data.summary.orders, data.summary.cancelled, data.summary.lines, data.summary.amount]], theme: 'grid',
       columnStyles: { 3: { halign: 'right' } } });
-    table({ theme: 'plain', body: [['El importe emitido no equivale a dinero recaudado. Solo conceptos coincidentes. Se incluyen estados históricos.']] });
+    table({ theme: 'plain', body: [[copy.warningPdf]] });
     table({ head: [headings], body: data.details.length ? data.details.map(row => [row.order_id, row.emitted_at, row.citizens, row.documents, row.codes, row.procedures, row.state_label, row.amount].map(text)) : [[{ content: 'No se encontraron órdenes para estos filtros.', colSpan: 8 }]],
       columnStyles: { 0: { cellWidth: 25 }, 1: { cellWidth: 29 }, 2: { cellWidth: 47 }, 3: { cellWidth: 26 }, 4: { cellWidth: 29 }, 5: { cellWidth: 70 }, 6: { cellWidth: 25 }, 7: { cellWidth: 22, halign: 'right' } } });
     table({ theme: 'plain', body: [['Desglose por documento y procedimiento. Los conteos de órdenes no son aditivos: una orden puede tener varios procedimientos.']] });

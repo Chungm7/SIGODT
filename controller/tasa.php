@@ -431,7 +431,7 @@ switch ($_GET["op"]) {
                 $selectionAttributes = $groupEligible ? "checked" : "disabled";
                 $checkbox = "<input type='checkbox' class='form-check-input' name='detallecheck[]' value='" . $row["tasatciud_id"] . "' data-estado='" . $row["est"] . "' data-monto='" . $row["tasaproced_monto"] . "'" . $groupAttributes . " " . $selectionAttributes . ">";
             } else {
-                if ($tcampo === 3) {
+                if ((int) $tcampo === 3) {
                     // Verificar si el estado es "Improcedente" y desactivar el checkbox en consecuencia
                     $disabledCheckbox = "disabled";
                     $disabledCheckbox = "disabled";
@@ -482,7 +482,7 @@ switch ($_GET["op"]) {
                     } else {
                         $pago_button = '';
                     }
-                } else if ($tcampo === 3) {
+                } else if ((int) $tcampo === 3) {
                     $pago_button = '';
                 } else {
                     $pago_button = '<button type="button" onClick="pagar(' . $row["tasatciud_id"] . ',' . $_POST["proceciudadano_id"] . ',' . $_POST["est"] . ');" id="' . $row["tasatciud_id"] . '" class="btn btn-outline-primary btn-icon" title="Emitir Orden de Giro">' . $icon_class . '</button>';

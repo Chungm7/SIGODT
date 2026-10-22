@@ -43,13 +43,13 @@ catch (InvalidArgumentException $error) {
     <div class="card-body">
       <p id="reportIdentity" class="text-muted"></p>
       <dl id="reportSummary" class="report-metrics">
-        <div><dt>Total de órdenes emitidas</dt><dd id="reportOrders"></dd></div>
-        <div><dt>Órdenes anuladas y extornadas</dt><dd id="reportCancelled"></dd></div>
-        <div><dt>Total de tasas emitidas</dt><dd id="reportLines"></dd></div>
-        <div><dt>Importe emitido</dt><dd id="reportAmount"></dd></div>
+        <div><dt id="reportOrdersLabel">Total de órdenes emitidas</dt><dd id="reportOrders"></dd></div>
+        <div><dt id="reportCancelledLabel">Órdenes anuladas y extornadas</dt><dd id="reportCancelled"></dd></div>
+        <div><dt id="reportLinesLabel">Total de tasas emitidas</dt><dd id="reportLines"></dd></div>
+        <div><dt id="reportAmountLabel">Importe emitido</dt><dd id="reportAmount"></dd></div>
       </dl>
-      <p class="mb-2"><strong>El importe emitido no equivale a dinero recaudado.</strong></p>
-      <p class="text-muted mb-0">Los filtros cuentan cada orden coincidente una vez y suman solo sus conceptos coincidentes. Se incluyen órdenes anuladas, extornadas y estados históricos.</p>
+      <p class="mb-2"><strong id="reportWarningStrong">El importe emitido no equivale a dinero recaudado.</strong></p>
+      <p id="reportWarningDesc" class="text-muted mb-0">Los filtros cuentan cada orden coincidente una vez y suman solo sus conceptos coincidentes. Se incluyen órdenes anuladas, extornadas y estados históricos.</p>
     </div>
     <div class="card-footer report-actions">
       <button id="reportPdf" class="btn btn-primary" type="button" disabled>Descargar PDF</button>

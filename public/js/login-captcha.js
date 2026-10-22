@@ -42,7 +42,7 @@
           state = 'ready';
           input.disabled = submit.disabled = refresh.disabled = false;
           input.setCustomValidity('');
-          status.textContent = 'Ingrese los seis caracteres de la imagen. Vigencia: 5 minutos.';
+          status.textContent = 'Ingrese los seis caracteres de la imagen. Vigencia: 2 minutos.';
         };
         image.onerror = () => fail(token);
         image.src = data.captcha;

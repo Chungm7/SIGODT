@@ -34,7 +34,7 @@ if (($argv[1] ?? '') === 'boundary') {
     if ($case === 'empty') { $_POST['captchaInput'] = ''; }
     if ($case === 'wrong') { $_POST['captchaInput'] = 'XYZ789'; }
     if ($case === 'array') { $_POST['captchaInput'] = ['ABC234']; }
-    if ($case === 'expired') { $_SESSION['captcha_issued_at'] -= 301; }
+    if ($case === 'expired') { $_SESSION['captcha_issued_at'] -= 121; }
     if ($case === 'refreshed') { $_SESSION['captcha_text'] = 'XYZ789'; }
     if ($case === 'reused') { $_SESSION = []; }
     if ($case === 'malformed-session') { $_SESSION['captcha_text'] = []; }
@@ -69,18 +69,18 @@ $session = [];
 $image = Captcha::issue($session, 1000, function ($text) { return 'data:image/png;base64,' . base64_encode('image'); });
 check(is_string($image) && preg_match('/^[A-Z2-9]{6}$/', $session['captcha_text']), 'generation contract');
 $answer = $session['captcha_text'];
-check(Captcha::consume($session, strtolower($answer), 1299), 'case normalization');
-check(!Captcha::consume($session, $answer, 1299), 'single use');
+check(Captcha::consume($session, strtolower($answer), 1119), 'case normalization');
+check(!Captcha::consume($session, $answer, 1119), 'single use');
 $session = ['captcha_text' => 'OLD234', 'captcha_issued_at' => 1000];
 Captcha::issue($session, 1001, function ($text) { return 'data:image/png;base64,aW1hZ2U='; });
 check($session['captcha_text'] !== 'OLD234', 'refresh did not replace challenge');
 check(!Captcha::consume($session, 'OLD234', 1002), 'refreshed answer accepted');
 foreach ([null, [], 123, '', ' ABC234 ', 'ABC234', str_repeat('A', 1000)] as $input) {
     $session = ['captcha_text' => 'ABC234', 'captcha_issued_at' => 1000];
-    check(!Captcha::consume($session, $input, 1300), 'expiry/malformed input');
+    check(!Captcha::consume($session, $input, 1120), 'expiry/malformed input');
     check($session === [], 'failed attempt consumption');
 }
-foreach ([999, 1300] as $now) {
+foreach ([999, 1120] as $now) {
     $session = ['captcha_text' => 'ABC234', 'captcha_issued_at' => 1000];
     check(!Captcha::consume($session, 'ABC234', $now), 'time boundary');
 }

@@ -83,5 +83,67 @@
         
 
         
+
+        /**
+         * Auto-provisions default institutional dependency for a user on login.
+         * Only provisions if the user has NO active areas, NO prior assignment
+         * record for this dependency, and the dependency is active in public.tb_dependencia.
+         */
+        public function sincronizar_area_defecto($pers_id, $depe_id) {
+            if ((!is_int($pers_id) && !is_string($pers_id)) ||
+                filter_var($pers_id, FILTER_VALIDATE_INT, ["options" => ["min_range" => 1]]) === false) {
+                return false;
+            }
+            if ((!is_int($depe_id) && !is_string($depe_id)) ||
+                filter_var($depe_id, FILTER_VALIDATE_INT, ["options" => ["min_range" => 1]]) === false) {
+                return false;
+            }
+            $pers_id = (int)$pers_id;
+            $depe_id = (int)$depe_id;
+
+            try {
+                $conectar = parent::conexion();
+                parent::set_names();
+
+                // 1. Check if user already has any active area assignment
+                $sqlActive = "SELECT 1 FROM sc_giros.td_areausu WHERE pers_id = ? AND est = 1 LIMIT 1";
+                $stmtActive = $conectar->prepare($sqlActive);
+                $stmtActive->bindValue(1, $pers_id, PDO::PARAM_INT);
+                $stmtActive->execute();
+                if ($stmtActive->fetch()) {
+                    return false;
+                }
+
+                // 2. Check if a prior record exists for this depe_id (e.g. revoked by admin)
+                $sqlPrior = "SELECT 1 FROM sc_giros.td_areausu WHERE pers_id = ? AND depe_id = ? LIMIT 1";
+                $stmtPrior = $conectar->prepare($sqlPrior);
+                $stmtPrior->bindValue(1, $pers_id, PDO::PARAM_INT);
+                $stmtPrior->bindValue(2, $depe_id, PDO::PARAM_INT);
+                $stmtPrior->execute();
+                if ($stmtPrior->fetch()) {
+                    return false;
+                }
+
+                // 3. Verify dependency is active in public.tb_dependencia
+                $sqlDepe = "SELECT 1 FROM public.tb_dependencia WHERE depe_id = ? AND depe_estado = 'A' LIMIT 1";
+                $stmtDepe = $conectar->prepare($sqlDepe);
+                $stmtDepe->bindValue(1, $depe_id, PDO::PARAM_INT);
+                $stmtDepe->execute();
+                if (!$stmtDepe->fetch()) {
+                    return false;
+                }
+
+                // 4. Provision default area
+                $sqlInsert = "INSERT INTO sc_giros.td_areausu(pers_id, depe_id, est) VALUES (?, ?, 1) RETURNING areausu_id";
+                $stmtInsert = $conectar->prepare($sqlInsert);
+                $stmtInsert->bindValue(1, $pers_id, PDO::PARAM_INT);
+                $stmtInsert->bindValue(2, $depe_id, PDO::PARAM_INT);
+                $stmtInsert->execute();
+                $resultado = $stmtInsert->fetch(PDO::FETCH_ASSOC);
+                return $resultado ?: true;
+            } catch (Throwable $e) {
+                return false;
+            }
+        }
     }
 ?>

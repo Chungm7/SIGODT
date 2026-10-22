@@ -91,9 +91,9 @@ function updateDataTable() {
     ajax: {
       url: "../../controller/procedimiento.php?op=listar",
       type: "post",
-      data: {
-        get area_id() { return area_id; },
-        get tupa_id() { return tupa_id; },
+      data: function (d) {
+        d.area_id = $("#area_id").val() || area_id || 0;
+        d.tupa_id = $("#tupa_id").val() || tupa_id || 0;
       },
     },
     bDestroy: true,
