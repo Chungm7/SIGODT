@@ -5,128 +5,205 @@ class usuario extends conectar
     public function login()
     {
         if (!Captcha::consume($_SESSION, $_POST['captchaInput'] ?? null)) {
-            header("Location:" . conectar::ruta() . "index.php?m=11");
+            header("Location:" . Conectar::ruta() . "index.php?m=11");
             exit();
         }
         $dni = $_POST['usu_dni'] ?? null;
         $pass = $_POST['usu_pass'] ?? null;
-        if (!is_string($dni) || !is_string($pass)) {
-            header("Location:" . conectar::ruta() . "index.php?m=2");
+        if (!is_string($dni) || !is_string($pass) || empty($dni) || empty($pass)) {
+            header("Location:" . Conectar::ruta() . "index.php?m=2");
             exit();
         }
+
         $conectar = parent::conexion();
         parent::set_names();
+
         if (isset($_POST["enviar"])) {
-            if (empty($dni) and empty($pass)) {
-                header("Location:" . conectar::ruta() . "index.php?m=2");
-                exit();
-            } else {
+            $ip = Conectar::getClientIp();
 
-                $ip = Conectar::getClientIp();
-
-                //comienzo API seguridad
-                $ch = curl_init();
-                $sisSeguridadUrl = rtrim(Conectar::getEnv('SIS_SEGURIDAD_URL', 'http://10.10.10.16/sisSeguridad/'), '/') . '/';
-                $sistInic = Conectar::getEnv('SIS_SEGURIDAD_INIT', 'SIGI');
-                $ws_reniec = $sisSeguridadUrl . "ws/ws.php/?op=login&pers_dni=" . urlencode($dni) . "&pers_contrasena=" . urlencode($pass) . "&pers_ip=" . urlencode($ip) . "&sist_inic=" . urlencode($sistInic);
-
-                curl_setopt($ch, CURLOPT_URL, $ws_reniec);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                $response = curl_exec($ch);
-
-                if (curl_errno($ch)) {
-                    $error_msg = curl_error($ch);
-                    echo json_encode(array('error' => 'Error al conectarse al servicio' . $error_msg));
-                    exit(); // Interrumpe la ejecución si hay error en cURL
+            // 1. Acquire system Bearer token from SIGUR auth endpoint
+            $sigurUrl = rtrim(Conectar::getEnv('SIGUR_URL', 'http://10.10.10.16/sigur/'), '/') . '/';
+            $authUrl = Conectar::getEnv('SIGUR_AUTH_URL', '');
+            if (empty($authUrl)) {
+                if (preg_match('#/ws/?$#', $sigurUrl)) {
+                    $authUrl = preg_replace('#/ws/?$#', '/auth/', $sigurUrl);
                 } else {
-                    curl_close($ch);
-                    $data = json_decode($response, true);
-                    if ($data === null) {
-                        echo json_encode(array('error' => 'Respuesta inválida del servicio'));
-                        exit();
-                    }
-                }
-                //fin API
-
-                //La respuesta me la trae así:
-                //{"status":404,"detalle":"Datos incorrectos"}
-                //Guardar en una variable el detalle
-                $detalle = $data["detalle"];
-
-                if ($detalle == "Blanqueamiento de clave") {
-                    require_once __DIR__ . '/../config/jwt.php';
-                    $jwt = new JwtHandler();
-                    $param = [
-                        "usu_doc" => $dni,
-                        "usu_tipo" => "P",
-                        "success" => true,
-                        "blanqueamiento" => 2
-                    ];
-                    $token = $jwt->encrypt($param, 'blanqueamiento', 1900);
-                    $jwt->setCookie("blanqueamiento", $token, 1900, "/sigur/");
-                    $sigurUrl = rtrim(Conectar::getEnv('SIGUR_URL', 'http://10.10.10.16/sigur/'), '/') . '/';
-                    header("Location: " . $sigurUrl . "view/clave/blanqueamiento.php");
-                    exit();
-                } elseif ($detalle == "No se encontraron datos") {
-                    header("Location:" . Conectar::ruta() . 'index.php?m=3');
-                    exit();
-                } elseif ($detalle == "IP Persona no registrada") {
-                    header("Location:" . Conectar::ruta() . 'index.php?m=4');
-                    exit();
-                } elseif ($detalle == "Persona inactiva") {
-                    header("Location:" . Conectar::ruta() . 'index.php?m=5');
-                    exit();
-                } elseif ($detalle == "Fuera de la hora de acceso") {
-                    header("Location:" . Conectar::ruta() . 'index.php?m=6');
-                    exit();
-                } elseif ($detalle == "Usuario no vigente") {
-                    header("Location:" . Conectar::ruta() . 'index.php?m=7');
-                    exit();
-                } elseif ($detalle == "Datos incorrectos") {
-                    header("Location:" . Conectar::ruta() . 'index.php?m=8');
-                    exit();
-                }
-
-                // Verificar si la decodificaciÃ³n fue exitosa
-                if ($data !== null) {
-
-                    $_SESSION["usua_id_SIGODT"] = $data["pers_id"];
-                    $_SESSION["usua_dni_SIGODT"] = $data["pers_dni"];
-                    $_SESSION["rol_id_SIGODT"] = $data["perf_id"];
-                    $_SESSION["usua_estado_SIGODT"] = $data["pers_estado"];
-                    $_SESSION["historial_login_SIGODT"] = $data["hise_id"];
-                    $_SESSION["pers_apellidos_SIGODT"] = $data["pers_apelpat"] . " " . $data["pers_apelmat"];
-                    $_SESSION["pers_nombre_SIGODT"] = $data["pers_nombre"];
-                    $_SESSION["nombre_completo_SIGODT"] = $data["pers_nombre"] . " " . $data["pers_apelpat"] . " " . $data["pers_apelmat"];
-                    $_SESSION["rol_nombre_SIGODT"] = $data["perf_nombre"];
-                    $_SESSION["pers_emailm_SIGODT"] = $data["pers_emailm"];
-                    $_SESSION["pers_celu01_SIGODT"] = $data["pers_celu01"];
-                    $_SESSION["historial_login_SIGODT"] = $data["hise_id"];
-                    $_SESSION["usu_depe_id_SIGODT"] = $data["depe_id"];
-
-                    // Auto-aprovisionamiento de área por defecto (JIT Provisioning)
-                    if (!empty($data["pers_id"]) && !empty($data["depe_id"])) {
-                        require_once __DIR__ . '/Area.php';
-                        $areaModel = new Area();
-                        $areaModel->sincronizar_area_defecto($data["pers_id"], $data["depe_id"]);
-                    }
-
-                    switch ($_SESSION["rol_id_SIGODT"]) {
-
-                        case 8:
-                            header("Location: " . Conectar::ruta() . "view/giros_ciudadano/");
-                            exit();
-                        case 9:
-
-                            //header("Location:" . Conectar::ruta() . "views/AdminDashboard/");
-                            header("Location:" . Conectar::ruta() . "view/giros_ciudadano/");
-                            exit();
-                    }
-                } else {
-                    header("Location:" . Conectar::ruta() . 'index.php?m=1');
-                    exit();
+                    $authUrl = $sigurUrl . 'auth/';
                 }
             }
+            $sistInic = Conectar::getEnv('SIST_INIC', Conectar::getEnv('SIS_SEGURIDAD_INIT', 'SIGI'));
+            $sistPass = Conectar::getEnv('SIST_PASS', 'sgd*2025**');
+
+            $chAuth = curl_init();
+            curl_setopt($chAuth, CURLOPT_URL, $authUrl);
+            curl_setopt($chAuth, CURLOPT_POST, true);
+            curl_setopt($chAuth, CURLOPT_POSTFIELDS, http_build_query([
+                'sist_inic' => $sistInic,
+                'sist_pass' => $sistPass,
+            ]));
+            curl_setopt($chAuth, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($chAuth, CURLOPT_TIMEOUT, 15);
+            $authResponse = curl_exec($chAuth);
+
+            if (curl_errno($chAuth)) {
+                $curlError = curl_error($chAuth);
+                curl_close($chAuth);
+                $_SESSION['login_error'] = 'Error al conectarse al servicio de autenticación';
+                header("Location: " . Conectar::ruta() . "index.php");
+                exit();
+            }
+            curl_close($chAuth);
+
+            $authData = json_decode($authResponse, true);
+            $token = $authData['data']['token'] ?? null;
+            if (empty($token) || !is_string($token)) {
+                $message = $authData['message'] ?? 'Error al obtener token de autenticación';
+                $_SESSION['login_error'] = $message;
+                header("Location: " . Conectar::ruta() . "index.php");
+                exit();
+            }
+
+            // 2. Call SIGUR login endpoint
+            $loginUrl = Conectar::getEnv('SIGUR_LOGIN_URL', '');
+            if (empty($loginUrl)) {
+                $loginUrl = rtrim($sigurUrl, '/') . '/ws/login.php';
+            }
+
+            $chLogin = curl_init();
+            curl_setopt($chLogin, CURLOPT_URL, $loginUrl);
+            curl_setopt($chLogin, CURLOPT_POST, true);
+            curl_setopt($chLogin, CURLOPT_POSTFIELDS, http_build_query([
+                'usu_doc' => $dni,
+                'usu_pass' => $pass,
+                'usu_ip' => $ip,
+                'usu_tipo' => 'P',
+                'sist_inic' => $sistInic,
+            ]));
+            curl_setopt($chLogin, CURLOPT_HTTPHEADER, [
+                'Authorization: Bearer ' . $token,
+            ]);
+            curl_setopt($chLogin, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($chLogin, CURLOPT_TIMEOUT, 15);
+            $loginResponse = curl_exec($chLogin);
+
+            if (curl_errno($chLogin)) {
+                $curlError = curl_error($chLogin);
+                curl_close($chLogin);
+                $_SESSION['login_error'] = 'Error al conectarse al servicio: ' . $curlError;
+                header("Location: " . Conectar::ruta() . "index.php");
+                exit();
+            }
+            curl_close($chLogin);
+
+            $res = json_decode($loginResponse, true);
+            if (!is_array($res)) {
+                $_SESSION['login_error'] = 'Respuesta inválida del servicio';
+                header("Location: " . Conectar::ruta() . "index.php");
+                exit();
+            }
+
+            // 3. Check for password whitening (blanqueamiento)
+            if (!empty($res['data']['url']) || ($res['detalle'] ?? '') === 'Blanqueamiento de clave') {
+                require_once __DIR__ . '/../config/jwt.php';
+                $jwt = new JwtHandler();
+                $param = [
+                    "usu_doc" => $dni,
+                    "usu_tipo" => "P",
+                    "success" => true,
+                    "blanqueamiento" => 2
+                ];
+                $jweToken = $jwt->encrypt($param, 'blanqueamiento', 1900);
+                $jwt->setCookie("blanqueamiento", $jweToken, 1900, "/sigur/");
+                header("Location: " . $sigurUrl . "view/clave/blanqueamiento.php");
+                exit();
+            }
+
+            // 4. Handle login failure
+            $status = (int)($res['status'] ?? 0);
+            $success = !empty($res['success']);
+            if ($status !== 200 || !$success) {
+                $message = $res['message'] ?? $res['detalle'] ?? 'Datos incorrectos';
+                if (!is_string($message) || trim($message) === '') {
+                    $message = 'Datos incorrectos';
+                }
+                $_SESSION['login_error'] = $message;
+                header("Location: " . Conectar::ruta() . "index.php");
+                exit();
+            }
+
+            // 5. Successful login: extract user id and query local db
+            $userDataRes = $res['data'] ?? [];
+            $persId = $userDataRes['usu_id'] ?? $userDataRes['pers_id'] ?? null;
+            if (empty($persId)) {
+                $_SESSION['login_error'] = 'Identificador de usuario no válido';
+                header("Location: " . Conectar::ruta() . "index.php");
+                exit();
+            }
+
+            $sql = "SELECT p.pers_id, p.pers_dni, p.pers_nombre, p.pers_apelpat, p.pers_apelmat,
+                           p.pers_estado, p.pers_emailm, p.pers_celu01,
+                           perm.perf_id, pf.perf_nombre, perm.depe_id
+                    FROM sc_escalafon.tb_persona p
+                    INNER JOIN sc_seguridad.tb_permiso perm ON p.pers_id = perm.pers_id 
+                        AND perm.sist_id = 8 
+                        AND perm.perm_estado = 'A'
+                    INNER JOIN sc_seguridad.tb_perfil pf ON perm.perf_id = pf.perf_id
+                    WHERE p.pers_id = :pers_id;";
+            $stmt = $conectar->prepare($sql);
+            $stmt->bindValue(':pers_id', $persId, PDO::PARAM_INT);
+            $stmt->execute();
+            $userData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$userData) {
+                $_SESSION['login_error'] = 'El usuario no tiene permisos activos para el sistema SIGODT';
+                header("Location: " . Conectar::ruta() . "index.php");
+                exit();
+            }
+
+            // 6. Record session history in sc_seguridad.tb_historial_sesion
+            $hise_id = null;
+            try {
+                $histSql = "INSERT INTO sc_seguridad.tb_historial_sesion (
+                                pers_id, hise_ip, hise_fechafin, hise_horafin
+                            ) VALUES (
+                                :pers_id, :hise_ip, (CURRENT_TIMESTAMP + interval '5 hours')::date, (CURRENT_TIMESTAMP + interval '5 hours')::time
+                            ) RETURNING hise_id;";
+                $histStmt = $conectar->prepare($histSql);
+                $histStmt->bindValue(':pers_id', $userData['pers_id'], PDO::PARAM_INT);
+                $histStmt->bindValue(':hise_ip', $ip, PDO::PARAM_STR);
+                $histStmt->execute();
+                $histRow = $histStmt->fetch(PDO::FETCH_ASSOC);
+                if ($histRow && !empty($histRow['hise_id'])) {
+                    $hise_id = $histRow['hise_id'];
+                }
+            } catch (Exception $e) {
+                error_log("Failed to insert session history: " . $e->getMessage());
+            }
+
+            // 7. Auto-provision default area via Area::sincronizar_area_defecto
+            if (!empty($userData['pers_id']) && !empty($userData['depe_id'])) {
+                require_once __DIR__ . '/Area.php';
+                $areaModel = new Area();
+                $areaModel->sincronizar_area_defecto($userData['pers_id'], $userData['depe_id']);
+            }
+
+            // 8. Populate session variables
+            $_SESSION["usua_id_SIGODT"] = $userData["pers_id"];
+            $_SESSION["usua_dni_SIGODT"] = $userData["pers_dni"];
+            $_SESSION["rol_id_SIGODT"] = $userData["perf_id"];
+            $_SESSION["usua_estado_SIGODT"] = $userData["pers_estado"];
+            $_SESSION["pers_apellidos_SIGODT"] = trim(($userData["pers_apelpat"] ?? '') . " " . ($userData["pers_apelmat"] ?? ''));
+            $_SESSION["pers_nombre_SIGODT"] = $userData["pers_nombre"] ?? '';
+            $_SESSION["nombre_completo_SIGODT"] = trim(($userData["pers_nombre"] ?? '') . " " . ($userData["pers_apelpat"] ?? '') . " " . ($userData["pers_apelmat"] ?? ''));
+            $_SESSION["rol_nombre_SIGODT"] = $userData["perf_nombre"] ?? '';
+            $_SESSION["pers_emailm_SIGODT"] = $userData["pers_emailm"] ?? '';
+            $_SESSION["pers_celu01_SIGODT"] = $userData["pers_celu01"] ?? '';
+            $_SESSION["historial_login_SIGODT"] = $hise_id;
+            $_SESSION["usu_depe_id_SIGODT"] = $userData["depe_id"];
+
+            // 9. Redirect to main module
+            header("Location: " . Conectar::ruta() . "view/giros_ciudadano/");
+            exit();
         }
     }
     public function logout($hise_id)

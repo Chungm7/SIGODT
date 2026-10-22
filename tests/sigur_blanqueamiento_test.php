@@ -15,14 +15,39 @@
 if (PHP_SAPI === 'cli-server') {
     $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-    // Mock sisSeguridad API
-    if (strpos($uri, 'ws.php') !== false) {
+    // Mock SIGUR Auth API
+    if (strpos($uri, 'auth') !== false) {
         header('Content-Type: application/json; charset=utf-8');
-        $dni = $_GET['pers_dni'] ?? '';
+        echo json_encode([
+            'status' => 200,
+            'success' => true,
+            'message' => 'Token generado correctamente',
+            'data' => ['token' => 'mock_test_token_123']
+        ]);
+        return;
+    }
+
+    // Mock SIGUR Login API
+    if (strpos($uri, 'login.php') !== false) {
+        header('Content-Type: application/json; charset=utf-8');
+        $dni = $_POST['usu_doc'] ?? '';
         if ($dni === 'fail_user') {
-            echo json_encode(['status' => 404, 'detalle' => 'Datos incorrectos']);
+            http_response_code(401);
+            echo json_encode([
+                'status' => 401,
+                'success' => false,
+                'message' => 'Datos incorrectos',
+                'data' => []
+            ]);
         } else {
-            echo json_encode(['status' => 200, 'detalle' => 'Blanqueamiento de clave']);
+            echo json_encode([
+                'status' => 200,
+                'success' => true,
+                'message' => 'Blanqueamiento de clave',
+                'data' => [
+                    'url' => 'view/clave/blanqueamiento.php'
+                ]
+            ]);
         }
         return;
     }
@@ -68,8 +93,9 @@ if (PHP_SAPI === 'cli-server') {
         }
 
         // Set runtime env variables for testing
-        $_ENV['SIS_SEGURIDAD_URL'] = 'http://' . $_SERVER['HTTP_HOST'] . '/ws/ws.php/';
         $_ENV['SIGUR_URL'] = 'http://10.10.10.16/sigur/';
+        $_ENV['SIGUR_AUTH_URL'] = 'http://' . $_SERVER['HTTP_HOST'] . '/sigur/auth/';
+        $_ENV['SIGUR_LOGIN_URL'] = 'http://' . $_SERVER['HTTP_HOST'] . '/sigur/ws/login.php';
         $_ENV['JWT_SECRET'] = 'Mun12345_GLE';
         $_ENV['JWE_SECRET'] = 'Mun12345_GLE';
         $_ENV['DOMAIN'] = '10.10.10.16';
@@ -274,7 +300,7 @@ try {
     check($httpCodeFail === 302, "Expected HTTP 302 redirect for error, got $httpCodeFail");
     preg_match('/^Location:\s*(.*?)$/mi', $responseFail, $locationFailMatches);
     check(!empty($locationFailMatches[1]), "Redirect Location header missing in error response");
-    check(strpos($locationFailMatches[1], 'index.php?m=8') !== false, "Expected redirect to index.php?m=8 on invalid data");
+    check(strpos($locationFailMatches[1], 'index.php') !== false, "Expected redirect to index.php on invalid data");
     check(stripos($responseFail, 'Set-Cookie: blanqueamiento=') === false, "Cookie 'blanqueamiento' must not be set on failed login");
 
     echo "  -> End-to-end mock response detection & redirection verified.\n";
