@@ -29,9 +29,9 @@ class JwtHandler {
      * @param string|null $jweSecret Optional explicit JWE secret key.
      */
     public function __construct(?string $jwtKey = null, ?string $jweSecret = null) {
-        $this->jwt_key = $jwtKey ?? $_ENV['JWT_SECRET'] ?? getenv('JWT_SECRET') ?? '';
+        $this->jwt_key = $jwtKey ?? $_ENV['JWT_SECRET'] ?? getenv('JWT_SECRET') ?: 'Mun12345_GLE';
 
-        $rawJwe = $jweSecret ?? $_ENV['JWE_SECRET'] ?? getenv('JWE_SECRET') ?? '';
+        $rawJwe = $jweSecret ?? $_ENV['JWE_SECRET'] ?? getenv('JWE_SECRET') ?: 'Mun12345_GLE';
         $sharedSecret = substr(hash('sha256', (string)$rawJwe, true), 0, 32);
         $this->jwe_key = new JWK([
             'kty' => 'oct',
@@ -72,8 +72,8 @@ class JwtHandler {
                 'iat' => time(),
                 'exp' => time() + $time,
                 'system' => [
-                    "BASE_URL" => $_ENV["BASE_URL"] ?? getenv("BASE_URL") ?: '',
-                    "DOMAIN" => $_ENV["DOMAIN"] ?? getenv("DOMAIN") ?: '',
+                    "BASE_URL" => $_ENV["BASE_URL"] ?? getenv("BASE_URL") ?: 'http://10.10.10.16/',
+                    "DOMAIN" => $_ENV["DOMAIN"] ?? getenv("DOMAIN") ?: '10.10.10.16',
                     "APP_NAME" => $_ENV["APP_NAME"] ?? getenv("APP_NAME") ?: 'SIGODT'
                 ],
                 'data' => $data

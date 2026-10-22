@@ -25,7 +25,7 @@ if (file_exists(__DIR__ . '/../.env')) {
     $dotenv->safeLoad();
 }
 
-$rawJweSecret = $_ENV['JWE_SECRET'] ?? getenv('JWE_SECRET') ?? '';
+$rawJweSecret = $_ENV['JWE_SECRET'] ?? getenv('JWE_SECRET') ?: 'Mun12345_GLE';
 $sharedSecret = substr(hash('sha256', (string)$rawJweSecret, true), 0, 32);
 
 $jwk = new JWK([
