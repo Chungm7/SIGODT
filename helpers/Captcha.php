@@ -1,7 +1,7 @@
 <?php
 final class Captcha
 {
-    const TTL = 300; // Cinco minutos; cada envío consume el desafío.
+    const TTL = 120; // Dos minutos; cada envío consume el desafío.
 
     public static function invalidate(array &$session)
     {

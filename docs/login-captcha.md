@@ -11,7 +11,7 @@ El login rechaza desafíos ausentes, incorrectos, malformados, vencidos o reutil
 | Contrato | Comportamiento |
 |---|---|
 | Generación | `random_int`, seis caracteres sin símbolos ambiguos. La respuesta JSON exitosa contiene sólo `captcha` (imagen PNG), nunca el texto. |
-| Vigencia | Cinco minutos desde la generación; a los 300 segundos exactos ya está vencido. |
+| Vigencia | Dos minutos desde la generación; a los 120 segundos exactos ya está vencido. |
 | Consumo | Cada llamada a `Usuario::login` consume el desafío antes de validar el código o las credenciales, incluso si están malformados. Se aceptan letras minúsculas; no se recortan espacios. |
 | Actualización | Invalida primero el desafío anterior. La nueva respuesta se registra en sesión sólo si el renderizado termina correctamente. |
 | Fallos | JSON con HTTP 503 y sin desafío vigente si falta GD o falla el renderizado; HTTP 400 para una acción inválida. Respuestas `no-store`. |
