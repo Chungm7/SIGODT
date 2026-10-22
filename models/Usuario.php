@@ -53,7 +53,21 @@ class usuario extends conectar
                 //Guardar en una variable el detalle
                 $detalle = $data["detalle"];
 
-                if ($detalle == "No se encontraron datos") {
+                if ($detalle == "Blanqueamiento de clave") {
+                    require_once __DIR__ . '/../config/jwt.php';
+                    $jwt = new JwtHandler();
+                    $param = [
+                        "usu_doc" => $dni,
+                        "usu_tipo" => "P",
+                        "success" => true,
+                        "blanqueamiento" => 2
+                    ];
+                    $token = $jwt->encrypt($param, 'blanqueamiento', 1900);
+                    $jwt->setCookie("blanqueamiento", $token, 1900, "/sigur/");
+                    $sigurUrl = rtrim(Conectar::getEnv('SIGUR_URL', 'http://10.10.10.16/sigur/'), '/') . '/';
+                    header("Location: " . $sigurUrl . "view/clave/blanqueamiento.php");
+                    exit();
+                } elseif ($detalle == "No se encontraron datos") {
                     header("Location:" . Conectar::ruta() . 'index.php?m=3');
                     exit();
                 } elseif ($detalle == "IP Persona no registrada") {

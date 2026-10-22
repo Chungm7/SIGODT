@@ -7,6 +7,17 @@
         }
     ],
     "require": {
-        "vlucas/phpdotenv": "^5.7"
+        "vlucas/phpdotenv": "^5.7",
+        "firebase/php-jwt": "^6.11",
+        "web-token/jwt-framework": "^4.2",
+        "web-token/jwt-encryption": "^3.2",
+        "spomky-labs/aes-key-wrap": "^7.0"
+    },
+    "config": {
+        "policy": {
+            "advisories": {
+                "ignore-id": ["PKSA-y2cr-5h3j-g3ys"]
+            }
+        }
     }
 }
