@@ -156,3 +156,56 @@ test('S10: PDF fetches complete applied filters, disables duplicates, saves only
   get('reportPdf').fire('click'); resolvePdf({ ok: true, json: async () => payload() }); await flush();
   assert.equal(saves.length, 1); assert.equal(saves[0][1], 'safe.pdf');
 });
+
+test('S3: summary titles, metric labels and warning notes adapt dynamically to the selected state filter', async t => {
+  const oldFetch = globalThis.fetch;
+  t.after(() => { globalThis.fetch = oldFetch; });
+  globalThis.fetch = async () => ({ ok: true, json: async () => payload(1) });
+
+  const doc = fixtureDocument();
+  const get = id => doc.getElementById(id);
+  report.mount(doc);
+  await flush();
+
+  // Test 1: Solo Pagados ('4')
+  get('reportState').value = '4';
+  get('reportForm').fire('submit');
+  await flush();
+  assert.equal(get('reportSummaryTitle').textContent, 'Resumen de órdenes pagadas');
+  assert.equal(get('reportOrdersLabel').textContent, 'Total de órdenes pagadas');
+  assert.equal(get('reportLinesLabel').textContent, 'Total de tasas pagadas');
+  assert.equal(get('reportAmountLabel').textContent, 'Importe pagado');
+  assert.equal(get('reportWarningStrong').textContent, 'Importe efectivamente recaudado en caja.');
+
+  // Test 2: Solo Girados ('1')
+  get('reportState').value = '1';
+  get('reportForm').fire('submit');
+  await flush();
+  assert.equal(get('reportSummaryTitle').textContent, 'Resumen de órdenes pendientes de pago');
+  assert.equal(get('reportOrdersLabel').textContent, 'Total de órdenes giradas');
+  assert.equal(get('reportAmountLabel').textContent, 'Importe pendiente');
+  assert.match(get('reportWarningStrong').textContent, /no equivale a dinero recaudado/);
+
+  // Test 3: Solo Anulados ('anulados')
+  get('reportState').value = 'anulados';
+  get('reportForm').fire('submit');
+  await flush();
+  assert.equal(get('reportSummaryTitle').textContent, 'Resumen de órdenes anuladas y extornadas');
+  assert.equal(get('reportAmountLabel').textContent, 'Importe anulado / extornado');
+
+  // Test 4: Todos los estados ('todos')
+  get('reportState').value = 'todos';
+  get('reportForm').fire('submit');
+  await flush();
+  assert.equal(get('reportSummaryTitle').textContent, 'Resumen general de órdenes');
+  assert.equal(get('reportOrdersLabel').textContent, 'Total de órdenes');
+  assert.equal(get('reportAmountLabel').textContent, 'Importe total');
+
+  // Test 5: getSummaryCopy standalone contracts
+  const pagados = report.getSummaryCopy('4');
+  assert.equal(pagados.title, 'Resumen de órdenes pagadas');
+  assert.equal(pagados.amountLabel, 'Importe pagado');
+  const emitidos = report.getSummaryCopy('emitidos');
+  assert.equal(emitidos.title, 'Resumen de emisiones');
+  assert.equal(emitidos.amountLabel, 'Importe emitido');
+});

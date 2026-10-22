@@ -43,6 +43,39 @@ if ($operation === 'json' || $operation === 'pdf') {
     echo json_encode($report, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
     exit;
 }
+$state = (string)($filters['state'] ?? 'todos');
+$summaryTitle = 'Resumen general de órdenes';
+$ordersLabel = 'Total de órdenes';
+$linesLabel = 'Total de tasas';
+$amountLabel = 'Importe total (S/)';
+$warningText = 'No equivale en su totalidad a dinero recaudado. Solo conceptos coincidentes; los conteos del desglose no son aditivos.';
+
+if ($state === '4') {
+    $summaryTitle = 'Resumen de órdenes pagadas';
+    $ordersLabel = 'Total de órdenes pagadas';
+    $linesLabel = 'Total de tasas pagadas';
+    $amountLabel = 'Importe pagado (S/)';
+    $warningText = 'Importe efectivamente recaudado en caja. Solo conceptos coincidentes.';
+} elseif ($state === '1' || $state === '2') {
+    $summaryTitle = 'Resumen de órdenes pendientes de pago';
+    $ordersLabel = 'Total de órdenes giradas';
+    $linesLabel = 'Total de tasas giradas';
+    $amountLabel = 'Importe pendiente (S/)';
+    $warningText = 'El importe girado no equivale a dinero recaudado. Solo conceptos coincidentes pendientes de pago.';
+} elseif (in_array($state, ['anulados', '0', '6'], true)) {
+    $summaryTitle = 'Resumen de órdenes anuladas y extornadas';
+    $ordersLabel = 'Total de órdenes anuladas/extornadas';
+    $linesLabel = 'Total de tasas anuladas/extornadas';
+    $amountLabel = 'Importe anulado / extornado (S/)';
+    $warningText = 'Órdenes anuladas o extornadas no constituyen recaudación. Solo conceptos coincidentes.';
+} elseif ($state === 'emitidos') {
+    $summaryTitle = 'Resumen de emisiones';
+    $ordersLabel = 'Total de órdenes emitidas';
+    $linesLabel = 'Total de tasas emitidas';
+    $amountLabel = 'Importe emitido (S/)';
+    $warningText = 'No equivale a dinero recaudado. Solo conceptos coincidentes; los conteos del desglose no son aditivos.';
+}
+
 $metadata = [
     ['Emisor', $report['emitter']],
     ['Periodo inclusivo', $filters['start'] . ' al ' . $filters['end']],
@@ -50,11 +83,11 @@ $metadata = [
     ['Documento (ID)', $filters['document'] ?? 'Todos'],
     ['Procedimiento (ID)', $filters['procedure'] ?? 'Todos'],
     ['Fecha de generación', $report['generated_at']],
-    ['Total de órdenes emitidas', $report['summary']['orders']],
+    [$ordersLabel, $report['summary']['orders']],
     ['Órdenes anuladas y extornadas', $report['summary']['cancelled']],
-    ['Total de tasas emitidas', $report['summary']['lines']],
-    ['Importe emitido (S/)', $report['summary']['amount']],
-    ['Advertencia', 'No equivale a dinero recaudado. Solo conceptos coincidentes; los conteos del desglose no son aditivos.']
+    [$linesLabel, $report['summary']['lines']],
+    [$amountLabel, $report['summary']['amount']],
+    ['Aclaración', $warningText]
 ];
 $headings = ['N° ODT', 'Fecha y hora de emisión', 'Ciudadano / Razón social', 'Documento', 'Código del procedimiento', 'Nombre del procedimiento', 'Estado actual', 'Importe (S/)'];
 function reportDetailCells($row) {
@@ -103,7 +136,7 @@ td:last-child, th:last-child { text-align: right; font-variant-numeric: tabular-
 <main class="print-document">
 <header class="report-heading"><strong>SIGODT</strong><h1>Reporte</h1><p>Órdenes emitidas · Detalle completo del filtro</p></header>
 <dl aria-label="Contexto del reporte"><?php foreach (array_slice($metadata, 0, 6) as $row) { echo '<div><dt>' . reportEscape($row[0]) . '</dt><dd>' . reportEscape($row[1]) . '</dd></div>'; } ?></dl>
-<h2>Resumen de emisiones</h2>
+<h2><?php echo reportEscape($summaryTitle); ?></h2>
 <dl aria-label="Totales del filtro"><?php foreach (array_slice($metadata, 6, 4) as $row) { echo '<div><dt>' . reportEscape($row[0]) . '</dt><dd>' . reportEscape($row[1]) . '</dd></div>'; } ?></dl>
 <p class="report-note"><?php echo reportEscape($metadata[10][1]); ?></p>
 <h2>Detalle completo filtrado</h2>
