@@ -28,61 +28,6 @@
 <script src="../../public/lib/popper/popper.min.js"></script>
 
 <script>
-    $(document).ready(function() {
-        const $container = $('#sistemasContainer');
-
-        function cargarSistemas() {
-            if ($container.data('loaded')) return;
-
-            $.getJSON('../../controller/usuario.php?op=listar_sistemas', data => {
-                $container.empty();
-
-                data.forEach(sis => {
-                    const logoSrc = `data:image/png;base64,${sis.sist_logo}`;
-                    $container.append(`
-                        <div class="col-4 sistema-item"
-                            data-nombre="${sis.sist_denominacion.toLowerCase()}">
-                        <a href="${sis.sist_url}" target="_blank"
-                            class="d-flex flex-column flex-center text-center text-secondary py-2 px-2 link-hoverable"
-                            aria-label="${sis.sist_denominacion}">
-                            <img src="${logoSrc}"
-                                class="w-6 h-6 mx-auto mb-2"
-                                width="24" height="24" style="padding: 5px;"
-                                alt="${sis.sist_denominacion}">
-                            <!-- Solo mostramos las iniciales -->
-                            <span class="h5 mb-0">${sis.sist_iniciales}</span>
-                        </a>
-                        </div>
-                    `);
-                });
-
-                $container.data('loaded', true);
-            }).fail((_, __, err) => console.error('Error al cargar sistemas:', err));
-        }
-
-
-        // Precarga inmediata
-        cargarSistemas();
-
-        // O bien, lectura bajo demanda al abrir el dropdown
-        $('#sistemasMenu').parent().on('show.bs.dropdown', cargarSistemas);
-    });
-    // dentro de tu ready, tras la definición de cargarSistemas y el evento show.bs.dropdown
-    $('#searchSistemas').on('input', function() {
-        const q = $(this).val().trim().toLowerCase();
-
-        // Recorremos cada .sistema-item
-        $('#sistemasContainer .sistema-item').each(function() {
-            const nombre = $(this).data('nombre'); // el full name en minúsculas
-
-            if (nombre.includes(q)) {
-                $(this).show();
-            } else {
-                $(this).hide();
-            }
-        });
-    });
-
     // Prevención global: no permitir guardar ni enviar formularios al presionar Enter en modales
     $(document).on("keydown", ".modal input, .modal select, .modal button, .modal .btn", function (e) {
         if (e.key === "Enter" || e.keyCode === 13) {
