@@ -31,15 +31,30 @@
             <div><?php echo htmlspecialchars($usuario); ?></div>
             <div class="mt-1 small text-secondary"><?php echo htmlspecialchars($perfil); ?></div>
           </div>
-          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm icon-tabler icon-tabler-chevron-down ms-1 text-secondary" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm icon-tabler icon-tabler-chevron-down ms-1 text-secondary" style="stroke-width: 2.75;" width="24" height="24" viewBox="0 0 24 24" stroke-width="2.75" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
             <path d="M6 9l6 6l6 -6" />
           </svg>
         </a>
         <div class="dropdown-menu dropdown-menu-end">
-
-          <a href="../setting/" class="dropdown-item">Configuración</a>
-          <a href="../../view/html/logout.php" class="dropdown-item">Cerrar Sesión</a>
+          <a href="../setting/" class="dropdown-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-settings-check mx-1">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M11.445 20.913a1.665 1.665 0 0 1 -1.12 -1.23a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.31 .318 1.643 1.79 .997 2.694" />
+              <path d="M15 19l2 2l4 -4" />
+              <path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
+            </svg>
+            Configuración
+          </a>
+          <a href="../../view/html/logout.php" class="dropdown-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-logout mx-1">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" />
+              <path d="M9 12h12l-3 -3" />
+              <path d="M18 15l3 -3" />
+            </svg>
+            Cerrar Sesión
+          </a>
         </div>
       </div>
     </div>
