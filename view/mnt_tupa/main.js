@@ -90,21 +90,20 @@ function cargarListaTupa() {
 
                 html += `
                 <div class="col-md-6 col-lg-4 mb-3">
-                    <div class="card card-stacked shadow-sm h-100">
-                        <div class="card-status-top ${isActivo ? 'bg-success' : isEnProceso ? 'bg-info' : 'bg-secondary'}"></div>
+                    <div class="card shadow-sm muni-stripe-top h-100">
                         <div class="card-body">
                             <div class="d-flex align-items-center justify-content-between mb-2">
-                                <span class="badge ${tipoDoc === 'TUPA' ? 'bg-blue-lt' : 'bg-purple-lt'} fw-bold">${tipoDoc}</span>
+                                <span class="badge bg-blue-lt fw-bold">${tipoDoc}</span>
                                 <span class="badge bg-secondary-lt fw-semibold">Año ${item.tupa_año}</span>
                             </div>
                             <h3 class="card-title text-truncate mb-2" title="${item.tupa_nom}">
                                 ${item.tupa_nom}
                             </h3>
-                            <div class="d-flex align-items-center gap-2 mb-3">
-                                <span class="badge ${isActivo ? 'bg-success-lt text-success' : isEnProceso ? 'bg-info-lt text-info' : 'bg-danger-lt text-danger'}">
+                            <div class="d-flex align-items-center flex-wrap gap-2 mb-3">
+                                <span class="muni-status-pill ${isActivo ? 'status-active' : isEnProceso ? 'status-warning' : 'status-danger'}">
                                     ${isActivo ? 'Vigente' : isEnProceso ? 'En Proceso' : 'Inactivo'}
                                 </span>
-                                <span class="badge ${isBloqueado ? 'bg-warning-lt text-warning' : 'bg-teal-lt text-teal'}">
+                                <span class="muni-status-pill ${isBloqueado ? 'status-warning' : 'status-info'}">
                                     ${isBloqueado ? 'Bloqueado' : 'En Edición'}
                                 </span>
                             </div>

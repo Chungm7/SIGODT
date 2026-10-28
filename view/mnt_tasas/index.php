@@ -35,8 +35,8 @@ if (Conectar::esAdministrador()) {
                                         <div class="text-muted mt-2">Catálogo maestro de tasas y conceptos tributarios de trámite</div>
                                     </div>
                                     <div class="col-auto ms-auto d-print-none">
-                                        <button id="add_button" onclick="nuevo()" class="btn btn-primary d-inline-flex align-items-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <button id="add_button" onclick="nuevo()" class="btn btn-muni-action">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="20" height="20" viewBox="0 0 24 24" stroke-width="2.25" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                 <line x1="12" y1="5" x2="12" y2="19" />
                                                 <line x1="5" y1="12" x2="19" y2="12" />
@@ -48,7 +48,7 @@ if (Conectar::esAdministrador()) {
                             </div>
 
                             <!-- Tarjeta principal -->
-                            <div class="card shadow-sm">
+                            <div class="card shadow-sm muni-stripe-top">
                                 <div class="card-header">
                                     <h3 class="card-title">Listado de Tasas Registradas</h3>
                                 </div>

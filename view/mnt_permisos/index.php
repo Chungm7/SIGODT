@@ -40,7 +40,7 @@ if (Conectar::esAdministrador()) {
               </div>
 
               <!-- Tarjeta principal -->
-              <div class="card shadow-sm">
+              <div class="card shadow-sm muni-stripe-top">
                 <div class="card-body">
                   <!-- Selector de Área y Botón de Asignación -->
                   <div class="row g-3 align-items-end mb-3">
@@ -51,8 +51,8 @@ if (Conectar::esAdministrador()) {
                       </select>
                     </div>
                     <div class="col-12 col-md-4 col-lg-6 d-flex justify-content-md-end">
-                      <button class="btn btn-primary d-inline-flex align-items-center" id="add_button" onclick="nuevo()">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user-plus me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                      <button class="btn btn-muni-action" id="add_button" onclick="nuevo()">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user-plus" width="20" height="20" viewBox="0 0 24 24" stroke-width="2.25" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                           <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                           <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
                           <path d="M6 21v-2a4 4 0 0 1 4 -4h4c.342 0 .674 .043 .99 .124" />
