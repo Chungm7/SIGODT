@@ -943,9 +943,17 @@ body.muni-login-body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
+  padding: 0 !important;
   cursor: pointer;
   transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.muni-captcha-refresh .icon,
+.muni-captcha-refresh svg {
+  margin: 0 !important;
+  width: 22px;
+  height: 22px;
+  display: block;
 }
 
 .muni-captcha-refresh:hover:not(:disabled) {
@@ -1031,7 +1039,298 @@ body.muni-login-body {
 }
 
 /* ==========================================================================
-   9. COMPATIBILIDAD CON MODO OSCURO ([data-bs-theme="dark"])
+   9. AJUSTES DE CUENTA Y MI PERFIL (Figma Nodo 103:226)
+   ========================================================================== */
+.muni-settings-page-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 2.25rem;
+  color: var(--muni-text-heading);
+  margin: 0;
+}
+
+.muni-settings-panel {
+  background-color: #FFFFFF;
+  border: 1px solid var(--muni-border-default) !important;
+  border-radius: 8px !important;
+  box-shadow: 0px 2px 6px 0px rgba(22, 63, 107, 0.04) !important;
+  overflow: hidden;
+}
+
+.muni-settings-sidebar {
+  border-right: 1px solid var(--muni-border-default);
+  padding: 28px 0;
+  background-color: #FFFFFF;
+}
+
+@media (max-width: 767.98px) {
+  .muni-settings-sidebar {
+    border-right: none;
+    border-bottom: 1px solid var(--muni-border-default);
+    padding: 16px 0;
+  }
+}
+
+.muni-settings-nav-group {
+  padding: 0 24px 12px;
+}
+
+.muni-settings-nav-header {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.125rem;
+  color: var(--muni-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.muni-settings-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 52px;
+  padding: 0 24px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--muni-text-body);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.muni-settings-nav-item:hover,
+.muni-settings-nav-item.active {
+  background-color: #EFF6FF;
+  color: var(--muni-brand-blue);
+  border-left-color: var(--muni-brand-blue);
+  text-decoration: none;
+}
+
+.muni-settings-body {
+  padding: 28px;
+}
+
+.muni-settings-section-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.875rem;
+  color: var(--muni-text-heading);
+  margin: 0 0 24px;
+}
+
+.muni-field-label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+  color: var(--muni-text-heading);
+  margin-bottom: 8px;
+}
+
+.muni-req {
+  color: var(--muni-danger-dot);
+  font-weight: 600;
+}
+
+.muni-field-box {
+  display: flex;
+  align-items: stretch;
+  height: 42px;
+  border: 1px solid var(--muni-border-default);
+  border-radius: 6px;
+  background-color: #FFFFFF;
+  overflow: hidden;
+}
+
+.muni-field-box.is-readonly {
+  background-color: var(--muni-surface-muted);
+}
+
+.muni-field-prefix {
+  width: 48px;
+  min-width: 48px;
+  border-right: 1px solid var(--muni-border-default);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muni-text-muted);
+  font-size: 0.875rem;
+}
+
+.muni-field-prefix-text {
+  font-weight: 500;
+  color: var(--muni-text-muted);
+}
+
+.muni-field-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  padding: 0 14px;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--muni-text-muted);
+  outline: none;
+}
+
+.muni-field-input::placeholder {
+  color: var(--muni-text-aux);
+}
+
+.muni-field-action {
+  width: 44px;
+  min-width: 44px;
+  background-color: var(--muni-security-yellow);
+  color: var(--muni-text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.muni-field-hint-error {
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.125rem;
+  color: var(--muni-danger-dot);
+  margin-top: 6px;
+}
+
+.muni-field-link {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.125rem;
+  color: var(--muni-brand-blue);
+  text-decoration: underline;
+  margin-top: 6px;
+}
+
+.muni-field-link:hover {
+  color: var(--muni-brand-blue-dark);
+}
+
+.muni-settings-subtitle {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.375rem;
+  color: var(--muni-text-heading);
+  margin: 0 0 6px;
+}
+
+.muni-settings-subdesc {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.3rem;
+  color: var(--muni-text-muted);
+  margin: 0 0 12px;
+}
+
+.btn-muni-outline-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background-color: #FFFFFF;
+  border: 1px solid var(--muni-login-blue-alt);
+  border-radius: 6px;
+  color: var(--muni-brand-blue);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.125rem;
+  text-decoration: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-muni-outline-key:hover {
+  background-color: #EFF6FF;
+  border-color: var(--muni-brand-blue);
+  color: var(--muni-brand-blue-dark);
+  text-decoration: none;
+}
+
+.muni-2fa-card {
+  background-color: #FFFFFF;
+  border: 1px solid var(--muni-border-default);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.muni-2fa-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--muni-border-default);
+}
+
+.muni-2fa-icon {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 8px;
+  background-color: #E7F1FB;
+  color: var(--muni-brand-blue);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.muni-2fa-title {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.5rem;
+  color: var(--muni-text-heading);
+  margin: 0 0 2px;
+}
+
+.muni-2fa-subtitle {
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.125rem;
+  color: var(--muni-text-muted);
+  margin: 0;
+}
+
+.muni-2fa-body {
+  padding: 20px;
+}
+
+.muni-2fa-lead {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1.25rem;
+  color: var(--muni-text-heading);
+  margin: 0 0 6px;
+}
+
+.muni-2fa-text {
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.2rem;
+  color: var(--muni-text-muted);
+  margin: 0 0 10px;
+}
+
+.muni-2fa-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  color: var(--muni-text-muted);
+}
+
+.muni-2fa-meta strong {
+  color: var(--muni-text-heading);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   10. COMPATIBILIDAD CON MODO OSCURO ([data-bs-theme="dark"])
    ========================================================================== */
 [data-bs-theme="dark"] .muni-module-card,
 body.theme-dark .muni-module-card {
@@ -1052,4 +1351,36 @@ body.theme-dark .muni-module-desc {
 [data-bs-theme="dark"] .muni-module-footer,
 body.theme-dark .muni-module-footer {
   border-top-color: #2c3c51;
+}
+
+[data-bs-theme="dark"] .muni-settings-panel,
+[data-bs-theme="dark"] .muni-settings-sidebar,
+[data-bs-theme="dark"] .muni-2fa-card {
+  background-color: #182433;
+  border-color: #2c3c51 !important;
+}
+
+[data-bs-theme="dark"] .muni-settings-page-title,
+[data-bs-theme="dark"] .muni-settings-section-title,
+[data-bs-theme="dark"] .muni-field-label,
+[data-bs-theme="dark"] .muni-settings-subtitle,
+[data-bs-theme="dark"] .muni-2fa-title,
+[data-bs-theme="dark"] .muni-2fa-lead,
+[data-bs-theme="dark"] .muni-2fa-meta strong {
+  color: #F8FAFC;
+}
+
+[data-bs-theme="dark"] .muni-field-box,
+[data-bs-theme="dark"] .muni-field-box.is-readonly {
+  background-color: #1e293b;
+  border-color: #334155;
+}
+
+[data-bs-theme="dark"] .muni-field-prefix {
+  border-right-color: #334155;
+  color: #94A3B8;
+}
+
+[data-bs-theme="dark"] .muni-field-input {
+  color: #E2E8F0;
 }

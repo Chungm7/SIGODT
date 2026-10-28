@@ -61,7 +61,6 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                               <path d="M9 14l6 0" />
                             </svg>
                           </span>
-                          <span class="muni-status-pill status-active">Activo</span>
                         </div>
                         <h3 class="muni-module-title">Registrar Órdenes de Giro</h3>
                         <p class="muni-module-desc">
@@ -97,7 +96,6 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                               <path d="M7 16l10 0" />
                             </svg>
                           </span>
-                          <span class="muni-status-pill status-active">Activo</span>
                         </div>
                         <h3 class="muni-module-title">Consulta por Documento</h3>
                         <p class="muni-module-desc">
@@ -131,7 +129,6 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                               <path d="M9 15l2 2l4 -4" />
                             </svg>
                           </span>
-                          <span class="muni-status-pill status-active">Activo</span>
                         </div>
                         <h3 class="muni-module-title">Consulta por Orden de Giro</h3>
                         <p class="muni-module-desc">
