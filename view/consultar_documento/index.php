@@ -38,14 +38,14 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
               </div>
 
               <!-- Card de Búsqueda -->
-              <div class="card shadow-sm mb-3">
+              <div class="card shadow-sm muni-stripe-top mb-3">
                 <div class="card-header py-2">
                   <h3 class="card-title fw-bold mb-0">Criterio de Búsqueda</h3>
                 </div>
                 <div class="card-body">
                   <form id="searchForm">
-                    <div class="row g-2 justify-content-center">
-                      <div class="col-12 col-md-5 col-lg-4">
+                    <div class="row g-2 justify-content-center align-items-center">
+                      <div class="col-12 col-md-6 col-lg-5">
                         <div class="input-group">
                           <span class="input-group-text">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-id" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -61,7 +61,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                         </div>
                       </div>
                       <div class="col-12 col-md-auto">
-                        <button class="btn btn-primary d-inline-flex align-items-center w-100" type="submit" id="searchBtn">
+                        <button class="btn btn-muni-action w-100" type="submit" id="searchBtn">
                           <span id="spinner" class="spinner-border spinner-border-sm me-1 d-none" role="status" aria-hidden="true"></span>
                           <svg id="iconBuscar" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search me-1" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -169,7 +169,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                               <td class="text-center">${orden.ciudadano_doc}</td>
                               <td>${orden.proced_nom}</td>
                               <td class="text-end fw-bold">S/ ${parseFloat(orden.importe).toFixed(2)}</td>
-                              <td class="text-center"><span class="badge bg-${estadoData.color_barra} text-${estadoData.color_barra}-fg">${estadoData.estado}</span></td>
+                              <td class="text-center"><span class="muni-status-pill ${estadoData.pill_class} badge bg-${estadoData.color_barra}-lt">${estadoData.estado}</span></td>
                               <td class="text-center">
                                 <button class="btn btn-outline-primary btn-sm d-inline-flex align-items-center" onclick="imprimirGiro('${orden.ogciud_id}')" title="Ver e imprimir orden">
                                   <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-printer me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -233,38 +233,45 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
       }
 
       function getEstado(est) {
-        let estado, color_barra;
+        let estado, color_barra, pill_class;
         switch (parseInt(est)) {
           case 0:
             estado = "Anulado";
             color_barra = "danger";
+            pill_class = "status-danger";
             break;
           case 1:
             estado = "Pendiente";
             color_barra = "warning";
+            pill_class = "status-warning";
             break;
           case 2:
             estado = "Girado";
             color_barra = "success";
+            pill_class = "status-active";
             break;
           case 3:
             estado = "Improcedente";
             color_barra = "danger";
+            pill_class = "status-danger";
             break;
           case 4:
             estado = "Pagado";
-            color_barra = "primary";
+            color_barra = "success";
+            pill_class = "status-active";
             break;
           case 5:
             estado = "Usado";
-            color_barra = "purple";
+            color_barra = "info";
+            pill_class = "status-info";
             break;
           default:
             estado = "Extornado";
-            color_barra = "secondary";
+            color_barra = "danger";
+            pill_class = "status-danger";
             break;
         }
-        return { estado, color_barra };
+        return { estado, color_barra, pill_class };
       }
     </script>
   </body>

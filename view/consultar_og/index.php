@@ -40,7 +40,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
               <!-- Formulario de Búsqueda -->
               <div class="row justify-content-center mb-4">
                 <div class="col-12 col-md-8 col-lg-6">
-                  <div class="card shadow-sm">
+                  <div class="card shadow-sm muni-stripe-top">
                     <div class="card-header py-2">
                       <h3 class="card-title fw-bold mb-0">Buscar Orden de Giro</h3>
                     </div>
@@ -59,7 +59,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                           </div>
                         </div>
                         <div class="text-center mt-3">
-                          <button type="submit" id="btnBuscarOrden" class="btn btn-primary d-inline-flex align-items-center px-4">
+                          <button type="submit" id="btnBuscarOrden" class="btn btn-muni-action px-4">
                             <span id="spinnerBuscar" class="spinner-border spinner-border-sm me-1 d-none" role="status" aria-hidden="true"></span>
                             <svg id="iconBuscar" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search me-1" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                               <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -211,7 +211,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
               document.getElementById("ciudadano_doc").textContent = orden.ciudadano_doc;
               document.getElementById("proced_nom").textContent = orden.proced_nom;
               document.getElementById("importe").textContent = "S/ " + parseFloat(orden.importe).toFixed(2);
-              document.getElementById("estado").innerHTML = `<span class="badge bg-${estadoData.color_barra} text-${estadoData.color_barra}-fg">${estadoData.estado}</span>`;
+              document.getElementById("estado").innerHTML = `<span class="muni-status-pill ${estadoData.pill_class} badge bg-${estadoData.color_barra}-lt">${estadoData.estado}</span>`;
 
               currentPdfBase64 = orden.pdf_base64;
               let pdfUrl = "data:application/pdf;base64," + currentPdfBase64;
@@ -264,38 +264,45 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
       }
 
       function getEstado(est) {
-        let estado, color_barra;
+        let estado, color_barra, pill_class;
         switch (parseInt(est)) {
           case 0:
             estado = "Anulado";
             color_barra = "danger";
+            pill_class = "status-danger";
             break;
           case 1:
             estado = "Pendiente";
             color_barra = "warning";
+            pill_class = "status-warning";
             break;
           case 2:
             estado = "Girado";
             color_barra = "success";
+            pill_class = "status-active";
             break;
           case 3:
             estado = "Improcedente";
             color_barra = "danger";
+            pill_class = "status-danger";
             break;
           case 4:
             estado = "Pagado";
-            color_barra = "primary";
+            color_barra = "success";
+            pill_class = "status-active";
             break;
           case 5:
             estado = "Usado";
-            color_barra = "purple";
+            color_barra = "info";
+            pill_class = "status-info";
             break;
           default:
             estado = "Extornado";
-            color_barra = "secondary";
+            color_barra = "danger";
+            pill_class = "status-danger";
             break;
         }
-        return { estado, color_barra };
+        return { estado, color_barra, pill_class };
       }
     </script>
   </body>

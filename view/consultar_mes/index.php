@@ -38,7 +38,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
               </div>
 
               <!-- Card de Búsqueda y Resultados -->
-              <div class="card shadow-sm">
+              <div class="card shadow-sm muni-stripe-top">
                 <div class="card-header py-2 d-flex flex-wrap justify-content-between align-items-center gap-2">
                   <h3 class="card-title fw-bold mb-0">Órdenes Emitidas en el Mes</h3>
                   <div class="col-12 col-sm-6 col-md-4">
@@ -101,38 +101,45 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
       }
 
       function getEstado(est) {
-        let estado, color_barra;
+        let estado, color_barra, pill_class;
         switch (parseInt(est)) {
           case 0:
             estado = "Anulado";
             color_barra = "danger";
+            pill_class = "status-danger";
             break;
           case 1:
             estado = "Pendiente";
             color_barra = "warning";
+            pill_class = "status-warning";
             break;
           case 2:
             estado = "Girado";
             color_barra = "success";
+            pill_class = "status-active";
             break;
           case 3:
             estado = "Improcedente";
             color_barra = "danger";
+            pill_class = "status-danger";
             break;
           case 4:
             estado = "Pagado";
-            color_barra = "primary";
+            color_barra = "success";
+            pill_class = "status-active";
             break;
           case 5:
             estado = "Usado";
-            color_barra = "purple";
+            color_barra = "info";
+            pill_class = "status-info";
             break;
           default:
             estado = "Extornado";
-            color_barra = "secondary";
+            color_barra = "danger";
+            pill_class = "status-danger";
             break;
         }
-        return { estado, color_barra };
+        return { estado, color_barra, pill_class };
       }
 
       function redirect_by_post(purl, pparameters, in_new_tab) {
@@ -209,7 +216,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                     <td class="text-center">${orden.ciudadano_doc}</td>
                     <td>${orden.proced_nom}</td>
                     <td class="text-end fw-bold">S/ ${parseFloat(orden.importe).toFixed(2)}</td>
-                    <td class="text-center"><span class="badge bg-${estadoData.color_barra} text-${estadoData.color_barra}-fg">${estadoData.estado}</span></td>
+                    <td class="text-center"><span class="muni-status-pill ${estadoData.pill_class} badge bg-${estadoData.color_barra}-lt">${estadoData.estado}</span></td>
                     <td class="text-center">${printBtn}</td>
                 </tr>`;
               });

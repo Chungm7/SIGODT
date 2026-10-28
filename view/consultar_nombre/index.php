@@ -27,15 +27,15 @@ if (!isset($_SESSION['usua_id_SIGODT'])) {
           <h2 class="page-title">Consulta por Nombre / Razón Social</h2>
           <div class="text-secondary mt-2">Busque ciudadanos o empresas y consulte su historial completo, sin excluir estados ni fechas.</div>
         </div>
-        <div class="card shadow-sm mb-3">
+        <div class="card shadow-sm muni-stripe-top mb-3">
           <div class="card-header py-2"><h3 class="card-title fw-bold mb-0">Criterio de Búsqueda</h3></div>
           <div class="card-body">
             <form id="nombreForm" class="row g-2 align-items-end">
               <div class="col-12 col-md-8">
-                <label for="nombreSearch" class="form-label">Nombre del ciudadano o razón social / nombre comercial</label>
+                <label for="nombreSearch" class="form-label fw-medium">Nombre del ciudadano o razón social / nombre comercial</label>
                 <input id="nombreSearch" type="text" class="form-control" required autofocus maxlength="200" placeholder="Ingrese parte del nombre" aria-describedby="nombreHelp">
               </div>
-              <div class="col-12 col-md-auto"><button type="submit" class="btn btn-primary w-100">Buscar</button></div>
+              <div class="col-12 col-md-auto"><button type="submit" class="btn btn-muni-action w-100">Buscar</button></div>
               <div class="col-12"><div id="nombreHelp" class="form-hint">Búsqueda parcial automática tras 400 ms, desde 3 caracteres. Buscar o Enter consulta de inmediato. Seleccione «Ver historial» para ver sus órdenes.</div></div>
             </form>
           </div>

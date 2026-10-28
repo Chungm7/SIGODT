@@ -25,15 +25,15 @@ catch (InvalidArgumentException $error) {
   <h1 class="page-title">Reportes</h1>
   <p class="text-muted mt-2 mb-0">Consulte las órdenes que usted emitió, sus conceptos y sus importes por periodo.</p>
 </header>
-<form id="reportForm" class="card shadow-sm mb-3">
+<form id="reportForm" class="card shadow-sm muni-stripe-top mb-3">
   <div class="card-header"><h2 class="card-title">Filtros de consulta</h2></div>
   <div class="card-body"><div class="row g-3">
-    <div class="col-12 col-sm-6 col-md-2"><label for="reportStart" class="form-label">Desde (emisión)</label><input id="reportStart" name="start" type="date" class="form-control" required></div>
-    <div class="col-12 col-sm-6 col-md-2"><label for="reportEnd" class="form-label">Hasta (día completo)</label><input id="reportEnd" name="end" type="date" class="form-control" required></div>
-    <div class="col-12 col-sm-6 col-md-2"><label for="reportState" class="form-label">Estado</label><select id="reportState" name="state" class="form-select"><option value="todos">Todos los estados</option><option value="emitidos">Solo emitidos (Girados y Pagados)</option><option value="anulados">Solo anuladas y extornadas</option><option value="1">Solo Girados</option><option value="4">Solo Pagados</option></select></div>
-    <div class="col-12 col-sm-6 col-md-3"><label for="reportDocument" class="form-label">Documento</label><select id="reportDocument" name="document" class="form-select"><option value="">Todos</option></select></div>
-    <div class="col-12 col-sm-6 col-md-3"><label for="reportProcedure" class="form-label">Procedimiento</label><select id="reportProcedure" name="procedure" class="form-select"><option value="">Todos</option></select></div>
-    <div class="col-12"><button class="btn btn-primary" type="submit">Consultar</button></div>
+    <div class="col-12 col-sm-6 col-md-2"><label for="reportStart" class="form-label fw-medium">Desde (emisión)</label><input id="reportStart" name="start" type="date" class="form-control" required></div>
+    <div class="col-12 col-sm-6 col-md-2"><label for="reportEnd" class="form-label fw-medium">Hasta (día completo)</label><input id="reportEnd" name="end" type="date" class="form-control" required></div>
+    <div class="col-12 col-sm-6 col-md-2"><label for="reportState" class="form-label fw-medium">Estado</label><select id="reportState" name="state" class="form-select"><option value="todos">Todos los estados</option><option value="emitidos">Solo emitidos (Girados y Pagados)</option><option value="anulados">Solo anuladas y extornadas</option><option value="1">Solo Girados</option><option value="4">Solo Pagados</option></select></div>
+    <div class="col-12 col-sm-6 col-md-3"><label for="reportDocument" class="form-label fw-medium">Documento</label><select id="reportDocument" name="document" class="form-select"><option value="">Todos</option></select></div>
+    <div class="col-12 col-sm-6 col-md-3"><label for="reportProcedure" class="form-label fw-medium">Procedimiento</label><select id="reportProcedure" name="procedure" class="form-select"><option value="">Todos</option></select></div>
+    <div class="col-12"><button class="btn btn-muni-action" type="submit">Consultar</button></div>
   </div></div>
 </form>
 <p id="reportMessage" role="status" aria-live="polite">Seleccione el periodo y consulte.</p>
