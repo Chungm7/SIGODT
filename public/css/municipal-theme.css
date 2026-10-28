@@ -1,0 +1,999 @@
+/* ==========================================================================
+   Sistema de Diseño Institucional: Municipalidad Provincial de Chiclayo
+   Tokens y componentes base (Figma 8gbckPW2QsY90xStrG8zzF)
+   ========================================================================== */
+
+:root {
+  --muni-brand-blue: #0066CC;
+  --muni-brand-blue-hover: #0052A3;
+  --muni-login-blue: #066FD1;
+  --muni-login-blue-alt: #066ED0;
+  --muni-login-blue-hover: #0055A8;
+  --muni-profile-bg: #0167CC;
+  --muni-profile-border: #9CCAEC;
+  --muni-action-yellow: #FBC02D;
+  --muni-action-yellow-hover: #F5B000;
+  --muni-security-yellow: #FED84D;
+  --muni-hero-dark: #1F2937;
+  --muni-hero-border: rgba(51, 65, 85, 0.6);
+  --muni-hero-user: #93C5FD;
+  --muni-hero-desc: #CBD5E1;
+  --muni-page-bg: #E7F1FB;
+  --muni-card-bg: #FFFFFF;
+  --muni-icon-border: #BAE6FD;
+  --muni-text-primary: #0F172A;
+  --muni-text-heading: #111827;
+  --muni-text-body: #475569;
+  --muni-text-muted: #64748B;
+  --muni-text-aux: #94A3B8;
+  --muni-surface-muted: #F1F5F9;
+  --muni-surface-subtle: #F8FAFC;
+  --muni-border-muted: #E2E8F0;
+  --muni-border-input: #CBD5E1;
+
+  /* Estados semanticos (Pildoras con punto de 6x6px) */
+  --muni-success-bg: #ECFDF5;
+  --muni-success-border: #A7F3D0;
+  --muni-success-dot: #10B981;
+  --muni-success-text: #047857;
+
+  --muni-warning-bg: #FFFBEB;
+  --muni-warning-border: #FDE68A;
+  --muni-warning-dot: #F59E0B;
+  --muni-warning-text: #B45309;
+
+  --muni-danger-bg: #FEF2F2;
+  --muni-danger-border: #FECACA;
+  --muni-danger-dot: #EF4444;
+  --muni-danger-text: #B91C1C;
+
+  --muni-info-bg: #EFF6FF;
+  --muni-info-border: #BFDBFE;
+  --muni-info-dot: #0066CC;
+  --muni-info-text: #1E40AF;
+
+  --tblr-primary: #0066CC;
+  --tblr-primary-rgb: 0, 102, 204;
+  --tblr-font-sans-serif: 'Inter Var', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Accesibilidad de teclado global (Regla R-32) */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--muni-brand-blue) !important;
+  outline-offset: 2px !important;
+}
+
+/* Superficie de pagina institucional en modo claro */
+body:not([data-bs-theme="dark"]) {
+  background-color: var(--muni-page-bg);
+  color: var(--muni-text-primary);
+}
+
+body:not([data-bs-theme="dark"]) .page,
+body:not([data-bs-theme="dark"]) .page-wrapper {
+  background-color: var(--muni-page-bg);
+}
+
+/* Tarjetas institucionales */
+body:not([data-bs-theme="dark"]) .card {
+  background-color: var(--muni-card-bg);
+  border: 1px solid var(--muni-border-muted);
+  border-radius: 8px;
+  box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.05);
+}
+
+body:not([data-bs-theme="dark"]) .card-header {
+  background-color: var(--muni-card-bg);
+  border-bottom: 1px solid var(--muni-border-muted);
+  color: var(--muni-text-primary);
+}
+
+body:not([data-bs-theme="dark"]) .card-footer {
+  background-color: var(--muni-surface-subtle);
+  border-top: 1px solid var(--muni-border-muted);
+}
+
+/* Titulos de pagina y tarjetas */
+body:not([data-bs-theme="dark"]) .page-title {
+  color: var(--muni-text-primary) !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em;
+}
+
+body:not([data-bs-theme="dark"]) .card-title {
+  color: var(--muni-text-primary);
+  font-weight: 700;
+}
+
+/* Botones primarios y de accion institucional */
+.btn-primary {
+  background-color: var(--muni-brand-blue);
+  border-color: var(--muni-brand-blue);
+  color: #FFFFFF;
+  font-weight: 600;
+  border-radius: 8px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--muni-brand-blue-hover);
+  border-color: var(--muni-brand-blue-hover);
+  color: #FFFFFF;
+}
+
+.btn-muni-action,
+.btn-warning.btn-muni-action {
+  background-color: var(--muni-action-yellow) !important;
+  border: 1px solid var(--muni-action-yellow) !important;
+  color: var(--muni-text-primary) !important;
+  font-weight: 700 !important;
+  border-radius: 12px;
+  min-height: 46px;
+  padding: 0.65rem 1.25rem;
+  font-size: 0.875rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.btn-muni-action:hover,
+.btn-muni-action:focus {
+  background-color: var(--muni-action-yellow-hover) !important;
+  border-color: var(--muni-action-yellow-hover) !important;
+  color: var(--muni-text-primary) !important;
+}
+
+.btn-muni-security {
+  background-color: var(--muni-security-yellow) !important;
+  border: 1px solid #F5C72B !important;
+  color: var(--muni-text-primary) !important;
+  font-weight: 700 !important;
+  border-radius: 8px;
+  min-height: 46px;
+  padding: 0.65rem 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: background-color 0.15s ease;
+}
+
+.btn-muni-security:hover,
+.btn-muni-security:focus {
+  background-color: var(--muni-action-yellow) !important;
+  color: var(--muni-text-primary) !important;
+}
+
+/* ==========================================================================
+   1. HEADER INSTITUCIONAL (Figma Nodo 49:747 & 49:761)
+   ========================================================================== */
+.muni-header {
+  background-color: var(--muni-brand-blue) !important;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.4) !important;
+  box-shadow: 0 2px 4px -2px rgba(0, 0, 0, 0.1), 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 0.625rem 0;
+  color: #FFFFFF;
+}
+
+.muni-brand-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none !important;
+  color: #FFFFFF !important;
+}
+
+.muni-brand-box {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 12px;
+  background-color: #FFFFFF;
+  box-shadow: 0 2px 4px -2px rgba(30, 58, 138, 0.2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+
+.muni-brand-box img {
+  max-width: 34px;
+  max-height: 34px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.muni-brand-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+@media (min-width: 992px) {
+  .muni-brand-title {
+    font-size: 1.25rem;
+  }
+}
+
+.muni-profile-pill {
+  background-color: var(--muni-profile-bg) !important;
+  border: 2px solid var(--muni-profile-border) !important;
+  border-radius: 9999px !important;
+  padding: 6px 12px !important;
+  min-height: 48px;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 0.625rem;
+  color: #FFFFFF !important;
+  text-decoration: none !important;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.muni-profile-pill:hover,
+.muni-profile-pill:focus {
+  background-color: var(--muni-brand-blue-hover) !important;
+  border-color: #FFFFFF !important;
+}
+
+.muni-profile-avatar {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 9999px !important;
+  border: 2px solid #FFFFFF;
+  background-size: cover;
+  background-position: center;
+  flex-shrink: 0;
+}
+
+.muni-profile-info {
+  text-align: left;
+  line-height: 1.15;
+}
+
+.muni-profile-name {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+
+.muni-profile-role {
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: var(--muni-action-yellow);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+
+.muni-profile-chevron {
+  color: #FFFFFF !important;
+  opacity: 0.95;
+}
+
+/* ==========================================================================
+   2. NAVEGACION SECUNDARIA (view/html/menu.php)
+   ========================================================================== */
+body:not([data-bs-theme="dark"]) .muni-subnav {
+  background-color: #FFFFFF !important;
+  border-bottom: 1px solid var(--muni-border-muted) !important;
+  box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.03);
+}
+
+body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-link {
+  color: var(--muni-text-body);
+  font-weight: 500;
+  min-height: 46px;
+  padding: 0.625rem 0.9rem;
+  position: relative;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-link:hover {
+  color: var(--muni-brand-blue);
+  background-color: rgba(0, 102, 204, 0.04);
+}
+
+body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item.active > .nav-link {
+  color: var(--muni-brand-blue) !important;
+  font-weight: 700;
+}
+
+body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item.active > .nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: 0;
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+  background-color: var(--muni-brand-blue);
+}
+
+body:not([data-bs-theme="dark"]) .muni-subnav .dropdown-item.active,
+body:not([data-bs-theme="dark"]) .muni-subnav .dropdown-item:active {
+  background-color: var(--muni-page-bg);
+  color: var(--muni-brand-blue);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   3. FOOTER INSTITUCIONAL (Figma Nodo 49:736)
+   ========================================================================== */
+.muni-footer {
+  background-color: var(--muni-brand-blue) !important;
+  border-top: 1px solid rgba(96, 165, 250, 0.4) !important;
+  color: #FFFFFF !important;
+  padding: 14px 0 !important;
+}
+
+.muni-footer-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #FFFFFF;
+}
+
+.muni-footer-copy {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #FFFFFF;
+}
+
+/* ==========================================================================
+   4. HERO DE BIENVENIDA Y TARJETAS DE MODULOS (Figma Nodo 49:661)
+   ========================================================================== */
+.muni-welcome-hero {
+  background-color: var(--muni-hero-dark);
+  border: 1px solid var(--muni-hero-border);
+  border-radius: 8px;
+  padding: 36px 40px;
+  box-shadow: 0px 8px 10px -6px rgba(0, 0, 0, 0.1), 0px 20px 25px -5px rgba(0, 0, 0, 0.1);
+  color: #FFFFFF;
+  margin-bottom: 1.5rem;
+}
+
+.muni-welcome-title {
+  font-size: clamp(1.5rem, 2.4vw, 1.875rem);
+  font-weight: 800;
+  line-height: 1.25;
+  color: #FFFFFF;
+  margin-bottom: 0.75rem;
+}
+
+.muni-welcome-user {
+  color: var(--muni-hero-user);
+}
+
+.muni-welcome-subtitle {
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--muni-hero-desc);
+  margin-bottom: 0;
+}
+
+.muni-welcome-role {
+  color: var(--muni-action-yellow);
+  font-weight: 600;
+}
+
+.muni-welcome-year-box {
+  border-left: 1px solid var(--muni-text-aux);
+  padding-left: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.muni-welcome-year-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muni-text-aux);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.muni-welcome-year-value {
+  font-size: 1.875rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: #FFFFFF;
+}
+
+@media (max-width: 767.98px) {
+  .muni-welcome-hero {
+    padding: 24px 20px;
+  }
+  .muni-welcome-year-box {
+    border-left: none;
+    border-top: 1px solid rgba(148, 163, 184, 0.35);
+    padding-left: 0;
+    padding-top: 16px;
+    margin-top: 16px;
+  }
+}
+
+/* Tarjetas de Modulos en Inicio (#49:982) */
+.muni-module-card {
+  background-color: var(--muni-card-bg);
+  border: 1px solid var(--muni-border-muted);
+  border-radius: 8px;
+  box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.05);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.muni-module-card:hover {
+  border-color: var(--muni-profile-border);
+  box-shadow: 0px 4px 12px rgba(0, 102, 204, 0.08);
+}
+
+.muni-module-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 9999px;
+  background-color: var(--muni-page-bg);
+  border: 1px solid var(--muni-icon-border);
+  color: var(--muni-brand-blue);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.muni-module-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--muni-text-primary);
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.muni-module-desc {
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--muni-text-body);
+  line-height: 1.5;
+  margin-bottom: 1.25rem;
+}
+
+.muni-module-footer {
+  border-top: 1px solid var(--muni-surface-muted);
+  padding-top: 1rem;
+  margin-top: auto;
+}
+
+/* ==========================================================================
+   5. PILDORAS DE ESTADO SEMANTICAS (Figma Status Pills)
+   ========================================================================== */
+.muni-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.muni-status-pill::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+
+.muni-status-pill.status-active,
+.muni-status-pill.status-success {
+  background-color: var(--muni-success-bg);
+  border: 1px solid var(--muni-success-border);
+  color: var(--muni-success-text);
+}
+
+.muni-status-pill.status-active::before,
+.muni-status-pill.status-success::before {
+  background-color: var(--muni-success-dot);
+}
+
+.muni-status-pill.status-warning {
+  background-color: var(--muni-warning-bg);
+  border: 1px solid var(--muni-warning-border);
+  color: var(--muni-warning-text);
+}
+
+.muni-status-pill.status-warning::before {
+  background-color: var(--muni-warning-dot);
+}
+
+.muni-status-pill.status-danger {
+  background-color: var(--muni-danger-bg);
+  border: 1px solid var(--muni-danger-border);
+  color: var(--muni-danger-text);
+}
+
+.muni-status-pill.status-danger::before {
+  background-color: var(--muni-danger-dot);
+}
+
+.muni-status-pill.status-info {
+  background-color: var(--muni-info-bg);
+  border: 1px solid var(--muni-info-border);
+  color: var(--muni-info-text);
+}
+
+.muni-status-pill.status-info::before {
+  background-color: var(--muni-info-dot);
+}
+
+/* Armonizacion de badges Tabler en modo claro para cumplir contraste WCAG AA */
+body:not([data-bs-theme="dark"]) .badge.bg-success-lt {
+  background-color: var(--muni-success-bg) !important;
+  border: 1px solid var(--muni-success-border);
+  color: var(--muni-success-text) !important;
+  font-weight: 600;
+}
+
+body:not([data-bs-theme="dark"]) .badge.bg-warning-lt {
+  background-color: var(--muni-warning-bg) !important;
+  border: 1px solid var(--muni-warning-border);
+  color: var(--muni-warning-text) !important;
+  font-weight: 600;
+}
+
+body:not([data-bs-theme="dark"]) .badge.bg-danger-lt {
+  background-color: var(--muni-danger-bg) !important;
+  border: 1px solid var(--muni-danger-border);
+  color: var(--muni-danger-text) !important;
+  font-weight: 600;
+}
+
+body:not([data-bs-theme="dark"]) .badge.bg-info-lt,
+body:not([data-bs-theme="dark"]) .badge.bg-blue-lt {
+  background-color: var(--muni-info-bg) !important;
+  border: 1px solid var(--muni-info-border);
+  color: var(--muni-info-text) !important;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   6. MODALES Y TARJETAS CON FRANJA INSTITUCIONAL (Figma Page 2 Nodo 64:687)
+   ========================================================================== */
+.muni-stripe-top,
+.modal-content {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px !important;
+}
+
+.muni-stripe-top::before,
+.modal-content::before {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 6px;
+  background: linear-gradient(90deg, var(--muni-login-blue-alt) calc(100% - 110px), var(--muni-security-yellow) calc(100% - 110px));
+}
+
+body:not([data-bs-theme="dark"]) .modal-header {
+  background: var(--muni-brand-blue) !important;
+  color: #FFFFFF !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+  padding: 1rem 1.5rem !important;
+}
+
+/* ==========================================================================
+   7. TABLAS, DATATABLES Y CONTROLES DE FORMULARIO
+   ========================================================================== */
+body:not([data-bs-theme="dark"]) th,
+body:not([data-bs-theme="dark"]) .table thead th {
+  color: var(--muni-brand-blue) !important;
+  background-color: var(--muni-surface-subtle);
+  font-weight: 700;
+}
+
+body:not([data-bs-theme="dark"]) .form-control,
+body:not([data-bs-theme="dark"]) .form-select {
+  border-color: var(--muni-border-input);
+  color: var(--muni-text-primary);
+  border-radius: 8px !important;
+}
+
+body:not([data-bs-theme="dark"]) .form-control:focus,
+body:not([data-bs-theme="dark"]) .form-select:focus {
+  border-color: var(--muni-brand-blue) !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.18) !important;
+}
+
+body:not([data-bs-theme="dark"]) .input-group-text {
+  background-color: var(--muni-surface-muted);
+  border-color: var(--muni-border-input);
+  color: var(--muni-text-body);
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+  background: var(--muni-brand-blue) !important;
+  color: #FFFFFF !important;
+  border: 1px solid var(--muni-brand-blue) !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+  background: var(--muni-brand-blue) !important;
+  color: #FFFFFF !important;
+  border: 1px solid var(--muni-brand-blue) !important;
+}
+
+/* ==========================================================================
+   8. LOGIN INSTITUCIONAL DIVIDIDO (Figma Nodo 41:2)
+   ========================================================================== */
+body.muni-login-body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: #FFFFFF;
+  color: var(--muni-text-heading);
+  font-family: var(--tblr-font-sans-serif);
+}
+
+.muni-login-split {
+  display: flex;
+  flex-direction: row;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Panel Izquierdo (01 Identidad visual / Chiclayo) */
+.muni-login-hero {
+  position: relative;
+  flex: 1 1 55%;
+  min-height: 100vh;
+  background-color: var(--muni-brand-blue);
+  background-image:
+    linear-gradient(180deg, rgba(7, 29, 52, 0.05) 0%, rgba(7, 29, 52, 0.38) 44%, rgba(7, 29, 52, 0.94) 100%),
+    url('../img/login_sigodt.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 60px;
+  color: #FFFFFF;
+}
+
+.muni-login-hero-content {
+  max-width: 640px;
+  position: relative;
+  z-index: 2;
+}
+
+.muni-login-hero-title {
+  font-size: clamp(2rem, 3vw, 2.75rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: #FFFFFF;
+  margin-bottom: 1rem;
+}
+
+.muni-login-hero-desc {
+  font-size: 1.0625rem;
+  font-weight: 400;
+  line-height: 1.6;
+  color: #EAF3FC;
+  margin-bottom: 1.5rem;
+}
+
+.muni-login-hero-bar {
+  width: 64px;
+  height: 4px;
+  background-color: var(--muni-security-yellow);
+  border-radius: 2px;
+}
+
+/* Panel Derecho (02 Acceso institucional) */
+.muni-login-panel {
+  flex: 1 1 45%;
+  background-color: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2.5rem 2rem;
+}
+
+.muni-login-form-wrap {
+  width: 100%;
+  max-width: 400px;
+}
+
+.muni-login-crest {
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+
+.muni-login-crest img {
+  height: 88px;
+  width: auto;
+  object-fit: contain;
+  margin-bottom: 0.75rem;
+}
+
+.muni-login-entity {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muni-text-body);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0;
+}
+
+.muni-login-heading {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--muni-text-heading);
+  letter-spacing: -0.02em;
+  margin-bottom: 0.375rem;
+}
+
+.muni-login-subheading {
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--muni-text-muted);
+  margin-bottom: 1.75rem;
+}
+
+.muni-login-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.375rem;
+}
+
+.muni-login-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--muni-text-heading);
+  margin-bottom: 0.375rem;
+  display: block;
+}
+
+.muni-login-forgot {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--muni-login-blue);
+  text-decoration: none;
+}
+
+.muni-login-forgot:hover {
+  color: var(--muni-login-blue-hover);
+  text-decoration: underline;
+}
+
+.muni-input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.muni-input-group .form-control {
+  height: 50px;
+  border: 1px solid var(--muni-border-input);
+  border-radius: 8px !important;
+  padding: 0.625rem 2.75rem 0.625rem 0.875rem;
+  font-size: 0.9375rem;
+  color: var(--muni-text-heading);
+  background-color: #FFFFFF;
+  width: 100%;
+}
+
+.muni-input-group .form-control::placeholder {
+  color: var(--muni-text-aux);
+  text-transform: none;
+}
+
+.muni-input-icon,
+.muni-input-action {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 50px;
+  width: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muni-text-muted);
+  background: transparent;
+  border: none;
+  text-decoration: none;
+}
+
+.muni-input-icon {
+  pointer-events: none;
+}
+
+.muni-input-action {
+  cursor: pointer;
+  border-radius: 0 8px 8px 0;
+}
+
+.muni-input-action:hover {
+  color: var(--muni-login-blue);
+}
+
+/* Seccion CAPTCHA en Login */
+.muni-captcha-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 0.625rem;
+}
+
+.muni-captcha-box {
+  flex: 1;
+  height: 50px;
+  background-color: var(--muni-surface-muted);
+  border: 1px solid var(--muni-border-input);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 4px 12px;
+}
+
+.muni-captcha-box img {
+  max-height: 40px;
+  width: auto;
+  object-fit: contain;
+}
+
+.muni-captcha-refresh {
+  width: 50px;
+  height: 50px;
+  min-width: 50px;
+  background-color: #EFF7FD !important;
+  border: 1px solid var(--muni-profile-border) !important;
+  border-radius: 8px !important;
+  color: var(--muni-login-blue-alt) !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.muni-captcha-refresh:hover:not(:disabled) {
+  background-color: #E0F0FC !important;
+  border-color: var(--muni-login-blue) !important;
+}
+
+.muni-captcha-refresh:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.muni-captcha-input {
+  height: 50px;
+  border: 1px solid var(--muni-border-input);
+  border-radius: 8px !important;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.9375rem;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+.muni-captcha-input::placeholder {
+  letter-spacing: normal;
+  font-weight: 400;
+  color: var(--muni-text-aux);
+  text-transform: none;
+}
+
+.muni-captcha-status {
+  font-size: 0.75rem;
+  color: var(--muni-text-muted);
+  margin-top: 0.375rem;
+}
+
+.muni-login-submit {
+  width: 100%;
+  height: 52px;
+  background-color: var(--muni-login-blue) !important;
+  border: 1px solid var(--muni-login-blue) !important;
+  border-radius: 8px !important;
+  color: #F9FAFB !important;
+  font-size: 1rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: background-color 0.15s ease;
+}
+
+.muni-login-submit:hover:not(:disabled) {
+  background-color: var(--muni-login-blue-hover) !important;
+  border-color: var(--muni-login-blue-hover) !important;
+}
+
+.muni-login-submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+@media (max-width: 991.98px) {
+  .muni-login-split {
+    flex-direction: column;
+  }
+  .muni-login-hero {
+    min-height: auto;
+    padding: 28px 24px;
+    flex: 0 0 auto;
+  }
+  .muni-login-hero-title {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .muni-login-hero-desc {
+    font-size: 0.9375rem;
+    margin-bottom: 0.875rem;
+  }
+  .muni-login-panel {
+    flex: 1 1 auto;
+    padding: 2rem 1.25rem;
+  }
+}
+
+/* ==========================================================================
+   9. COMPATIBILIDAD CON MODO OSCURO ([data-bs-theme="dark"])
+   ========================================================================== */
+[data-bs-theme="dark"] .muni-module-card,
+body.theme-dark .muni-module-card {
+  background-color: #182433;
+  border-color: #2c3c51;
+}
+
+[data-bs-theme="dark"] .muni-module-title,
+body.theme-dark .muni-module-title {
+  color: #FFFFFF;
+}
+
+[data-bs-theme="dark"] .muni-module-desc,
+body.theme-dark .muni-module-desc {
+  color: #CBD5E1;
+}
+
+[data-bs-theme="dark"] .muni-module-footer,
+body.theme-dark .muni-module-footer {
+  border-top-color: #2c3c51;
+}

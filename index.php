@@ -15,268 +15,195 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-  <title>SIAGTH</title>
+  <title>SIGODT :: Acceso Institucional</title>
   <link rel="stylesheet" href="public/tabler/css/tabler.min.css" />
   <link rel="stylesheet" href="public/tabler/css/tabler-flags.min.css" />
   <link rel="stylesheet" href="public/tabler/css/tabler-payments.min.css" />
   <link rel="stylesheet" href="public/tabler/css/tabler-vendors.min.css" />
+  <link rel="stylesheet" href="public/lib/inter/inter.css" />
+  <link rel="stylesheet" href="public/css/municipal-theme.css" />
   <link rel="icon" href="public/img/mpch.ico" type="image/x-icon">
-  <style>
-    .system-title {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .title-main {
-      font-size: 20px;
-      /* Ajusta según tu preferencia */
-      font-weight: bold;
-      color: #32393f;
-      /* Color moderno */
-      letter-spacing: 1px;
-      /* Espaciado entre letras */
-      margin-bottom: 5px;
-    }
-
-    .title-sub {
-      font-size: 24px;
-      font-weight: 800;
-      color: #dd1c04;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
-    }
-
-    body {
-      position: relative;
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background-color: #f8f9fa;
-      /* Fondo base por si falla la imagen */
-    }
-
-    body::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-image: url('public/img/fondo_2.png');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      filter: brightness(50%);
-      z-index: -1;
-      /* Coloca el fondo detrás del contenido */
-    }
-
-    .card {
-      position: relative;
-      z-index: 1;
-      /* Asegúrate de que el formulario esté sobre el fondo */
-      background: white;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      border-radius: 10px;
-    }
-  </style>
 </head>
 
-<body class=" d-flex flex-column">
- 
-  <div class="page page-center">
-    <div class="container container-tight py-4">
-      <div class="row align-items-center g-4">
-        <div class="col-lg-11">
-          <div class="header-colors" style="width: 100%;height: 10px; display: flex">
-            <div style="background: #ac4033;width: 25%; height: 100%;">
+<body class="muni-login-body">
 
-            </div>
-            <div style="background: #d59b2d;width: 25%; height: 100%;">
-
-            </div>
-            <div style="background: #61a0a5;width: 25%; height: 100%;">
-
-            </div>
-            <div style="background: #0054a6;width: 25%; height: 100%;">
-
-            </div>
-          </div>
-          <div class="card card-md" style="border-radius: 0 0 5px 5px;">
-            <div class="card-body">
-              <div class="text-center">
-                <a class="navbar-brand navbar-brand-autodark">
-                  <img src="public/img/logo_mpch.png" width="100" height="100">
-                  <!-- <img src="public/img/sis_logo.png" width="140" height="100"> -->
-                </a>
-              </div>
-              <h2 class="h3 text-center mb-3">MUNICIPALIDAD PROVINCIAL DE CHICLAYO</h2>
-              <div class="d-flex align-items-center mb-3">
-                <div class="flex-shrink-0 me-2">
-                  <img src="public/img/sis_logo.png" class="img-thumbnail" style="background-color: unset;" width="65" height="55">
-                </div>
-                <div class="ms-2">
-                  <p class="h3 mb-0 text-wrap">
-                    <small>Sistema de Gestión de Órdenes de Derecho de Trámite</small>
-                  </p>
-                </div>
-              </div>
-              
-
-              <!-- Mensajes de error -->
-              <?php if (isset($_SESSION["login_error"])): ?>
-                <div class="alert alert-danger" role="alert">
-                  <?php
-                  echo htmlspecialchars($_SESSION["login_error"], ENT_QUOTES, "UTF-8");
-                  unset($_SESSION["login_error"]);
-                  ?>
-                </div>
-              <?php elseif (isset($_GET["m"])): ?>
-                <div class="alert alert-danger" role="alert">
-                  <?php
-                  $mensajes = [
-                    "1" => "Error",
-                    "2" => "Los campos están vacíos",
-                    "3" => "No se encontraron datos",
-                    "4" => "Su IP no está habilitada para acceder al sistema",
-                    "5" => "El usuario se encuentra inactivo",
-                    "6" => "Se encuentra fuera de la hora de acceso",
-                    "7" => "El usuario no está vigente",
-                    "8" => "Los datos son incorrectos",
-                    "9" => "La sesión ha expirado",
-                    "10" => "Usuario sin dependencia en el SGD",
-                    "11" => "CAPTCHA inválido o expirado. Ingrese el nuevo código."
-                  ];
-                  echo htmlspecialchars($mensajes[$_GET["m"]] ?? "Error desconocido", ENT_QUOTES, "UTF-8");
-                  ?>
-                </div>
-              <?php endif; ?>
-
-              <form id="loginForm" action="" method="POST" autocomplete="off">
-                <div class="mb-3">
-                  <label class="form-label">Usuario</label>
-                  <input type="text" class="form-control" name="usu_dni" placeholder="Ingrese su Usuario" oninput="limitarADigitosDNI(this)" required />
-                </div>
-
-                <div class="mb-3">
-                  <label class="form-label">
-                    Contraseña
-                    <span class="form-label-description">
-                      <a href="https://www.munichiclayo.gob.pe/sisSeguridad/view/USURecuperacionContra/index.php?sistema=siagth">Olvidé mi contraseña</a>
-                    </span>
-                  </label>
-                  <div class="input-group input-group-flat">
-                    <input type="password" class="form-control" name="usu_pass" placeholder="Ingrese su Contraseña"
-                      required />
-                    <span class="input-group-text">
-                      <a href="#" class="link-secondary toggle-password" title="Mostrar contraseña">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                          stroke-linecap="round" stroke-linejoin="round">
-                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                          <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-                          <path d="M21 12c-2.4 4-5.4 6-9 6c-3.6 0-6.6-2-9-6c2.4-4 5.4-6 9-6c3.6 0 6.6 2 9 6" />
-                        </svg>
-                      </a>
-                    </span>
-                  </div>
-                </div>
-
-                <div class="mb-3">
-                  <!-- <label class="form-label">Captcha</label> -->
-
-                  <div class="input-group input-group-flat" id="contcap" style="text-align: center; display: flex;justify-content: space-evenly;">
-                    <div>
-                      <div class="row">
-                        <div class="col-11"
-                          style="display: flex; scale: 0.8; justify-content: space-around;border-bottom: 2px solid #0054a6;">
-                          <img id="captchaImage" style="min-height: 40px; margin:0px 25px 0px 25px" src="" alt="CAPTCHA">
-                        </div>
-
-                        <div class="col-1" style="display: flex; scale: 1; justify-content: space-around;">
-                          <button type="button" id="btcap" class="btn btn-primary btn-refresh"
-                            aria-label="Actualizar CAPTCHA"
-                            style="width:50px;background: none; color: #0054a6; border: 2px solid #0054a6; cursor: pointer; padding: 0; margin: 0; display: flex; align-items: center; justify-content: center;">
-                            <svg style="margin-left: 5px;" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-reload" style="display: block;">
-                              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                              <path d="M19.933 13.041a8 8 0 1 1 -9.925 -8.788c3.899 -1 7.935 1.007 9.425 4.747" />
-                              <path d="M20 4v5h-5" />
-                            </svg>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <input type="text" id="captchaInput" name="captchaInput" class="form-control"
-                        placeholder="Ingrese el captcha" aria-label="Código CAPTCHA" aria-describedby="captchaStatus"
-                        minlength="6" maxlength="6" pattern="[A-Za-z2-9]{6}" required disabled />
-                  <div id="captchaStatus" role="status" aria-live="polite">Cargando CAPTCHA…</div>
-                  <noscript>Active JavaScript para cargar el CAPTCHA e ingresar.</noscript>
-
-                  <!-- <div class="hr-text">otros</div>
-
-                  <div class="row">
-                      <div class="col"><a href="#" class="btn w-100">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon text-github"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5"></path></svg>
-                          Entrar con Zimbra
-                        </a>
-                      </div>
-                  </div> -->
-                </div>
-
-                <input type="hidden" name="enviar" value="si">
-                <div class="form-footer">
-                  <input type="hidden" name="enviar" value="si">
-                  <button id="loginSubmit" type="submit" class="btn btn-primary w-100" disabled><span class="me-2" role="status"></span>Ingresar</button>
-                </div>
-                <!-- spinner-border spinner-border-sm
-                <div class="progress progress-sm">
-                  <div class="progress-bar progress-bar-indeterminate"></div>
-                </div> -->
-              </form>
-            </div>
-          </div>
-        </div>
+  <main class="muni-login-split">
+    <!-- 01 Identidad visual / Chiclayo -->
+    <section class="muni-login-hero" aria-label="Identidad institucional">
+      <div class="muni-login-hero-content">
+        <h1 class="muni-login-hero-title">Sistema de Gestión de Órdenes de Derecho de Trámite</h1>
+        <p class="muni-login-hero-desc">
+          Plataforma institucional para la emisión, seguimiento, consulta y control de órdenes de derecho de trámite de la gestión municipal.
+        </p>
+        <div class="muni-login-hero-bar" aria-hidden="true"></div>
       </div>
-    </div>
-  </div>
+    </section>
+
+    <!-- 02 Acceso institucional -->
+    <section class="muni-login-panel" aria-label="Formulario de acceso institucional">
+      <div class="muni-login-form-wrap">
+        <div class="muni-login-crest">
+          <img src="public/img/logo_mpch.png" alt="Escudo de la Municipalidad Provincial de Chiclayo" height="88">
+          <p class="muni-login-entity">MUNICIPALIDAD PROVINCIAL DE CHICLAYO</p>
+        </div>
+
+        <h2 class="muni-login-heading">Iniciar sesión</h2>
+        <p class="muni-login-subheading">Ingresa tus credenciales institucionales para continuar.</p>
+
+        <!-- Mensajes de error -->
+        <?php if (isset($_SESSION["login_error"])): ?>
+          <div class="alert alert-danger" role="alert">
+            <?php
+            echo htmlspecialchars($_SESSION["login_error"], ENT_QUOTES, "UTF-8");
+            unset($_SESSION["login_error"]);
+            ?>
+          </div>
+        <?php elseif (isset($_GET["m"])): ?>
+          <div class="alert alert-danger" role="alert">
+            <?php
+            $mensajes = [
+              "1" => "Error",
+              "2" => "Los campos están vacíos",
+              "3" => "No se encontraron datos",
+              "4" => "Su IP no está habilitada para acceder al sistema",
+              "5" => "El usuario se encuentra inactivo",
+              "6" => "Se encuentra fuera de la hora de acceso",
+              "7" => "El usuario no está vigente",
+              "8" => "Los datos son incorrectos",
+              "9" => "La sesión ha expirado",
+              "10" => "Usuario sin dependencia en el SGD",
+              "11" => "CAPTCHA inválido o expirado. Ingrese el nuevo código."
+            ];
+            echo htmlspecialchars($mensajes[$_GET["m"]] ?? "Error desconocido", ENT_QUOTES, "UTF-8");
+            ?>
+          </div>
+        <?php endif; ?>
+
+        <form id="loginForm" action="" method="POST" autocomplete="off">
+          <div class="mb-3">
+            <label for="usu_dni" class="muni-login-label">Usuario</label>
+            <div class="input-group muni-input-group">
+              <input
+                type="text"
+                id="usu_dni"
+                class="form-control"
+                name="usu_dni"
+                placeholder="Ingrese su DNI"
+                inputmode="numeric"
+                maxlength="8"
+                oninput="limitarADigitosDNI(this)"
+                required />
+              <span class="muni-input-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+                </svg>
+              </span>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <div class="muni-login-label-row">
+              <label for="usu_pass" class="muni-login-label mb-0">Contraseña</label>
+              <a class="muni-login-forgot" href="https://www.munichiclayo.gob.pe/sisSeguridad/view/USURecuperacionContra/index.php?sistema=siagth">¿Olvidaste tu contraseña?</a>
+            </div>
+            <div class="input-group muni-input-group">
+              <input
+                type="password"
+                id="usu_pass"
+                class="form-control"
+                name="usu_pass"
+                placeholder="Ingrese su Contraseña"
+                required />
+              <a href="#" class="muni-input-action toggle-password" title="Mostrar contraseña" aria-label="Mostrar u ocultar contraseña">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="20" height="20"
+                  viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+                  <path d="M21 12c-2.4 4-5.4 6-9 6c-3.6 0-6.6-2-9-6c2.4-4 5.4-6 9-6c3.6 0 6.6 2 9 6" />
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          <div class="mb-4" id="contcap">
+            <div class="muni-captcha-row">
+              <div class="muni-captcha-box">
+                <img id="captchaImage" src="" alt="CAPTCHA">
+              </div>
+              <button
+                type="button"
+                id="btcap"
+                class="btn muni-captcha-refresh btn-refresh"
+                aria-label="Actualizar CAPTCHA"
+                title="Actualizar CAPTCHA">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-reload">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M19.933 13.041a8 8 0 1 1 -9.925 -8.788c3.899 -1 7.935 1.007 9.425 4.747" />
+                  <path d="M20 4v5h-5" />
+                </svg>
+              </button>
+            </div>
+
+            <input
+              type="text"
+              id="captchaInput"
+              name="captchaInput"
+              class="form-control muni-captcha-input"
+              placeholder="Ingrese el captcha"
+              aria-label="Código CAPTCHA"
+              aria-describedby="captchaStatus"
+              minlength="6"
+              maxlength="6"
+              pattern="[A-Za-z2-9]{6}"
+              required
+              disabled />
+            <div id="captchaStatus" class="muni-captcha-status" role="status" aria-live="polite">Cargando CAPTCHA…</div>
+            <noscript>Active JavaScript para cargar el CAPTCHA e ingresar.</noscript>
+          </div>
+
+          <input type="hidden" name="enviar" value="si">
+          <div class="form-footer mt-2">
+            <button id="loginSubmit" type="submit" class="btn muni-login-submit" disabled>
+              <span class="me-1" role="status"></span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" />
+                <path d="M20 12h-13l3 -3m0 6l-3 -3" />
+              </svg>
+              <span>Ingresar</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
   <!-- Libs JS -->
-  <!-- Tabler Core -->
   <script src="public/lib/jquery/jquery.min.js"></script>
   <script src="public/tabler/js/tabler.min.js?1692870487" defer></script>
   <script src="public/tabler/js/demo.min.js?1692870487" defer></script>
-
   <script src="public/js/login-captcha.js" defer></script>
 
   <script>
-      function limitarADigitosRUC(input) {
-        let valor = input.value.toString().replace(/\D/g, '');
-        if (valor.length > 11) {
-          valor = valor.slice(0, 11);
-        }
-        input.value = valor;
+    function limitarADigitosRUC(input) {
+      let valor = input.value.toString().replace(/\D/g, '');
+      if (valor.length > 11) {
+        valor = valor.slice(0, 11);
       }
-      function limitarADigitosDNI(input) {
-        let valor = input.value.toString().replace(/\D/g, '');
-        if (valor.length > 8) {
-          valor = valor.slice(0, 8);
-        }
-        input.value = valor;
-      }
-  </script>
+      input.value = valor;
+    }
 
-  <script>
     function limitarADigitosDNI(input) {
-      let valor = input.value.replace(/\D/g, '');
+      let valor = input.value.toString().replace(/\D/g, '');
       if (valor.length > 8) {
         valor = valor.slice(0, 8);
       }
       input.value = valor;
     }
+
     document.querySelectorAll('.toggle-password').forEach(el => {
       el.addEventListener('click', e => {
         e.preventDefault();

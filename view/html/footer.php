@@ -1,23 +1,17 @@
-<footer class="footer d-print-none mt-auto bg-dark" style="z-index: 1; padding: 15px 0;">
+<!-- Footer Institucional MPCH (Figma Nodo 49:736) -->
+<footer class="footer d-print-none mt-auto muni-footer" style="z-index: 1;">
   <div class="container-xl">
-    <div class="row text-center align-items-center">
+    <div class="row text-center text-lg-start align-items-center g-2">
       <div class="col-12 col-lg-auto">
-        <ul class="list-inline mb-0" style="margin-bottom: 0;">
-          <li class="list-inline-item">
-            <img src="../../public/img/mpch.ico" width="30" height="30" alt="MPCH">
-          </li>
-          <li class="list-inline-item">
-            <small class="link-light">Municipalidad Provincial de Chiclayo</small>
-          </li>
-        </ul>
+        <div class="muni-footer-brand justify-content-center justify-content-lg-start">
+          <img src="../../public/img/mpch.ico" width="28" height="28" alt="Escudo MPCH">
+          <span>Municipalidad Provincial de Chiclayo</span>
+        </div>
       </div>
-      <div class="col-12 col-lg-auto ms-lg-auto mt-1 mt-lg-0">
-        <ul class="list-inline list-inline-dots mb-0" style="margin-bottom: 0;">
-          <li class="list-inline-item text-light">
-            &copy; SIGODT-2026 V 1.0 
-            <small class="link-secondary text-light">- GTIE | Área de Desarrollo de Software</small>
-          </li>          
-        </ul>
+      <div class="col-12 col-lg-auto ms-lg-auto">
+        <div class="muni-footer-copy">
+          &copy; SIGODT-2026 V 1.0 &bull; GTIE | Área de Desarrollo de Software
+        </div>
       </div>
     </div>
   </div>

@@ -49,7 +49,10 @@
     }
 </style>
 
-<!-- Estilos Globales de Plantilla (sisGitse) -->
+<!-- Sistema de Diseño Institucional MPCH -->
+<link href="../../public/css/municipal-theme.css" rel="stylesheet" />
+
+<!-- Estilos Globales de Plantilla (SIGODT / MPCH) -->
 <style>
     /* Estructura para Sticky Footer (Footer siempre al fondo de la pantalla) */
     html, body {
@@ -91,32 +94,32 @@
     }
 
     .bg-gradient-dark {
-        background: linear-gradient(135deg, #141E30 0%, #243B55 100%);
+        background: linear-gradient(135deg, #0052A3 0%, #0066CC 100%);
         color: #fcfcfc !important;
     }
 
     body:not([data-bs-theme="dark"]) .dropdown-item:hover,
     body:not([data-bs-theme="dark"]) .nav-link:hover {
-        background-color: rgba(0, 0, 0, 0.03);
+        background-color: rgba(0, 102, 204, 0.04);
         transition: all 0.2s ease-in-out;
     }
 
     .brand-mark {
-        width: 40px;
-        height: 40px;
+        width: 44px;
+        height: 44px;
         border-radius: 12px;
         display: grid;
         place-items: center;
-        background: #111318;
-        color: white;
-        box-shadow: 0 7px 20px rgba(0, 0, 0, .12);
+        background: #FFFFFF;
+        color: #0066CC;
+        box-shadow: 0 2px 4px -2px rgba(30, 58, 138, 0.2);
     }
 
-    /* Modales estilo sisGitse (bg-gradient-dark y cierre blanco) */
+    /* Modales institucionales MPCH con barra superior de seguridad */
     .modal-header {
-        background: linear-gradient(135deg, #141E30 0%, #243B55 100%) !important;
-        color: #fcfcfc !important;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        background: #0066CC !important;
+        color: #ffffff !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
         padding: 1rem 1.5rem !important;
     }
 
@@ -152,20 +155,20 @@
         opacity: 1;
     }
 
-    /* Page Titles estilo sisGitse */
+    /* Page Titles institucionales */
     .page-title {
         font-weight: 700 !important;
         letter-spacing: -0.2px;
-        color: #111827;
+        color: #0F172A;
         text-transform: uppercase;
     }
 
-    /* Encabezados de tabla en azul institucional sisGitse */
+    /* Encabezados de tabla en azul institucional MPCH */
     th {
-        color: #0054a6 !important;
+        color: #0066CC !important;
     }
 
-    /* Inputs redondeados y contenedores de icono estilo sisGitse */
+    /* Inputs redondeados y contenedores de icono */
     .form-select,
     .form-control {
         border-radius: 8px !important;
@@ -174,12 +177,13 @@
 
     .form-select:focus,
     .form-control:focus {
-        border-color: #0d6efd !important;
-        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15) !important;
+        border-color: #0066CC !important;
+        box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.18) !important;
     }
 
     .icon-container {
-        background: rgba(13, 110, 253, 0.1);
+        background: #E7F1FB;
+        border: 1px solid #BAE6FD;
         border-radius: 50%;
         padding: 16px;
         display: inline-flex;
@@ -220,25 +224,25 @@
     }
 
     .swal2-icon.swal2-warning.swal2-icon-show {
-        color: #FFC107 !important;
-        border-color: #FFC107 !important;
+        color: #F59E0B !important;
+        border-color: #F59E0B !important;
     }
 
     .swal2-styled.swal2-confirm {
-        background-color: #0165c9 !important;
+        background-color: #0066CC !important;
     }
 
     .swal2-styled.swal2-cancel {
-        background-color: #de2b2b !important;
+        background-color: #DC2626 !important;
     }
 
     .swal2-icon.swal2-error {
-        border-color: #fe0a0a;
-        color: #fe0a0a;
+        border-color: #EF4444;
+        color: #EF4444;
     }
 
     .swal2-icon.swal2-error [class^=swal2-x-mark-line] {
-        background-color: #fe0a0a !important;
+        background-color: #EF4444 !important;
     }
 
     /* Paginación y búsqueda DataTables */
@@ -248,26 +252,26 @@
     }
 
     .dataTables_wrapper .dataTables_paginate .paginate_button {
-        color: black !important;
+        color: #0F172A !important;
         background-color: transparent;
-        border-radius: 5px;
+        border-radius: 6px;
         cursor: pointer;
         padding: 6px 12px;
-        transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+        transition: background 0.2s ease-in-out, color 0.2s ease-in-out;
     }
 
     .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-        background: #0054a6 !important;
+        background: #0066CC !important;
         color: white !important;
-        border: 1px solid #007bff;
+        border: 1px solid #0066CC;
     }
 
     .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-        background: #0054a6 !important;
+        background: #0066CC !important;
         color: white !important;
-        border: 1px solid #0054a6 !important;
+        border: 1px solid #0066CC !important;
         font-weight: bold;
-        border-radius: 5px;
+        border-radius: 6px;
     }
 
     .dataTables_wrapper .dataTables_paginate .paginate_button.current a {
@@ -276,18 +280,20 @@
 
     table.dataTable thead th,
     table.dataTable thead td {
-        border-bottom: 1px solid #dce1e7 !important;
-        border-top: 1px solid #dce1e7 !important;
+        border-bottom: 1px solid #E2E8F0 !important;
+        border-top: 1px solid #E2E8F0 !important;
     }
 
     .dataTables_length,
     .dataTables_info {
-        color: #6c7a91 !important;
+        color: #475569 !important;
         margin: 10px;
     }
 
     .dataTables_length select {
-        color: #6c7a91 !important;
+        color: #0F172A !important;
+        border-color: #CBD5E1;
+        border-radius: 6px;
     }
 
     .dataTables_wrapper .dataTables_filter {
@@ -296,24 +302,24 @@
     }
 
     .dataTables_wrapper .dataTables_filter input {
-        border: 1px solid #ccc;
-        border-radius: 4px;
+        border: 1px solid #CBD5E1;
+        border-radius: 8px;
         padding: 6px 12px;
-        background: #f8f8f8;
-        transition: all 0.3s ease;
+        background: #F8FAFC;
+        transition: all 0.2s ease;
         font-size: 14px;
     }
 
     .dataTables_wrapper .dataTables_filter input:focus {
-        border-color: #66afe9;
-        box-shadow: 0 0 8px rgba(102, 175, 233, 0.6);
+        border-color: #0066CC;
+        box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.18);
         background: #fff;
         outline: none;
     }
 
     .dataTables_wrapper .dataTables_filter label {
         font-size: 14px;
-        color: #333;
+        color: #475569;
     }
 
     .dataTables_wrapper {
