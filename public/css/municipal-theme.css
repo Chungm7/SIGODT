@@ -203,19 +203,26 @@ body:not([data-bs-theme="dark"]) .card-title {
   min-width: 44px;
   border-radius: 12px;
   background-color: #FFFFFF;
-  box-shadow: 0 2px 4px -2px rgba(30, 58, 138, 0.2);
+  color: var(--muni-brand-blue);
+  box-shadow: 0 2px 4px -2px rgba(30, 58, 138, 0.2), 0 4px 6px -1px rgba(30, 58, 138, 0.2);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 4px;
+  padding: 8px;
 }
 
-.muni-brand-box img {
-  max-width: 34px;
-  max-height: 34px;
-  width: auto;
-  height: auto;
-  object-fit: contain;
+.muni-brand-box svg,
+.muni-brand-box .icon {
+  width: 28px;
+  height: 28px;
+  color: var(--muni-brand-blue) !important;
+  stroke: var(--muni-brand-blue) !important;
+  margin: 0;
+}
+
+.muni-brand-text {
+  line-height: 1.15;
+  text-align: left;
 }
 
 .muni-brand-title {
@@ -223,8 +230,18 @@ body:not([data-bs-theme="dark"]) .card-title {
   font-weight: 700;
   color: #FFFFFF;
   letter-spacing: -0.025em;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.muni-brand-acronym {
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: var(--muni-action-yellow);
+  letter-spacing: 0.05em;
   line-height: 1.2;
   text-transform: uppercase;
+  margin-top: 2px;
 }
 
 @media (min-width: 992px) {
@@ -290,6 +307,40 @@ body:not([data-bs-theme="dark"]) .card-title {
   opacity: 0.95;
 }
 
+.muni-profile-dropdown {
+  min-width: 240px !important;
+  background-color: #FFFFFF !important;
+  border: 1px solid var(--muni-border-muted) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.12), 0 4px 10px -2px rgba(15, 23, 42, 0.06) !important;
+  padding: 0.5rem !important;
+  margin-top: 0.5rem !important;
+}
+
+.muni-profile-dropdown .dropdown-item {
+  color: var(--muni-text-primary) !important;
+  font-weight: 500;
+  font-size: 0.875rem;
+  padding: 0.625rem 0.875rem !important;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.muni-profile-dropdown .dropdown-item .icon {
+  color: var(--muni-brand-blue) !important;
+  stroke: var(--muni-brand-blue) !important;
+  margin: 0 !important;
+}
+
+.muni-profile-dropdown .dropdown-item:hover,
+.muni-profile-dropdown .dropdown-item:focus {
+  background-color: var(--muni-page-bg) !important;
+  color: var(--muni-brand-blue) !important;
+}
+
 /* ==========================================================================
    2. NAVEGACION SECUNDARIA (view/html/menu.php)
    ========================================================================== */
@@ -313,20 +364,21 @@ body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-link:hover {
   background-color: rgba(0, 102, 204, 0.04);
 }
 
-body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item.active > .nav-link {
+body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item.active > .nav-link,
+.navbar-expand-md .navbar-nav .nav-item.active > .nav-link {
   color: var(--muni-brand-blue) !important;
   font-weight: 700;
 }
 
-body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item.active > .nav-link::after {
-  content: "";
-  position: absolute;
-  left: 0.75rem;
-  right: 0.75rem;
-  bottom: 0;
-  height: 3px;
-  border-radius: 3px 3px 0 0;
-  background-color: var(--muni-brand-blue);
+/* Evitar doble linea inferior en elementos sin dropdown (Inicio, Dashboard, Reportes) */
+.navbar-expand-md .navbar-nav .nav-item.active::after {
+  border-bottom-color: var(--muni-brand-blue) !important;
+}
+
+body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item.active > .nav-link:not(.dropdown-toggle)::after,
+.navbar-expand-md .navbar-nav .nav-item.active > .nav-link:not(.dropdown-toggle)::after {
+  display: none !important;
+  content: none !important;
 }
 
 body:not([data-bs-theme="dark"]) .muni-subnav .dropdown-item.active,
@@ -334,6 +386,10 @@ body:not([data-bs-theme="dark"]) .muni-subnav .dropdown-item:active {
   background-color: var(--muni-page-bg);
   color: var(--muni-brand-blue);
   font-weight: 600;
+}
+
+.muni-subnav .dropdown-item .dropdown-item-icon .icon {
+  color: var(--muni-brand-blue);
 }
 
 /* ==========================================================================

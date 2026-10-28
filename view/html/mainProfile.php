@@ -7,11 +7,18 @@
     </button>
     <h1 class="navbar-brand navbar-brand-autodark pe-0 pe-md-3 m-0">
       <a href="../inicio/" class="muni-brand-link">
-        <span class="muni-brand-box">
-          <img src="../../public/img/sis_logo.png" alt="SIGODT">
+        <span class="muni-brand-box" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-receipt-2">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2" />
+            <path d="M14 8h-2.5a1.5 1.5 0 0 0 0 3h1a1.5 1.5 0 0 1 0 3h-2.5m2 0v1.5m0 -9v1.5" />
+          </svg>
         </span>
-        <span class="d-none d-md-block muni-brand-title">
-          <?php echo htmlspecialchars(mb_strtoupper($_ENV["SIS_NOM"] ?? "Sistema de Gestión de Órdenes de Derecho de Trámite")); ?>
+        <span class="d-none d-md-flex flex-column muni-brand-text">
+          <span class="muni-brand-title">
+            <?php echo htmlspecialchars(mb_strtoupper($_ENV["SIS_NOM"] ?? "Sistema de Gestión de Órdenes de Derecho de Trámite")); ?>
+          </span>
+          <span class="muni-brand-acronym">SIGODT</span>
         </span>
       </a>
     </h1>
@@ -37,7 +44,7 @@
             <path d="M6 9l6 6l6 -6" />
           </svg>
         </a>
-        <div class="dropdown-menu dropdown-menu-end">
+        <div class="dropdown-menu dropdown-menu-end muni-profile-dropdown" data-bs-theme="light">
           <a href="../setting/" class="dropdown-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-settings-check me-2">
               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
