@@ -72,7 +72,8 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
               "8" => "Los datos son incorrectos",
               "9" => "La sesión ha expirado",
               "10" => "Usuario sin dependencia en el SGD",
-              "11" => "CAPTCHA inválido o expirado. Ingrese el nuevo código."
+              "11" => "CAPTCHA inválido o expirado. Ingrese el nuevo código.",
+              "12" => "No se pudo verificar la seguridad del acceso. Intente nuevamente."
             ];
             echo htmlspecialchars($mensajes[$_GET["m"]] ?? "Error desconocido", ENT_QUOTES, "UTF-8");
             ?>

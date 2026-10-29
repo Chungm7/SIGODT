@@ -1,11 +1,18 @@
 <?php
 require_once __DIR__ . '/../helpers/Captcha.php';
+require_once __DIR__ . '/../helpers/Recaptcha.php';
 class usuario extends conectar
 {
     public function login()
     {
         if (!Captcha::consume($_SESSION, $_POST['captchaInput'] ?? null)) {
             header("Location:" . Conectar::ruta() . "index.php?m=11");
+            exit();
+        }
+        // reCAPTCHA v3 es una capa adicional: ambas validaciones deben pasar antes de la BD y sisSeguridad.
+        $remoteIp = $_SERVER['REMOTE_ADDR'] ?? null;
+        if (!Recaptcha::check($_POST['recaptchaToken'] ?? null, $remoteIp)) {
+            header("Location:" . Conectar::ruta() . "index.php?m=12");
             exit();
         }
         $dni = $_POST['usu_dni'] ?? null;
