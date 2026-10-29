@@ -5,7 +5,8 @@ class Ordengiro extends conectar
     private function nombre_association_sql($filterClause = '', $preCte = '')
     {
         $with = $preCte !== '' ? "WITH $preCte\nsource AS (" : "WITH source AS (";
-        $where = $filterClause !== '' ? "    WHERE $filterClause\n" : '';
+        $areaFilter = '(:role = 9 OR EXISTS (SELECT 1 FROM sc_giros.td_areausu tau WHERE tau.depe_id = p.proced_area AND tau.est = 1 AND tau.pers_id = :person))';
+        $where = $filterClause !== '' ? "    WHERE ($filterClause) AND $areaFilter\n" : "    WHERE $areaFilter\n";
         return <<<SQL
 $with
     SELECT og.ogciud_id, tt.ciud_id, tt.empr_id, tt.procedciudadano_id,
@@ -20,6 +21,7 @@ $with
     JOIN sc_giros.td_giro_tasa_ciudadano gt ON gt.girot_giro = og.ogciud_id
     JOIN sc_giros.td_tasatciud ttc ON gt.tasaciud_id = ttc.tasatciud_id
     JOIN sc_giros.td_procedciudadano tt ON ttc.tasatciud_procedciud = tt.procedciudadano_id
+    JOIN sc_giros.tm_procedimiento p ON p.proced_id = tt.proced_id
     JOIN public.tb_ciudadano c ON c.ciud_id = tt.ciud_id
     LEFT JOIN public.tb_empresa e ON e.empr_id = tt.empr_id
 $where), entities AS (
@@ -87,7 +89,7 @@ SQL;
             ORDER BY $sort";
         $query = parent::conexion()->prepare($sql);
         foreach ($bindings as $key => $value) {
-            $query->bindValue($key, $value, PDO::PARAM_STR);
+            $query->bindValue($key, $value, is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR);
         }
         $query->bindValue(':page', $page, PDO::PARAM_INT);
         $query->bindValue(':limit', $limit, PDO::PARAM_INT);
@@ -102,7 +104,7 @@ SQL;
         return $result;
     }
 
-    public function buscar_entidades_nombre($search, $page = 1, $limit = 10)
+    public function buscar_entidades_nombre($search, $page = 1, $limit = 10, $pers_id = 0, $rol_id = 0)
     {
         list($search, $page, $limit) = self::validar_nombre_input('buscar_entidades_nombre', compact('search', 'page', 'limit'));
         $preCte = <<<'SQL'
@@ -138,10 +140,11 @@ SQL;
             JOIN labels l USING (entity_type, entity_key)
             GROUP BY p.entity_type, p.entity_key, l.nombre, l.documento';
         $literal = '%' . strtr($search, ['!' => '!!', '%' => '!%', '_' => '!_']) . '%';
-        return $this->nombre_page($cte, $selection, 'nombre, entity_type, entity_key', [':search' => $literal], $page, $limit, 'entity_key');
+        $bindings = [':search' => $literal, ':person' => (int)$pers_id, ':role' => (int)$rol_id];
+        return $this->nombre_page($cte, $selection, 'nombre, entity_type, entity_key', $bindings, $page, $limit, 'entity_key');
     }
 
-    public function historial_entidad($entity_type, $entity_key, $page = 1, $limit = 10)
+    public function historial_entidad($entity_type, $entity_key, $page = 1, $limit = 10, $pers_id = 0, $rol_id = 0)
     {
         list($entity_type, $entity_key, $page, $limit) = self::validar_nombre_input('historial_entidad', compact('entity_type', 'entity_key', 'page', 'limit'));
         if ($entity_type === 'ciudadano') {
@@ -173,12 +176,14 @@ SQL;
             FROM pairs p JOIN sc_giros.td_ordengirociud og ON og.ogciud_id = p.ogciud_id
             LEFT JOIN amounts a ON a.girot_giro = og.ogciud_id
             WHERE p.entity_type = :type AND p.entity_key = :key";
+        $bindings[':person'] = (int)$pers_id;
+        $bindings[':role'] = (int)$rol_id;
         // The same sort is used inside and outside paged; no ambiguous table aliases there.
         return $this->nombre_page($cte, $selection, 'fechacrea DESC NULLS LAST, ogciud_id DESC',
             $bindings, $page, $limit, 'ogciud_id');
     }
 
-    public function get_orden_id($orden_id)
+    public function get_orden_id($orden_id, $pers_id = 0, $rol_id = 0)
     {
         $conectar = parent::conexion();
         parent::set_names();
@@ -190,10 +195,10 @@ SQL;
                         CONCAT(c.ciud_nombre, \' \', c.ciud_primer_apellido, \' \', c.ciud_segundo_apellido) AS nombre_ciudadano,
                         c.ciud_numero_documento AS ciudadano_dni,
                         gt.importe,
-                        t.proced_nom,
+                        p.proced_nom,
                         ta.depe_denominacion AS area_nom,
                         ts.tasa_nom,
-                        t.proced_tipoindvasc,
+                        p.proced_tipoindvasc,
                         empr.empr_ruc,
                         empr.empr_razon_social,
                         empr.empr_direccion,
@@ -214,48 +219,57 @@ SQL;
                     INNER JOIN 
                         public.tb_ciudadano c ON c.ciud_id = tt.ciud_id
                     INNER JOIN 
-                        sc_giros.tm_procedimiento t ON tt.proced_id = t.proced_id
+                        sc_giros.tm_procedimiento p ON tt.proced_id = p.proced_id
                     INNER JOIN 
                         sc_giros.td_tasaproced tst ON ttc.tasatciud_tasaproced = tst.tasaproced_id
                     INNER JOIN 
                         sc_giros.tm_tasa ts ON tst.tasa_id = ts.tasa_id
                      INNER JOIN 
-                        tb_dependencia ta ON t.proced_area = ta.depe_id
-                    INNER JOIN 
-                        sc_giros.tm_tupa tm ON t.proced_tupa = tm.tupa_id
+                        tb_dependencia ta ON p.proced_area = ta.depe_id
+                    INNER JOIN
+                        sc_giros.tm_tupa tm ON p.proced_tupa = tm.tupa_id
                     LEFT JOIN 
                         public.tb_empresa empr ON empr.empr_id = tt.empr_id
                     WHERE 
-                        og.ogciud_id = ? AND og.est = 1';
+                        og.ogciud_id = :orden_id AND og.est = 1
+                        AND (:role = 9 OR EXISTS (SELECT 1 FROM sc_giros.td_areausu tau WHERE tau.depe_id = p.proced_area AND tau.est = 1 AND tau.pers_id = :person))';
         $sql = $conectar->prepare($sql);
-        $sql->bindValue(1, $orden_id);
+        $sql->bindValue(':orden_id', $orden_id);
+        $sql->bindValue(':person', (int)$pers_id, PDO::PARAM_INT);
+        $sql->bindValue(':role', (int)$rol_id, PDO::PARAM_INT);
         $sql->execute();
         return $resultado = $sql->fetchAll();
     }
-    public function get_ordenes()
+    public function get_ordenes($pers_id = 0, $rol_id = 0)
     {
         $conectar = parent::conexion();
         parent::set_names();
-        $sql = 'SELECT * from sc_giros.td_ordengirociud';
+        $sql = 'SELECT DISTINCT og.* FROM sc_giros.td_ordengirociud og INNER JOIN sc_giros.td_giro_tasa_ciudadano gt ON gt.girot_giro = og.ogciud_id INNER JOIN sc_giros.td_tasatciud ttc ON gt.tasaciud_id = ttc.tasatciud_id INNER JOIN sc_giros.td_procedciudadano tt ON ttc.tasatciud_procedciud = tt.procedciudadano_id INNER JOIN sc_giros.tm_procedimiento p ON tt.proced_id = p.proced_id WHERE (:role = 9 OR EXISTS (SELECT 1 FROM sc_giros.td_areausu tau WHERE tau.depe_id = p.proced_area AND tau.est = 1 AND tau.pers_id = :person))';
         $sql = $conectar->prepare($sql);
+        $sql->bindValue(':person', (int)$pers_id, PDO::PARAM_INT);
+        $sql->bindValue(':role', (int)$rol_id, PDO::PARAM_INT);
         $sql->execute();
         return $resultado = $sql->fetchAll();
     }
-    public function get_tasas_ordenes()
+    public function get_tasas_ordenes($pers_id = 0, $rol_id = 0)
     {
         $conectar = parent::conexion();
         parent::set_names();
         $sql = 'SELECT tt.tasatciud_id, tt.tasatciud_tasaproced, tt.est as estadotasat, tt.tasatciud_procedciud, gtc.girot_id, gtc.fechacrea, gtc.tasaciud_id, gtc.cantidad, gtc.importe, gtc.est as estadotasagirada, gtc.girot_giro
             FROM sc_giros.td_tasatciud tt
+            INNER JOIN sc_giros.td_procedciudadano pc ON tt.tasatciud_procedciud = pc.procedciudadano_id
+            INNER JOIN sc_giros.tm_procedimiento p ON pc.proced_id = p.proced_id
             LEFT JOIN sc_giros.td_giro_tasa_ciudadano gtc ON gtc.tasaciud_id = tt.tasatciud_id
-            ORDER BY tt.tasatciud_id ASC;
-            ';
+            WHERE (:role = 9 OR EXISTS (SELECT 1 FROM sc_giros.td_areausu tau WHERE tau.depe_id = p.proced_area AND tau.est = 1 AND tau.pers_id = :person))
+            ORDER BY tt.tasatciud_id ASC;';
         $sql = $conectar->prepare($sql);
+        $sql->bindValue(':person', (int)$pers_id, PDO::PARAM_INT);
+        $sql->bindValue(':role', (int)$rol_id, PDO::PARAM_INT);
         $sql->execute();
         return $resultado = $sql->fetchAll();
     }
 
-    public function get_tasas_semana()
+    public function get_tasas_semana($pers_id = 0, $rol_id = 0)
     {
         $conectar = parent::conexion();
         parent::set_names();
@@ -275,16 +289,21 @@ SQL;
             sc_giros.td_tasatciud tt
         LEFT JOIN 
             sc_giros.td_giro_tasa_ciudadano gtc ON gtc.tasaciud_id = tt.tasatciud_id
-        WHERE 
-            (EXTRACT(WEEK FROM gtc.fechacrea) = EXTRACT(WEEK FROM CURRENT_DATE) AND EXTRACT(YEAR FROM gtc.fechacrea) = EXTRACT(YEAR FROM CURRENT_DATE)) 
-            OR gtc.fechacrea IS NULL
-        ORDER BY 
+        INNER JOIN sc_giros.td_procedciudadano pc ON tt.tasatciud_procedciud = pc.procedciudadano_id
+        INNER JOIN sc_giros.tm_procedimiento p ON pc.proced_id = p.proced_id
+        WHERE
+            ((EXTRACT(WEEK FROM gtc.fechacrea) = EXTRACT(WEEK FROM CURRENT_DATE) AND EXTRACT(YEAR FROM gtc.fechacrea) = EXTRACT(YEAR FROM CURRENT_DATE))
+            OR gtc.fechacrea IS NULL)
+            AND (:role = 9 OR EXISTS (SELECT 1 FROM sc_giros.td_areausu tau WHERE tau.depe_id = p.proced_area AND tau.est = 1 AND tau.pers_id = :person))
+        ORDER BY
             tt.tasatciud_id ASC;';
         $sql = $conectar->prepare($sql);
+        $sql->bindValue(':person', (int)$pers_id, PDO::PARAM_INT);
+        $sql->bindValue(':role', (int)$rol_id, PDO::PARAM_INT);
         $sql->execute();
         return $resultado = $sql->fetchAll();
     }
-    public function get_ordenes_Usuario()
+    public function get_ordenes_Usuario($pers_id = 0, $rol_id = 0)
     {
         $conectar = parent::conexion();
         parent::set_names();
@@ -303,14 +322,16 @@ SQL;
 		INNER JOIN 
 		sc_giros.td_tasaproced tp ON ttc.tasatciud_tasaproced = tp.tasaproced_id
 		INNER JOIN 
-		sc_giros.tm_procedimiento tpm ON tpm.proced_id = tp.proced_id
-		 INNER JOIN 
-            tb_dependencia ta ON tpm.proced_area = ta.depe_id";
+        sc_giros.tm_procedimiento p ON p.proced_id = tp.proced_id
+        INNER JOIN tb_dependencia ta ON p.proced_area = ta.depe_id
+        WHERE (:role = 9 OR EXISTS (SELECT 1 FROM sc_giros.td_areausu tau WHERE tau.depe_id = p.proced_area AND tau.est = 1 AND tau.pers_id = :person))";
         $sql = $conectar->prepare($sql);
+        $sql->bindValue(':person', (int)$pers_id, PDO::PARAM_INT);
+        $sql->bindValue(':role', (int)$rol_id, PDO::PARAM_INT);
         $sql->execute();
         return $resultado = $sql->fetchAll();
     }
-    public function get_ordenes_total_usuario($pers_id)
+    public function get_ordenes_total_usuario($pers_id, $rol_id = 0)
     {
         $conectar = parent::conexion();
         parent::set_names();
@@ -321,35 +342,37 @@ SQL;
                      INNER JOIN sc_giros.td_giro_tasa_ciudadano gt ON gt.girot_giro = oc.ogciud_id
                      INNER JOIN sc_giros.td_tasatciud ttc ON ttc.tasatciud_id = gt.tasaciud_id
                      INNER JOIN sc_giros.td_tasaproced tp ON ttc.tasatciud_tasaproced = tp.tasaproced_id
-                     INNER JOIN sc_giros.tm_procedimiento tpm ON tpm.proced_id = tp.proced_id
-                     INNER JOIN tb_dependencia ta ON tpm.proced_area = ta.depe_id
-                     WHERE oc.pers_id = ?) AS total_general,
+                     INNER JOIN sc_giros.tm_procedimiento p ON p.proced_id = tp.proced_id
+                     INNER JOIN tb_dependencia ta ON p.proced_area = ta.depe_id
+                     WHERE oc.pers_id = :person AND (:role = 9 OR EXISTS (SELECT 1 FROM sc_giros.td_areausu tau WHERE tau.depe_id = p.proced_area AND tau.est = 1 AND tau.pers_id = :person))) AS total_general,
                     (SELECT COUNT(DISTINCT oc.ogciud_id)
                      FROM sc_giros.td_ordengirociud oc
                      INNER JOIN sc_escalafon.tb_persona sp ON oc.pers_id = sp.pers_id
                      INNER JOIN sc_giros.td_giro_tasa_ciudadano gt ON gt.girot_giro = oc.ogciud_id
                      INNER JOIN sc_giros.td_tasatciud ttc ON ttc.tasatciud_id = gt.tasaciud_id
                      INNER JOIN sc_giros.td_tasaproced tp ON ttc.tasatciud_tasaproced = tp.tasaproced_id
-                     INNER JOIN sc_giros.tm_procedimiento tpm ON tpm.proced_id = tp.proced_id
-                     INNER JOIN tb_dependencia ta ON tpm.proced_area = ta.depe_id
-                     WHERE oc.pers_id = ? AND DATE(oc.fechacrea) = CURRENT_DATE) AS total_dia,
+                     INNER JOIN sc_giros.tm_procedimiento p ON p.proced_id = tp.proced_id
+                     INNER JOIN tb_dependencia ta ON p.proced_area = ta.depe_id
+                     WHERE oc.pers_id = :person AND DATE(oc.fechacrea) = CURRENT_DATE AND (:role = 9 OR EXISTS (SELECT 1 FROM sc_giros.td_areausu tau WHERE tau.depe_id = p.proced_area AND tau.est = 1 AND tau.pers_id = :person))) AS total_dia,
                     (SELECT COUNT(DISTINCT oc.ogciud_id)
                      FROM sc_giros.td_ordengirociud oc
                      INNER JOIN sc_escalafon.tb_persona sp ON oc.pers_id = sp.pers_id
                      INNER JOIN sc_giros.td_giro_tasa_ciudadano gt ON gt.girot_giro = oc.ogciud_id
                      INNER JOIN sc_giros.td_tasatciud ttc ON ttc.tasatciud_id = gt.tasaciud_id
                      INNER JOIN sc_giros.td_tasaproced tp ON ttc.tasatciud_tasaproced = tp.tasaproced_id
-                     INNER JOIN sc_giros.tm_procedimiento tpm ON tpm.proced_id = tp.proced_id
-                     INNER JOIN tb_dependencia ta ON tpm.proced_area = ta.depe_id
-                     WHERE oc.pers_id = ? AND DATE(oc.fechacrea) = CURRENT_DATE - INTERVAL '1 day') AS total_ayer";
+                     INNER JOIN sc_giros.tm_procedimiento p ON p.proced_id = tp.proced_id
+                     INNER JOIN tb_dependencia ta ON p.proced_area = ta.depe_id
+                     WHERE oc.pers_id = :person AND DATE(oc.fechacrea) = CURRENT_DATE - INTERVAL '1 day' AND (:role = 9 OR EXISTS (SELECT 1 FROM sc_giros.td_areausu tau WHERE tau.depe_id = p.proced_area AND tau.est = 1 AND tau.pers_id = :person))) AS total_ayer";
         $sql = $conectar->prepare($sql);
-        $sql->execute([$pers_id, $pers_id, $pers_id]);
+        $sql->bindValue(':person', (int)$pers_id, PDO::PARAM_INT);
+        $sql->bindValue(':role', (int)$rol_id, PDO::PARAM_INT);
+        $sql->execute();
         return $resultado = $sql->fetchAll();
     }
     
    
    
-    public function get_ordenes_Usuario_area()
+    public function get_ordenes_Usuario_area($pers_id = 0, $rol_id = 0)
     {
         $conectar = parent::conexion();
         parent::set_names();
@@ -361,7 +384,7 @@ SQL;
         tp.tasa_id,
         tp.cod_ref,
         ts.tasa_nom,
-        tpm.proced_nom,
+        p.proced_nom,
         ta.depe_id  as area_id,
         ttc.tasatciud_id, 
         ttc.tasatciud_tasaproced,
@@ -382,21 +405,23 @@ SQL;
     LEFT JOIN 
         sc_giros.tm_tasa ts ON ts.tasa_id = tp.tasa_id
     LEFT JOIN 
-        sc_giros.tm_procedimiento tpm ON tpm.proced_id = tp.proced_id
-    INNER JOIN tb_dependencia ta ON tpm.proced_area = ta.depe_id
+        sc_giros.tm_procedimiento p ON p.proced_id = tp.proced_id
+    INNER JOIN tb_dependencia ta ON p.proced_area = ta.depe_id
     LEFT JOIN 
         sc_giros.td_giro_tasa_ciudadano gt ON gt.tasaciud_id = ttc.tasatciud_id
     LEFT JOIN 
         sc_giros.td_ordengirociud oc ON oc.ogciud_id = gt.girot_giro
     LEFT JOIN 
         sc_escalafon.tb_persona sp ON oc.pers_id = sp.pers_id
-            where  tp.est=1";
+            WHERE tp.est = 1 AND (:role = 9 OR EXISTS (SELECT 1 FROM sc_giros.td_areausu tau WHERE tau.depe_id = p.proced_area AND tau.est = 1 AND tau.pers_id = :person))";
          $stmt = $conectar->prepare($sql);
+         $stmt->bindValue(':person', (int)$pers_id, PDO::PARAM_INT);
+         $stmt->bindValue(':role', (int)$rol_id, PDO::PARAM_INT);
          $stmt->execute();
          return $resultado = $stmt->fetchAll();
     }
 
-    public function get_Tasas_Area($area_id, $tupa_id, $proced_id)
+    public function get_Tasas_Area($area_id, $tupa_id, $proced_id, $pers_id = 0, $rol_id = 0)
     {
         $conectar = parent::conexion();
         parent::set_names();
@@ -408,7 +433,7 @@ SQL;
         tp.tasa_id,
         tp.cod_ref,
         ts.tasa_nom,
-        tpm.proced_nom,
+        p.proced_nom,
         ttc.est as estadotasat, 
         gt.girot_id,
         gt.fechacrea, 
@@ -424,24 +449,27 @@ SQL;
     LEFT JOIN 
         sc_giros.tm_tasa ts ON ts.tasa_id = tp.tasa_id
     LEFT JOIN 
-        sc_giros.tm_procedimiento tpm ON tpm.proced_id = tp.proced_id
-    INNER JOIN tb_dependencia ta ON tpm.proced_area = ta.depe_id
+        sc_giros.tm_procedimiento p ON p.proced_id = tp.proced_id
+    INNER JOIN tb_dependencia ta ON p.proced_area = ta.depe_id
     LEFT JOIN 
         sc_giros.td_giro_tasa_ciudadano gt ON gt.tasaciud_id = ttc.tasatciud_id
     LEFT JOIN 
         sc_giros.td_ordengirociud oc ON oc.ogciud_id = gt.girot_giro
     LEFT JOIN 
         sc_escalafon.tb_persona sp ON oc.pers_id = sp.pers_id
-            where  tp.est=1 and tpm.proced_tupa = ? and tpm.proced_id = ? and tpm.proced_area= ?";
+            WHERE tp.est = 1 AND p.proced_tupa = :tupa_id AND p.proced_id = :proced_id AND p.proced_area = :area_id
+              AND (:role = 9 OR EXISTS (SELECT 1 FROM sc_giros.td_areausu tau WHERE tau.depe_id = p.proced_area AND tau.est = 1 AND tau.pers_id = :person))";
          $stmt = $conectar->prepare($sql);
-         $stmt->bindValue(1, $tupa_id);
-         $stmt->bindValue(2, $proced_id);
-         $stmt->bindValue(3, $area_id);
-        $stmt->execute();
+         $stmt->bindValue(':tupa_id', $tupa_id);
+         $stmt->bindValue(':proced_id', $proced_id);
+         $stmt->bindValue(':area_id', $area_id);
+         $stmt->bindValue(':person', (int)$pers_id, PDO::PARAM_INT);
+         $stmt->bindValue(':role', (int)$rol_id, PDO::PARAM_INT);
+         $stmt->execute();
          return $resultado = $stmt->fetchAll();
     }
 
-    public function get_ordenes_giro($documento)
+    public function get_ordenes_giro($documento, $pers_id = 0, $rol_id = 0)
     {
         $conectar = parent::conexion();
         $sql = "SELECT 
@@ -459,12 +487,12 @@ SQL;
                   tido.tido_descripcion,
                   tm.tupa_nom as proced_tupa,
                   ta.depe_denominacion,
-                  t.proced_id,
-                  t.proced_nom,
+                  p.proced_id,
+                  p.proced_nom,
                   tst.cod_ref,
                   ts.tasa_nom,
                   gt.importe,
-                  t.proced_tipoindvasc,
+                  p.proced_tipoindvasc,
                   empr.empr_ruc,
                   empr.empr_razon_social,
                   empr.empr_direccion,
@@ -476,33 +504,37 @@ SQL;
                 INNER JOIN sc_giros.td_tasatciud ttc ON gt.tasaciud_id = ttc.tasatciud_id
                 INNER JOIN sc_giros.td_procedciudadano tt ON ttc.tasatciud_procedciud = tt.procedciudadano_id
                 INNER JOIN public.tb_ciudadano c ON c.ciud_id = tt.ciud_id
-                INNER JOIN sc_giros.tm_procedimiento t ON tt.proced_id = t.proced_id
+                INNER JOIN sc_giros.tm_procedimiento p ON tt.proced_id = p.proced_id
                 INNER JOIN sc_giros.td_tasaproced tst ON ttc.tasatciud_tasaproced = tst.tasaproced_id
                 INNER JOIN sc_giros.tm_tasa ts ON tst.tasa_id = ts.tasa_id
-                INNER JOIN tb_dependencia ta ON t.proced_area = ta.depe_id
-                INNER JOIN sc_giros.tm_tupa tm ON t.proced_tupa = tm.tupa_id
+                INNER JOIN tb_dependencia ta ON p.proced_area = ta.depe_id
+                INNER JOIN sc_giros.tm_tupa tm ON p.proced_tupa = tm.tupa_id
                 LEFT JOIN public.tb_empresa empr ON empr.empr_id = tt.empr_id
                 LEFT JOIN public.tb_tipo_documento tido ON c.tido_id = tido.tido_id
-                WHERE c.ciud_numero_documento = ? OR empr.empr_ruc = ? order by og.fechacrea desc";
+                WHERE (c.ciud_numero_documento = :documento OR empr.empr_ruc = :documento)
+                  AND (:role = 9 OR EXISTS (SELECT 1 FROM sc_giros.td_areausu tau WHERE tau.depe_id = p.proced_area AND tau.est = 1 AND tau.pers_id = :person))
+                ORDER BY og.fechacrea DESC";
         $query = $conectar->prepare($sql);
-        $query->bindValue(1, $documento);
-        $query->bindValue(2, $documento);
+        $query->bindValue(':documento', $documento);
+        $query->bindValue(':person', (int)$pers_id, PDO::PARAM_INT);
+        $query->bindValue(':role', (int)$rol_id, PDO::PARAM_INT);
         $query->execute();
         return $query->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function get_ordenes_mes($search = "", $limit = 10, $offset = 0)
+    public function get_ordenes_mes($search = "", $limit = 10, $offset = 0, $pers_id = 0, $rol_id = 0)
     {
         $conectar = parent::conexion();
 
         $where = "WHERE EXTRACT(MONTH FROM og.fechacrea) = EXTRACT(MONTH FROM CURRENT_DATE) 
-                      AND EXTRACT(YEAR FROM og.fechacrea) = EXTRACT(YEAR FROM CURRENT_DATE)";
+                      AND EXTRACT(YEAR FROM og.fechacrea) = EXTRACT(YEAR FROM CURRENT_DATE)
+                      AND (:role = 9 OR EXISTS (SELECT 1 FROM sc_giros.td_areausu tau WHERE tau.depe_id = p.proced_area AND tau.est = 1 AND tau.pers_id = :person))";
 
         if (!empty($search)) {
             $where .= " AND (
                         CONCAT(c.ciud_nombre, ' ', c.ciud_primer_apellido, ' ', c.ciud_segundo_apellido) ILIKE :search
                         OR c.ciud_numero_documento ILIKE :search
-                        OR t.proced_nom ILIKE :search)";
+                        OR p.proced_nom ILIKE :search)";
         }
 
         $sql = "SELECT 
@@ -514,14 +546,14 @@ SQL;
                     CONCAT(tu.pers_nombre, ' ', tu.pers_apelpat, ' ', tu.pers_apelmat) AS nombre_girador,
                     CONCAT(c.ciud_nombre, ' ', c.ciud_primer_apellido, ' ', c.ciud_segundo_apellido) AS ciud_nombre,
                     c.ciud_numero_documento AS ciudadano_doc,
-                    t.proced_nom,
+                    p.proced_nom,
                     gt.importe
                 FROM sc_giros.td_ordengirociud og
                 INNER JOIN sc_escalafon.tb_persona tu ON og.pers_id = tu.pers_id
                 INNER JOIN sc_giros.td_giro_tasa_ciudadano gt ON gt.girot_giro = og.ogciud_id
                 INNER JOIN sc_giros.td_procedciudadano tt ON gt.tasaciud_id = tt.procedciudadano_id
                 INNER JOIN public.tb_ciudadano c ON c.ciud_id = tt.ciud_id
-                INNER JOIN sc_giros.tm_procedimiento t ON tt.proced_id = t.proced_id
+                INNER JOIN sc_giros.tm_procedimiento p ON tt.proced_id = p.proced_id
                 $where
                 ORDER BY og.fechacrea DESC
                 LIMIT :limit OFFSET :offset";
@@ -532,6 +564,8 @@ SQL;
             $query->bindValue(':search', "%$search%", PDO::PARAM_STR);
         }
 
+        $query->bindValue(':person', (int)$pers_id, PDO::PARAM_INT);
+        $query->bindValue(':role', (int)$rol_id, PDO::PARAM_INT);
         $query->bindValue(':limit', $limit, PDO::PARAM_INT);
         $query->bindValue(':offset', $offset, PDO::PARAM_INT);
         $query->execute();
@@ -539,18 +573,19 @@ SQL;
         return $query->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function get_total_ordenes_mes($search = "")
+    public function get_total_ordenes_mes($search = "", $pers_id = 0, $rol_id = 0)
     {
         $conectar = parent::conexion();
 
         $where = "WHERE EXTRACT(MONTH FROM og.fechacrea) = EXTRACT(MONTH FROM CURRENT_DATE) 
-                  AND EXTRACT(YEAR FROM og.fechacrea) = EXTRACT(YEAR FROM CURRENT_DATE)";
+                  AND EXTRACT(YEAR FROM og.fechacrea) = EXTRACT(YEAR FROM CURRENT_DATE)
+                  AND (:role = 9 OR EXISTS (SELECT 1 FROM sc_giros.td_areausu tau WHERE tau.depe_id = p.proced_area AND tau.est = 1 AND tau.pers_id = :person))";
 
         if (!empty($search)) {
             $where .= " AND (
                         LOWER(CONCAT(tu.pers_nombre, ' ', tu.pers_apelpat, ' ', tu.pers_apelmat)) LIKE LOWER(:search)
                         OR LOWER(c.ciud_numero_documento) LIKE LOWER(:search)
-                        OR LOWER(t.proced_nom) LIKE LOWER(:search))";
+                        OR LOWER(p.proced_nom) LIKE LOWER(:search))";
         }
 
         $sql = "SELECT COUNT(*) AS total FROM sc_giros.td_ordengirociud og
@@ -558,7 +593,7 @@ SQL;
                 INNER JOIN sc_giros.td_giro_tasa_ciudadano gt ON gt.girot_giro = og.ogciud_id
                 INNER JOIN sc_giros.td_procedciudadano tt ON gt.tasaciud_id = tt.procedciudadano_id
                 INNER JOIN public.tb_ciudadano c ON c.ciud_id = tt.ciud_id
-                INNER JOIN sc_giros.tm_procedimiento t ON tt.proced_id = t.proced_id
+                INNER JOIN sc_giros.tm_procedimiento p ON tt.proced_id = p.proced_id
                 $where";
 
         $query = $conectar->prepare($sql);
@@ -567,12 +602,14 @@ SQL;
             $query->bindValue(':search', "%$search%", PDO::PARAM_STR);
         }
 
+        $query->bindValue(':person', (int)$pers_id, PDO::PARAM_INT);
+        $query->bindValue(':role', (int)$rol_id, PDO::PARAM_INT);
         $query->execute();
         $row = $query->fetch(PDO::FETCH_ASSOC);
         return $row ? (int)$row['total'] : 0;
     }
 
-    public function get_orden_giro_by_id($ogciud_id)
+    public function get_orden_giro_by_id($ogciud_id, $pers_id = 0, $rol_id = 0)
     {
         $conectar = parent::conexion();
 
@@ -585,7 +622,7 @@ SQL;
                       CONCAT(tu.pers_nombre, ' ', tu.pers_apelpat, ' ', tu.pers_apelmat) AS nombre_girador,
                       CONCAT(c.ciud_nombre, ' ', c.ciud_primer_apellido, ' ', c.ciud_segundo_apellido) AS ciud_nombre,
                       c.ciud_numero_documento AS ciudadano_doc,
-                      t.proced_nom,
+                      p.proced_nom,
                       tt.est as procedimiento_est,
                       gt.importe
                   FROM sc_giros.td_ordengirociud og
@@ -593,11 +630,14 @@ SQL;
                   LEFT JOIN sc_giros.td_giro_tasa_ciudadano gt ON gt.girot_giro = og.ogciud_id
                   LEFT JOIN sc_giros.td_procedciudadano tt ON gt.tasaciud_id = tt.procedciudadano_id
                   LEFT JOIN public.tb_ciudadano c ON c.ciud_id = tt.ciud_id
-                  LEFT JOIN sc_giros.tm_procedimiento t ON tt.proced_id = t.proced_id
-                  WHERE og.ogciud_id = ?";
+                  LEFT JOIN sc_giros.tm_procedimiento p ON tt.proced_id = p.proced_id
+                  WHERE og.ogciud_id = :ogciud_id
+                    AND (:role = 9 OR EXISTS (SELECT 1 FROM sc_giros.td_areausu tau WHERE tau.depe_id = p.proced_area AND tau.est = 1 AND tau.pers_id = :person))";
 
         $query = $conectar->prepare($sql);
-        $query->bindValue(1, $ogciud_id, PDO::PARAM_STR);
+        $query->bindValue(':ogciud_id', (string)$ogciud_id, PDO::PARAM_STR);
+        $query->bindValue(':person', (int)$pers_id, PDO::PARAM_INT);
+        $query->bindValue(':role', (int)$rol_id, PDO::PARAM_INT);
         $query->execute();
         $data = $query->fetch(PDO::FETCH_ASSOC);
 

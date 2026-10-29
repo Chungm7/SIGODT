@@ -5,7 +5,15 @@ if (in_array($nombreOperation, ['buscar_entidades_nombre', 'historial_entidad'],
     ini_set('display_errors', '0');
     header('Content-Type: application/json; charset=utf-8');
     if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
-    if (!isset($_SESSION['usua_id_SIGODT'])) {
+    $rawUser = $_SESSION['usua_id_SIGODT'] ?? null;
+    $pers_id = (is_int($rawUser) || is_string($rawUser))
+        ? (filter_var($rawUser, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) ?: 0)
+        : 0;
+    $rawRole = $_SESSION['rol_id_SIGODT'] ?? 0;
+    $rol_id = (is_int($rawRole) || is_string($rawRole))
+        ? (filter_var($rawRole, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]) ?: 0)
+        : 0;
+    if ($pers_id <= 0) {
         http_response_code(401);
         echo json_encode(['error' => 'Sesión no válida. Inicie sesión nuevamente.']);
         exit;
@@ -36,6 +44,8 @@ if (in_array($nombreOperation, ['buscar_entidades_nombre', 'historial_entidad'],
         require_once(__DIR__ . '/../models/OrdenGiro.php');
         $model = new Ordengiro();
         $arguments = Ordengiro::validar_nombre_input($nombreOperation, $_POST);
+        $arguments[] = $pers_id;
+        $arguments[] = $rol_id;
         $result = call_user_func_array([$model, $nombreOperation], $arguments);
         ob_end_clean();
         echo json_encode($result, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
@@ -54,12 +64,22 @@ require_once(__DIR__ . "/../models/Bitacora.php");
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
+$rawUser = $_SESSION["usua_id_SIGODT"] ?? null;
+$pers_id = (is_int($rawUser) || is_string($rawUser))
+    ? (filter_var($rawUser, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) ?: 0)
+    : 0;
+$rawRole = $_SESSION["rol_id_SIGODT"] ?? 0;
+$rol_id = (is_int($rawRole) || is_string($rawRole))
+    ? (filter_var($rawRole, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]) ?: 0)
+    : 0;
+
 $bitacora = new Bitacora();
-$ordengiro =  new Ordengiro();
-switch ($_GET["op"]) {
+$ordengiro = new Ordengiro();
+switch ($_GET["op"] ?? "") {
 
     case "consultarOrden":
-        $datos = $ordengiro->get_orden_id($_POST["ordengiro_id"]);
+        $datos = $pers_id > 0 ? $ordengiro->get_orden_id($_POST["ordengiro_id"] ?? null, $pers_id, $rol_id) : [];
 
         if (is_array($datos) && count($datos) > 0) {
             $output = array();
@@ -93,7 +113,7 @@ switch ($_GET["op"]) {
         }
         break;
     case "getOrdenes":
-        $datos = $ordengiro->get_ordenes();
+        $datos = $pers_id > 0 ? $ordengiro->get_ordenes($pers_id, $rol_id) : [];
 
         if (is_array($datos) && count($datos) > 0) {
             $output = array();
@@ -116,7 +136,7 @@ switch ($_GET["op"]) {
         }
         break;
     case "getTasasOrdenes":
-        $datos = $ordengiro->get_tasas_ordenes();
+        $datos = $pers_id > 0 ? $ordengiro->get_tasas_ordenes($pers_id, $rol_id) : [];
 
         if (is_array($datos) && count($datos) > 0) {
             $output = array();
@@ -138,7 +158,7 @@ switch ($_GET["op"]) {
         }
         break;
     case "getTasasSemana":
-        $datos = $ordengiro->get_tasas_semana();
+        $datos = $pers_id > 0 ? $ordengiro->get_tasas_semana($pers_id, $rol_id) : [];
 
         if (is_array($datos) && count($datos) > 0) {
             $output = array();
@@ -161,7 +181,7 @@ switch ($_GET["op"]) {
         }
         break;
     case "getgirosUsuarios":
-        $datos = $ordengiro->get_ordenes_Usuario();
+        $datos = $pers_id > 0 ? $ordengiro->get_ordenes_Usuario($pers_id, $rol_id) : [];
 
         if (is_array($datos) && count($datos) > 0) {
             $output = array();
@@ -186,7 +206,7 @@ switch ($_GET["op"]) {
         break;
     case "getgirosUsuarios_totales":
         // Obtener los totales de órdenes de usuario
-        $datos_totales = $ordengiro->get_ordenes_total_usuario($_SESSION['usua_id_SIGODT']);
+        $datos_totales = $pers_id > 0 ? $ordengiro->get_ordenes_total_usuario($pers_id, $rol_id) : [];
         
         if (is_array($datos_totales) && count($datos_totales) > 0) {
             // Utilizaremos solo el primer registro, ya que todos los registros serán iguales en este caso
@@ -208,7 +228,7 @@ switch ($_GET["op"]) {
 
 
     case "getgirosUsuariosAreas":
-        $datos = $ordengiro->get_ordenes_Usuario_area();
+        $datos = $pers_id > 0 ? $ordengiro->get_ordenes_Usuario_area($pers_id, $rol_id) : [];
 
         if (is_array($datos) && count($datos) > 0) {
             $output = array();
@@ -246,7 +266,7 @@ switch ($_GET["op"]) {
         }
         break;
     case "gettasasprocedimientos":
-        $datos = $ordengiro->get_Tasas_Area($_POST["area_id"], $_POST["tupa_id"], $_POST["proced_id"]);
+        $datos = $pers_id > 0 ? $ordengiro->get_Tasas_Area($_POST["area_id"] ?? null, $_POST["tupa_id"] ?? null, $_POST["proced_id"] ?? null, $pers_id, $rol_id) : [];
 
         if (is_array($datos) && count($datos) > 0) {
             $output = array();
@@ -278,7 +298,7 @@ switch ($_GET["op"]) {
 
     case "get_ordenes_giro":
         $documento = $_POST["documento"] ?? "";
-        $data = $ordengiro->get_ordenes_giro($documento);
+        $data = $pers_id > 0 ? $ordengiro->get_ordenes_giro($documento, $pers_id, $rol_id) : [];
         echo json_encode($data);
         break;
 
@@ -288,8 +308,8 @@ switch ($_GET["op"]) {
         $limit = isset($_POST["limit"]) ? intval($_POST["limit"]) : 10;
         $offset = ($page - 1) * $limit;
 
-        $data = $ordengiro->get_ordenes_mes($search, $limit, $offset);
-        $total = $ordengiro->get_total_ordenes_mes($search);
+        $data = $pers_id > 0 ? $ordengiro->get_ordenes_mes($search, $limit, $offset, $pers_id, $rol_id) : [];
+        $total = $pers_id > 0 ? $ordengiro->get_total_ordenes_mes($search, $pers_id, $rol_id) : 0;
 
         echo json_encode([
             "data" => $data,
@@ -301,7 +321,7 @@ switch ($_GET["op"]) {
 
     case "get_orden_giro":
         $ogciud_id = isset($_POST["ogciud_id"]) ? $_POST["ogciud_id"] : null;
-        $data = $ordengiro->get_orden_giro_by_id($ogciud_id);
+        $data = $pers_id > 0 ? $ordengiro->get_orden_giro_by_id($ogciud_id, $pers_id, $rol_id) : false;
 
         if ($data) {
             echo json_encode(["status" => "success", "data" => $data]);
