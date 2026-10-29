@@ -226,7 +226,7 @@ body:not([data-bs-theme="dark"]) .card-title {
 }
 
 .muni-brand-title {
-  font-size: 1.15rem;
+  font-size: 0.875rem;
   font-weight: 700;
   color: #FFFFFF;
   letter-spacing: -0.025em;
@@ -235,19 +235,13 @@ body:not([data-bs-theme="dark"]) .card-title {
 }
 
 .muni-brand-acronym {
-  font-size: 0.625rem;
+  font-size: 0.875rem;
   font-weight: 700;
   color: var(--muni-action-yellow);
   letter-spacing: 0.05em;
   line-height: 1.2;
   text-transform: uppercase;
   margin-top: 2px;
-}
-
-@media (min-width: 992px) {
-  .muni-brand-title {
-    font-size: 1.25rem;
-  }
 }
 
 .muni-profile-pill {

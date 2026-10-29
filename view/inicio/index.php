@@ -30,8 +30,9 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                     <h2 class="muni-welcome-title">
                       ¡Bienvenido al Sistema, <span class="muni-welcome-user" style="color: #93C5FD;"><?php echo htmlspecialchars($nombre_completo); ?></span>!
                     </h2>
+                      <br>
                     <p class="muni-welcome-subtitle">
-                      Usted ha iniciado sesión con el rol: <strong class="muni-welcome-role" style="color: #FBC02D; font-weight: 600;"><?php echo htmlspecialchars($perfil); ?></strong>. Este sistema permite registrar, consultar y gestionar las órdenes de giro creadas por las unidades orgánicas de la Municipalidad Provincial de Chiclayo.
+                        Usted ha iniciado sesión con el rol: <strong class="muni-welcome-role" style="color: #FBC02D; font-weight: 600;"><?php echo htmlspecialchars($perfil); ?></strong>.
                     </p>
                   </div>
                   <div class="col-12 col-md-3">
