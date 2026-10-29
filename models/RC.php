@@ -1,7 +1,7 @@
 <?php
 class RC extends Conectar
 {
-    public function get_datos_giro($tasatciudadano_id)
+    public function get_datos_giro($tasatciudadano_id, $pers_id = 0, $rol_id = 0)
     {
         try {
             $conectar = parent::conexion();
@@ -58,10 +58,17 @@ class RC extends Conectar
                     sc_giros.tm_tupa tm ON t.proced_tupa = tm.tupa_id
                 LEFT JOIN 
                     public.tb_empresa empr ON empr.empr_id = tt.empr_id
-                WHERE 
-                    ttc.tasatciud_id = ? AND (og.est = 1 OR og.est = 2 OR og.est = 3 OR og.est = 4 OR og.est = 5);";
+                WHERE
+                    ttc.tasatciud_id = :tasatciud_id
+                    AND (og.est = 1 OR og.est = 2 OR og.est = 3 OR og.est = 4 OR og.est = 5)
+                    AND (:role = 9 OR EXISTS (
+                        SELECT 1 FROM sc_giros.td_areausu tau
+                        WHERE tau.depe_id = t.proced_area AND tau.est = 1 AND tau.pers_id = :person
+                    ));";
             $stmt = $conectar->prepare($sql);
-            $stmt->bindValue(1, $tasatciudadano_id);
+            $stmt->bindValue(":tasatciud_id", (int) $tasatciudadano_id, PDO::PARAM_INT);
+            $stmt->bindValue(":role", (int) $rol_id, PDO::PARAM_INT);
+            $stmt->bindValue(":person", (int) $pers_id, PDO::PARAM_INT);
             $stmt->execute();
             return $stmt->fetchAll();
         } catch (Exception $e) {
@@ -69,7 +76,7 @@ class RC extends Conectar
             return null;
         }
     }
-    public function get_datos_giro_id($ogciud_id)
+    public function get_datos_giro_id($ogciud_id, $pers_id = 0, $rol_id = 0)
     {
         try {
             $conectar = parent::conexion();
@@ -128,11 +135,17 @@ class RC extends Conectar
             sc_giros.tm_tupa tm ON t.proced_tupa = tm.tupa_id
         LEFT JOIN 
             public.tb_empresa empr ON empr.empr_id = tt.empr_id
-        WHERE 
-        og.ogciud_id = ?  AND (og.est = 1 OR og.est = 2 OR og.est = 3 OR og.est = 4 OR og.est = 5)
+        WHERE
+        og.ogciud_id = :ogciud_id AND (og.est = 1 OR og.est = 2 OR og.est = 3 OR og.est = 4 OR og.est = 5)
+        AND (:role = 9 OR EXISTS (
+            SELECT 1 FROM sc_giros.td_areausu tau
+            WHERE tau.depe_id = t.proced_area AND tau.est = 1 AND tau.pers_id = :person
+        ))
                 order by og.fechacrea desc";
             $stmt = $conectar->prepare($sql);
-            $stmt->bindValue(1, $ogciud_id,  PDO::PARAM_STR);
+            $stmt->bindValue(":ogciud_id", (string) $ogciud_id, PDO::PARAM_STR);
+            $stmt->bindValue(":role", (int) $rol_id, PDO::PARAM_INT);
+            $stmt->bindValue(":person", (int) $pers_id, PDO::PARAM_INT);
             $stmt->execute();
             return $stmt->fetchAll();
         } catch (Exception $e) {
@@ -155,28 +168,37 @@ class RC extends Conectar
             return null;
         }
     }
-    public function get_giros($procedciud)
+    public function get_giros($procedciud, $pers_id = 0, $rol_id = 0)
     {
         try {
             $conectar = parent::conexion();
             parent::set_names();
             $sql = "SELECT DISTINCT ON (toc.ogciud_id)
                 toc.ogciud_id,
-	            toc.recibo_nro,
+                toc.recibo_nro,
                 to_char(toc.fechacrea, 'YYYY-MM-DD HH24:MI') AS fecha,
                 toc.ogciud_comentario,
-				toc.pers_id,
-				CONCAT(tu.pers_nombre, ' ', tu.pers_apelpat, ' ', tu.pers_apelmat) AS nombre_completo,
+                toc.pers_id,
+                CONCAT(tu.pers_nombre, ' ', tu.pers_apelpat, ' ', tu.pers_apelmat) AS nombre_completo,
                 toc.est
          FROM sc_giros.td_ordengirociud toc
          INNER JOIN sc_giros.td_giro_tasa_ciudadano gtc ON gtc.girot_giro = toc.ogciud_id
          INNER JOIN sc_giros.td_tasatciud tte ON tte.tasatciud_id = gtc.tasaciud_id
-		 INNER JOIN 
+         INNER JOIN sc_giros.td_procedciudadano tt ON tte.tasatciud_procedciud = tt.procedciudadano_id
+         INNER JOIN sc_giros.tm_procedimiento t ON tt.proced_id = t.proced_id
+         INNER JOIN
                 sc_escalafon.tb_persona tu ON toc.pers_id = tu.pers_id
-         WHERE tasatciud_procedciud = ? and toc.est in (1,2,3,4,5)
+         WHERE tasatciud_procedciud = :procedciud
+           AND toc.est in (1,2,3,4,5)
+           AND (:role = 9 OR EXISTS (
+               SELECT 1 FROM sc_giros.td_areausu tau
+               WHERE tau.depe_id = t.proced_area AND tau.est = 1 AND tau.pers_id = :person
+           ))
          ORDER BY toc.ogciud_id, toc.fechacrea DESC;";
             $stmt = $conectar->prepare($sql);
-            $stmt->bindValue(1, $procedciud);
+            $stmt->bindValue(":procedciud", (int) $procedciud, PDO::PARAM_INT);
+            $stmt->bindValue(":role", (int) $rol_id, PDO::PARAM_INT);
+            $stmt->bindValue(":person", (int) $pers_id, PDO::PARAM_INT);
             $stmt->execute();
             return $stmt->fetchAll();
         } catch (Exception $e) {
@@ -184,7 +206,7 @@ class RC extends Conectar
             return null;
         }
     }
-    public function get_giros_total($depe_id)
+    public function get_giros_total($depe_id = null, $pers_id = 0, $rol_id = 0)
     {
         try {
             $conectar = parent::conexion();
@@ -232,8 +254,11 @@ class RC extends Conectar
             sc_giros.tm_tupa tm ON t.proced_tupa = tm.tupa_id
         LEFT JOIN 
             public.tb_empresa empr ON empr.empr_id = tt.empr_id     
-            WHERE 
-     t.proced_area = ?    AND og.fechacrea >= CURRENT_DATE - INTERVAL '30 day' 
+            WHERE
+     (:role = 9 OR EXISTS (
+         SELECT 1 FROM sc_giros.td_areausu tau
+         WHERE tau.depe_id = t.proced_area AND tau.est = 1 AND tau.pers_id = :person
+     )) AND og.fechacrea >= CURRENT_DATE - INTERVAL '30 day'
         GROUP BY 
             og.ogciud_id,
             og.est,
@@ -258,13 +283,34 @@ class RC extends Conectar
             og.fechacrea DESC;
         ";
             $stmt = $conectar->prepare($sql);
-            $stmt->bindValue(1, $depe_id, PDO::PARAM_STR);
+            $stmt->bindValue(":role", (int) $rol_id, PDO::PARAM_INT);
+            $stmt->bindValue(":person", (int) $pers_id, PDO::PARAM_INT);
             $stmt->execute();
             return $stmt->fetchAll();
         } catch (Exception $e) {
             echo "Error en la consulta: " . $e->getMessage();
             return null;
         }
+    }
+
+    public function get_girostotal($pers_id = 0, $rol_id = 0)
+    {
+        return $this->get_giros_total(null, $pers_id, $rol_id);
+    }
+
+    public function get_rc($tasatciudadano_id, $pers_id = 0, $rol_id = 0)
+    {
+        return $this->get_datos_giro($tasatciudadano_id, $pers_id, $rol_id);
+    }
+
+    public function get_rc_x_id($ogciud_id, $pers_id = 0, $rol_id = 0)
+    {
+        return $this->get_datos_giro_id($ogciud_id, $pers_id, $rol_id);
+    }
+
+    public function get_tasas_x_ogciud($ogciud_id, $pers_id = 0, $rol_id = 0)
+    {
+        return $this->get_datos_giro_id($ogciud_id, $pers_id, $rol_id);
     }
 
     public function cambiar_comentario($comentario, $ogciud_id)

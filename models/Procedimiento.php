@@ -528,13 +528,23 @@ SQL;
         }
         return $result;
     }
-    public function get_procedciudadano_id_admin($proced_id)
+    public function get_procedciudadano_id_admin($proced_id, $pers_id = 0, $rol_id = 0)
     {
         $conectar = parent::conexion();
         parent::set_names();
-        $sql = "SELECT * FROM sc_giros.get_proced_info_admin(?);";
+        $sql = "SELECT g.* FROM sc_giros.get_proced_info_admin(:proced_id) g
+                WHERE EXISTS (
+                    SELECT 1 FROM sc_giros.tm_procedimiento p
+                    WHERE p.proced_id = :proced_id
+                      AND (:role = 9 OR EXISTS (
+                          SELECT 1 FROM sc_giros.td_areausu tau
+                          WHERE tau.depe_id = p.proced_area AND tau.est = 1 AND tau.pers_id = :person
+                      ))
+                );";
         $sql = $conectar->prepare($sql);
-        $sql->bindValue(1, $proced_id);
+        $sql->bindValue(":proced_id", (int) $proced_id, PDO::PARAM_INT);
+        $sql->bindValue(":role", (int) $rol_id, PDO::PARAM_INT);
+        $sql->bindValue(":person", (int) $pers_id, PDO::PARAM_INT);
         $sql->execute();
         return $resultado = $sql->fetchAll();
     }
@@ -550,32 +560,52 @@ SQL;
         $sql->execute();
         return $resultado = $sql->fetchAll();
     }
-    public function get_procedciudadano_idprocedciudadano($procedciudadano_id)
+    public function get_procedciudadano_idprocedciudadano($procedciudadano_id, $pers_id = 0, $rol_id = 0)
     {
         $conectar = parent::conexion();
         parent::set_names();
         $sql = 'SELECT empr.empr_ruc, empr.empr_razon_social, empr.empr_nombre_comercial,tc.procedciudadano_id,tbc.ciud_domicilio_real, tbc.ciud_id, tbc.ciud_nombre, tbc.ciud_primer_apellido, tbc.ciud_segundo_apellido, tbc.ciud_numero_documento, tt.proced_tipoindvasc, vh.vehi_placa, tbc.ciud_sexo,tbc.ciud_fecha_nac
             FROM sc_giros.td_procedciudadano tc
             INNER JOIN public.tb_ciudadano tbc ON tc.ciud_id = tbc.ciud_id
-			inner join sc_giros.tm_procedimiento tt ON tc.proced_id = tt.proced_id
-			left join sc_transito_transporte."td_TIV" tiv ON tc.tiv_id = tiv.tiv_id
-			left join sc_transito_transporte.td_vehiculo vh ON tiv.tiv_vehiculo= vh.vehi_id
-			left join public.tb_empresa empr ON empr.empr_id= tc.empr_id
-            WHERE procedciudadano_id = ?';
+            inner join sc_giros.tm_procedimiento tt ON tc.proced_id = tt.proced_id
+            left join sc_transito_transporte."td_TIV" tiv ON tc.tiv_id = tiv.tiv_id
+            left join sc_transito_transporte.td_vehiculo vh ON tiv.tiv_vehiculo= vh.vehi_id
+            left join public.tb_empresa empr ON empr.empr_id= tc.empr_id
+            WHERE procedciudadano_id = :procedciudadano_id
+              AND (:role = 9 OR EXISTS (
+                  SELECT 1 FROM sc_giros.td_areausu tau
+                  WHERE tau.depe_id = tt.proced_area AND tau.est = 1 AND tau.pers_id = :person
+              ))';
         $sql = $conectar->prepare($sql);
-        $sql->bindValue(1, $procedciudadano_id);
+        $sql->bindValue(":procedciudadano_id", (int) $procedciudadano_id, PDO::PARAM_INT);
+        $sql->bindValue(":role", (int) $rol_id, PDO::PARAM_INT);
+        $sql->bindValue(":person", (int) $pers_id, PDO::PARAM_INT);
         $sql->execute();
         return $resultado = $sql->fetchAll();
     }
-    public function get_proced_ciudadano_x_idciudadano($ciudadano_id)
+    public function get_proced_ciudadano_x_idciudadano($ciudadano_id, $pers_id = 0, $rol_id = 0)
     {
         $conectar = parent::conexion();
         parent::set_names();
-        $sql = "SELECT * FROM sc_giros.get_procedciudadano_info(?) order by fechacrea DESC";
+        $sql = "SELECT g.* FROM sc_giros.get_procedciudadano_info(:ciudadano_id) g
+                INNER JOIN sc_giros.td_procedciudadano tc ON tc.procedciudadano_id = g.proceciudadano_id
+                INNER JOIN sc_giros.tm_procedimiento p ON p.proced_id = tc.proced_id
+                WHERE (:role = 9 OR EXISTS (
+                    SELECT 1 FROM sc_giros.td_areausu tau
+                    WHERE tau.depe_id = p.proced_area AND tau.est = 1 AND tau.pers_id = :person
+                ))
+                ORDER BY g.fechacrea DESC";
         $sql = $conectar->prepare($sql);
-        $sql->bindValue(1, $ciudadano_id);
+        $sql->bindValue(":ciudadano_id", (int) $ciudadano_id, PDO::PARAM_INT);
+        $sql->bindValue(":role", (int) $rol_id, PDO::PARAM_INT);
+        $sql->bindValue(":person", (int) $pers_id, PDO::PARAM_INT);
         $sql->execute();
         return $resultado = $sql->fetchAll();
+    }
+
+    public function get_listaconsulta($ciudadano_id, $pers_id = 0, $rol_id = 0)
+    {
+        return $this->get_proced_ciudadano_x_idciudadano($ciudadano_id, $pers_id, $rol_id);
     }
     public function get_Areas()
     {
@@ -745,20 +775,26 @@ SQL;
         return $resultado = $sql->fetchAll();
     }
 
-    public function get_data_proced_ciud($proceciudadano_id)
+    public function get_data_proced_ciud($proceciudadano_id, $pers_id = 0, $rol_id = 0)
     {
         $conectar = parent::conexion();
         parent::set_names();
-        $sql = "SELECT pc.*, pr.*, ciud.ciud_numero_documento, ciud.ciud_primer_apellido, ciud.ciud_segundo_apellido, 
-                           ciud.ciud_nombre, ciud.ciud_foto, ciud.ciud_fecha_nac, ciud.ciud_sexo, 
+        $sql = "SELECT pc.*, pr.*, ciud.ciud_numero_documento, ciud.ciud_primer_apellido, ciud.ciud_segundo_apellido,
+                           ciud.ciud_nombre, ciud.ciud_foto, ciud.ciud_fecha_nac, ciud.ciud_sexo,
                            emp.empr_ruc, emp.empr_razon_social
-                    FROM sc_giros.td_procedciudadano pc 
+                    FROM sc_giros.td_procedciudadano pc
                     INNER JOIN sc_giros.tm_procedimiento pr ON pr.proced_id = pc.proced_id
                     INNER JOIN tb_ciudadano ciud ON ciud.ciud_id = pc.ciud_id
-                    LEFT JOIN tb_empresa emp ON emp.empr_id = pc.empr_id 
-                    WHERE pc.procedciudadano_id = ?";
+                    LEFT JOIN tb_empresa emp ON emp.empr_id = pc.empr_id
+                    WHERE pc.procedciudadano_id = :proceciudadano_id
+                      AND (:role = 9 OR EXISTS (
+                          SELECT 1 FROM sc_giros.td_areausu tau
+                          WHERE tau.depe_id = pr.proced_area AND tau.est = 1 AND tau.pers_id = :person
+                      ))";
         $stmt = $conectar->prepare($sql);
-        $stmt->bindValue(1, $proceciudadano_id);
+        $stmt->bindValue(":proceciudadano_id", (int) $proceciudadano_id, PDO::PARAM_INT);
+        $stmt->bindValue(":role", (int) $rol_id, PDO::PARAM_INT);
+        $stmt->bindValue(":person", (int) $pers_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

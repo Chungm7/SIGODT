@@ -1,5 +1,5 @@
 <?php
-// Dependency-free S1 tests for multi-area giro visibility in Consultas (OrdenGiro).
+// Dependency-free S1, S2, and S3 tests for multi-area giro visibility.
 class conectar {
     public static $db;
     public function conexion() { return self::$db; }
@@ -10,8 +10,11 @@ if (!class_exists('Conectar', false)) {
     class_alias('conectar', 'Conectar');
 }
 class Bitacora {}
+class Vehiculo {}
 
 require_once __DIR__ . '/../models/OrdenGiro.php';
+require_once __DIR__ . '/../models/Procedimiento.php';
+require_once __DIR__ . '/../models/RC.php';
 
 function check($condition, $message) {
     if (!$condition) {
@@ -244,3 +247,118 @@ foreach ($legacyOps as [$op, $post]) {
     check($resLegacy['db']->statement->bindings[':role'] === [2, PDO::PARAM_INT], "Legacy $op binds role");
 }
 echo "PASS S1: all legacy consultation operations enforce multi-area scoping\n";
+
+function runControllerFile($relativePath, $op, $post, $session, $rows = []) {
+    $db = new AreaScopedConnectionDouble();
+    $db->rows = $rows;
+    conectar::$db = $db;
+    $_GET = ['op' => $op];
+    $_POST = $post;
+    $_SESSION = $session;
+
+    $source = file_get_contents(__DIR__ . '/../' . $relativePath);
+    $source = preg_replace('/require_once\([^\n]+;/', '', $source);
+    $source = preg_replace('/\bheader\([^\n]+;/', '', $source);
+    $source = preg_replace('/function\s+obtenerEstado\b[\s\S]*$/', '', $source);
+    $source = str_replace('exit;', 'return;', $source);
+
+    ob_start();
+    try {
+        eval('?>' . $source);
+        $raw = ob_get_contents();
+        return ['body' => json_decode($raw, true), 'raw' => $raw, 'db' => $db];
+    } finally {
+        ob_end_clean();
+    }
+}
+
+if (!function_exists('obtenerEstado')) {
+    function obtenerEstado($estadoInput) {
+        return ['estado' => 'Girado', 'badge' => 'badge bg-success text-success-fg'];
+    }
+}
+
+function assertMultiAreaColumnSql($sql, $areaColumn, $context) {
+    check(strpos($sql, ':role = 9') !== false, $context . ': missing admin role bypass (:role = 9)');
+    check(strpos($sql, 'sc_giros.td_areausu tau') !== false, $context . ': missing sc_giros.td_areausu');
+    check(strpos($sql, 'tau.depe_id = ' . $areaColumn) !== false, $context . ': missing tau.depe_id = ' . $areaColumn);
+    check(strpos($sql, 'tau.est = 1') !== false, $context . ': missing tau.est = 1');
+    check(strpos($sql, 'tau.pers_id = :person') !== false, $context . ': missing tau.pers_id = :person');
+}
+
+// 3. S2: Auditoría & Procedimiento detail scoping (controller/procedimiento.php & models/Procedimiento.php)
+$s2Ops = [
+    ['listar_proced_ciudadano', ['proced_id' => 8], 'p.proced_area'],
+    ['get_data_proced_ciud', ['proceciudadano_id' => 42], 'pr.proced_area'],
+    ['mostrar_procedciudadano', ['procedciudadano_id' => 42], 'tt.proced_area'],
+    ['listaConsulta', ['ciudadano_id' => 12], 'p.proced_area'],
+];
+
+foreach ($invalidSessions as $badSession) {
+    foreach ($s2Ops as [$op, $post, $areaCol]) {
+        $res = runControllerFile('controller/procedimiento.php', $op, $post, $badSession, [['proceciudadano_id' => 42]]);
+        check(count($res['db']->queries) === 0, "S2 unauthenticated ($op): must not query DB for session " . json_encode($badSession));
+        if (in_array($op, ['listar_proced_ciudadano', 'listaConsulta'], true)) {
+            check(($res['body']['aaData'] ?? null) === [], "S2 unauthenticated ($op): expected empty aaData");
+        } else {
+            check($res['body'] === [], "S2 unauthenticated ($op): expected empty JSON array");
+        }
+    }
+}
+
+foreach ([[15, 2], [1, 9]] as [$expectedPers, $expectedRole]) {
+    $session = ['usua_id_SIGODT' => (string)$expectedPers, 'rol_id_SIGODT' => (string)$expectedRole];
+    foreach ($s2Ops as [$op, $post, $areaCol]) {
+        $res = runControllerFile(
+            'controller/procedimiento.php',
+            $op,
+            $post + ['usua_id_SIGODT' => 999, 'rol_id_SIGODT' => 9],
+            $session,
+            []
+        );
+        check(count($res['db']->queries) === 1, "S2 ($op): executes one query for authenticated session");
+        $sql = $res['db']->queries[0];
+        assertMultiAreaColumnSql($sql, $areaCol, "S2 ($op)");
+        check($res['db']->statement->bindings[':person'] === [$expectedPers, PDO::PARAM_INT], "S2 ($op): binds session person int");
+        check($res['db']->statement->bindings[':role'] === [$expectedRole, PDO::PARAM_INT], "S2 ($op): binds session role int");
+    }
+}
+echo "PASS S2: Auditoria and Procedimiento detail operations enforce session validation and multi-area scoping\n";
+
+// 4. S3: Impresión / RC multi-area scoping (controller/rc.php & models/RC.php)
+$s3Ops = [
+    ['imprimir', ['tasatciudadano_id' => '55']],
+    ['imprimirxid', ['ogciud_id' => '000001-2026']],
+    ['listargiros', ['procedciudadano_id' => 42]],
+    ['listargiros_total', []],
+];
+
+foreach ($invalidSessions as $badSession) {
+    foreach ($s3Ops as [$op, $post]) {
+        $res = runControllerFile('controller/rc.php', $op, $post, $badSession, [['ogciud_id' => '000001-2026']]);
+        check(count($res['db']->queries) === 0, "S3 unauthenticated ($op): must not query DB for session " . json_encode($badSession));
+        if ($op === 'listargiros_total') {
+            check(($res['body']['aaData'] ?? null) === [], "S3 unauthenticated ($op): expected empty aaData");
+        } elseif ($op === 'listargiros') {
+            check($res['body'] === [], "S3 unauthenticated ($op): expected empty JSON array");
+        } else {
+            check(strpos($res['raw'], 'No se encontraron datos') !== false, "S3 unauthenticated ($op): expected safe empty print message");
+        }
+    }
+}
+
+foreach ([[15, 2], [1, 9]] as [$expectedPers, $expectedRole]) {
+    $session = ['usua_id_SIGODT' => (string)$expectedPers, 'rol_id_SIGODT' => (string)$expectedRole, 'usu_depe_id_SIGODT' => 77];
+    foreach ($s3Ops as [$op, $post]) {
+        $res = runControllerFile('controller/rc.php', $op, $post, $session, []);
+        check(count($res['db']->queries) === 1, "S3 ($op): executes one query for authenticated session");
+        $sql = $res['db']->queries[0];
+        assertMultiAreaColumnSql($sql, 't.proced_area', "S3 ($op)");
+        check($res['db']->statement->bindings[':person'] === [$expectedPers, PDO::PARAM_INT], "S3 ($op): binds session person int");
+        check($res['db']->statement->bindings[':role'] === [$expectedRole, PDO::PARAM_INT], "S3 ($op): binds session role int");
+        if ($op === 'listargiros_total') {
+            check(!preg_match('/\bt\.proced_area\s*=\s*\?/i', $sql), 'S3 (listargiros_total): legacy single-area filter removed');
+        }
+    }
+}
+echo "PASS S3: RC print and giro listing operations enforce session validation and multi-area scoping\n";

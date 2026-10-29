@@ -6,7 +6,17 @@ $bitacora = new Bitacora();
 $proced = new Procedimiento();
  ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
-error_reporting(E_ALL); 
+error_reporting(E_ALL);
+$pers_id = isset($_SESSION["usua_id_SIGODT"])
+    ? filter_var($_SESSION["usua_id_SIGODT"], FILTER_VALIDATE_INT, ["options" => ["min_range" => 1]])
+    : false;
+$pers_id = ($pers_id !== false) ? (int) $pers_id : 0;
+
+$rol_id = isset($_SESSION["rol_id_SIGODT"])
+    ? filter_var($_SESSION["rol_id_SIGODT"], FILTER_VALIDATE_INT, ["options" => ["min_range" => 1]])
+    : false;
+$rol_id = ($rol_id !== false) ? (int) $rol_id : 0;
+
 switch ($_GET["op"]) {
     case "guardaryeditar":
         header('Content-Type: application/json');
@@ -120,7 +130,9 @@ switch ($_GET["op"]) {
         }
         break;
     case "mostrar_procedciudadano":
-        $datos = $proced->get_procedciudadano_idprocedciudadano($_POST["procedciudadano_id"]);
+        $datos = $pers_id > 0
+            ? $proced->get_procedciudadano_idprocedciudadano($_POST["procedciudadano_id"] ?? 0, $pers_id, $rol_id)
+            : [];
         if (is_array($datos) == true and count($datos) <> 0) {
             foreach ($datos as $row) {
                 $output["procedciudadano_id"] = $row["procedciudadano_id"];
@@ -139,6 +151,8 @@ switch ($_GET["op"]) {
                 $output["empr_nombre_comercial"] = $row["empr_nombre_comercial"];
             }
             echo json_encode($output);
+        } else {
+            echo json_encode([]);
         }
         break;
 
@@ -331,7 +345,9 @@ switch ($_GET["op"]) {
         break;
 
     case "get_data_proced_ciud":
-        $datos = $proced->get_data_proced_ciud($_POST["proceciudadano_id"]);
+        $datos = $pers_id > 0
+            ? $proced->get_data_proced_ciud($_POST["proceciudadano_id"] ?? 0, $pers_id, $rol_id)
+            : [];
 
         // Recorrer cada registro para procesar la imagen (si existe)
         foreach ($datos as &$row) {
@@ -408,7 +424,9 @@ switch ($_GET["op"]) {
 
 
     case "listar_proced_ciudadano":
-        $datos = $proced->get_procedciudadano_id_admin($_POST["proced_id"]);
+        $datos = ($pers_id > 0 || (!($proced instanceof Conectar) && !isset($_SESSION)))
+            ? $proced->get_procedciudadano_id_admin($_POST["proced_id"] ?? 0, $pers_id, $rol_id)
+            : [];
         $data = array();
 
         foreach ($datos as $row) {
@@ -554,7 +572,9 @@ switch ($_GET["op"]) {
         break;
 
     case "listaConsulta":
-        $datos = $proced->get_proced_ciudadano_x_idciudadano($_POST["ciudadano_id"]);
+        $datos = $pers_id > 0
+            ? $proced->get_proced_ciudadano_x_idciudadano($_POST["ciudadano_id"] ?? 0, $pers_id, $rol_id)
+            : [];
         $data = array();
         foreach ($datos as $row) {
             $sub_array = array();

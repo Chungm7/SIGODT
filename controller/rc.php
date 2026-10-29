@@ -9,16 +9,29 @@ $bitacora = new Bitacora();
 $recibo = new RC();
 $vehiculo = new Vehiculo();
 date_default_timezone_set('America/Lima');
+$pers_id = isset($_SESSION["usua_id_SIGODT"])
+    ? filter_var($_SESSION["usua_id_SIGODT"], FILTER_VALIDATE_INT, ["options" => ["min_range" => 1]])
+    : false;
+$pers_id = ($pers_id !== false) ? (int) $pers_id : 0;
+
+$rol_id = isset($_SESSION["rol_id_SIGODT"])
+    ? filter_var($_SESSION["rol_id_SIGODT"], FILTER_VALIDATE_INT, ["options" => ["min_range" => 1]])
+    : false;
+$rol_id = ($rol_id !== false) ? (int) $rol_id : 0;
 
 try {
     switch ($_GET["op"]) {
         case 'imprimir':
+            if ($pers_id <= 0) {
+                echo "No se encontraron datos para generar el PDF.";
+                break;
+            }
             if (isset($_POST['tasatciudadano_id'])) {
                 $tasatciudadano_ids = explode(',', $_POST['tasatciudadano_id']);
-                $data = array(); // Array para almacenar los resultados
+                $data = array();
 
                 foreach ($tasatciudadano_ids as $tasatciudadano_id) {
-                    $datos = $recibo->get_datos_giro($tasatciudadano_id);
+                    $datos = $recibo->get_datos_giro($tasatciudadano_id, $pers_id, $rol_id);
 
                     if ($datos) {
                         // Agregar los resultados al array de datos
@@ -249,9 +262,13 @@ try {
 
             break;
         case 'imprimirxid':
+            if ($pers_id <= 0) {
+                echo "No se encontraron datos para generar el PDF.";
+                break;
+            }
             if (isset($_POST['ogciud_id'])) {
 
-                $datos = $recibo->get_datos_giro_id($_POST['ogciud_id']);
+                $datos = $recibo->get_datos_giro_id($_POST['ogciud_id'], $pers_id, $rol_id);
 
                 if (!empty($datos)) {
                     $detallesGenerales = $datos[0];
@@ -466,7 +483,9 @@ try {
             break;
 
         case "listargiros":
-            $datos = $recibo->get_giros($_POST['procedciudadano_id']);
+            $datos = $pers_id > 0
+                ? $recibo->get_giros($_POST['procedciudadano_id'] ?? 0, $pers_id, $rol_id)
+                : [];
             $data = array();
             foreach ($datos as $row) {
                 // Obtener los valores del estado usando la función obtenerEstado
@@ -502,7 +521,9 @@ try {
 
 
         case "listargiros_total":
-            $datos = $recibo->get_giros_total($_SESSION["usu_depe_id_SIGODT"]);
+            $datos = $pers_id > 0
+                ? $recibo->get_giros_total($_SESSION["usu_depe_id_SIGODT"] ?? null, $pers_id, $rol_id)
+                : [];
             $data = array();
             $edit_svg20 = '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-pencil" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" /><path d="M13.5 6.5l4 4" /></svg>';
             $print_svg20 = '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-printer" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" /><path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /></svg>';
