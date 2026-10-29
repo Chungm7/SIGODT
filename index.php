@@ -1,5 +1,7 @@
 <?php
 require_once "config/conexion.php";
+require_once "helpers/Recaptcha.php";
+$recaptchaSiteKey = Recaptcha::siteKey();
 
 if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
   require_once "models/Usuario.php";
@@ -80,7 +82,7 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
           </div>
         <?php endif; ?>
 
-        <form id="loginForm" action="" method="POST" autocomplete="off">
+        <form id="loginForm" action="" method="POST" autocomplete="off"<?php if ($recaptchaSiteKey !== ''): ?> data-recaptcha-site-key="<?php echo htmlspecialchars($recaptchaSiteKey, ENT_QUOTES, 'UTF-8'); ?>"<?php endif; ?>>
           <div class="mb-3">
             <label for="usu_dni" class="muni-login-label">Usuario</label>
             <div class="input-group muni-input-group">
@@ -166,6 +168,10 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
           </div>
 
           <input type="hidden" name="enviar" value="si">
+          <?php if ($recaptchaSiteKey !== ''): ?>
+            <input type="hidden" name="recaptchaToken" id="recaptchaToken" value="">
+            <div id="recaptchaStatus" class="muni-captcha-status" role="alert" aria-live="assertive"></div>
+          <?php endif; ?>
           <div class="form-footer mt-2">
             <button id="loginSubmit" type="submit" class="btn muni-login-submit" disabled>
               <span class="me-1" role="status"></span>
@@ -187,6 +193,7 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
   <script src="public/tabler/js/tabler.min.js?1692870487" defer></script>
   <script src="public/tabler/js/demo.min.js?1692870487" defer></script>
   <script src="public/js/login-captcha.js" defer></script>
+  <script src="public/js/login-recaptcha.js" defer></script>
 
   <script>
     function limitarADigitosRUC(input) {

@@ -65,7 +65,12 @@
       submit.disabled = refresh.disabled = true;
       status.textContent = 'Verificando…';
     });
-    return { refresh: load };
+    // Permite reintentar tras un fallo externo (p. ej. reCAPTCHA) cuando el formulario quedó en envío.
+    function restart() {
+      if (state === 'submitting') state = 'error';
+      return load();
+    }
+    return { refresh: load, restart };
   }
   if (typeof module !== 'undefined' && module.exports) module.exports = createCaptcha;
   else root.addEventListener('DOMContentLoaded', () => {
@@ -75,6 +80,7 @@
       refresh: document.getElementById('btcap'), status: document.getElementById('captchaStatus'),
       fetch: root.fetch.bind(root)
     });
+    root.sigodtLoginCaptcha = controller;
     controller.refresh();
     root.addEventListener('pageshow', event => { if (event.persisted) root.location.reload(); });
   });
