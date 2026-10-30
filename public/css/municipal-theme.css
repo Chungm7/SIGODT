@@ -391,6 +391,7 @@ body:not([data-bs-theme="dark"]) .muni-subnav {
   box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.03);
 }
 
+/* Enlaces principales del navbar (estado inactivo por defecto: gris/negro institucional) */
 body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-link {
   color: var(--muni-text-body);
   font-weight: 500;
@@ -400,37 +401,111 @@ body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-link {
   transition: color 0.15s ease, background-color 0.15s ease;
 }
 
-body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-link:hover {
-  color: var(--muni-brand-blue);
-  background-color: rgba(0, 102, 204, 0.04);
+/* Iconos de enlaces principales inactivos: gris/negro institucional */
+body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-link .nav-link-icon .icon,
+body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-link .nav-link-icon svg,
+.muni-subnav .navbar-nav .nav-link .nav-link-icon .icon,
+.muni-subnav .navbar-nav .nav-link .nav-link-icon svg {
+  color: var(--muni-text-body);
+  stroke: var(--muni-text-body);
+  transition: color 0.15s ease, stroke 0.15s ease;
 }
 
+/* Hover en secciones inactivas: conserva el texto e icono en gris/negro sin cambiar a azul */
+body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item:not(.active) > .nav-link:hover,
+body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item:not(.active) > .nav-link:focus,
+.navbar-expand-md .navbar-nav .nav-item:not(.active) > .nav-link:hover,
+.navbar-expand-md .navbar-nav .nav-item:not(.active) > .nav-link:focus {
+  color: var(--muni-text-primary) !important;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item:not(.active) > .nav-link:hover .nav-link-icon .icon,
+body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item:not(.active) > .nav-link:hover .nav-link-icon svg,
+body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item:not(.active) > .nav-link:focus .nav-link-icon .icon,
+body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item:not(.active) > .nav-link:focus .nav-link-icon svg {
+  color: var(--muni-text-primary) !important;
+  stroke: var(--muni-text-primary) !important;
+}
+
+/* Seccion activa (cuando estas dentro de esa seccion o subseccion): azul institucional */
 body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item.active > .nav-link,
 .navbar-expand-md .navbar-nav .nav-item.active > .nav-link {
   color: var(--muni-brand-blue) !important;
   font-weight: 700;
 }
 
-/* Evitar doble linea inferior en elementos sin dropdown (Inicio, Dashboard, Reportes) */
-.navbar-expand-md .navbar-nav .nav-item.active::after {
-  border-bottom-color: var(--muni-brand-blue) !important;
+body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item.active > .nav-link .nav-link-icon .icon,
+body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item.active > .nav-link .nav-link-icon svg,
+.navbar-expand-md .navbar-nav .nav-item.active > .nav-link .nav-link-icon .icon,
+.navbar-expand-md .navbar-nav .nav-item.active > .nav-link .nav-link-icon svg {
+  color: var(--muni-brand-blue) !important;
+  stroke: var(--muni-brand-blue) !important;
 }
 
+/* Quitar la rayita azul inferior de las secciones activas */
+.navbar-expand-md .navbar-nav .nav-item.active::after,
+.navbar-expand-md .navbar-collapse .nav-item.active::after,
+.navbar-expand-md .nav-item.active::after,
+.muni-subnav .navbar-nav .nav-item.active::after,
+.muni-subnav .navbar-nav .nav-item::after,
 body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item.active > .nav-link:not(.dropdown-toggle)::after,
 .navbar-expand-md .navbar-nav .nav-item.active > .nav-link:not(.dropdown-toggle)::after {
   display: none !important;
   content: none !important;
+  border: none !important;
+  border-bottom: none !important;
 }
 
+/* Elementos de submenú (dropdown-items) */
+body:not([data-bs-theme="dark"]) .muni-subnav .dropdown-item {
+  color: var(--muni-text-body);
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+/* Iconos de submenú inactivos: gris/negro institucional (no azul) */
+.muni-subnav .dropdown-item .dropdown-item-icon .icon,
+.muni-subnav .dropdown-item .dropdown-item-icon svg,
+body:not([data-bs-theme="dark"]) .muni-subnav .dropdown-item .dropdown-item-icon .icon,
+body:not([data-bs-theme="dark"]) .muni-subnav .dropdown-item .dropdown-item-icon svg {
+  color: var(--muni-text-body);
+  stroke: var(--muni-text-body);
+  transition: color 0.15s ease, stroke 0.15s ease;
+}
+
+/* Hover en subelementos inactivos: mantiene texto e icono en gris/negro */
+body:not([data-bs-theme="dark"]) .muni-subnav .dropdown-item:not(.active):hover,
+body:not([data-bs-theme="dark"]) .muni-subnav .dropdown-item:not(.active):focus {
+  color: var(--muni-text-primary) !important;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.muni-subnav .dropdown-item:not(.active):hover .dropdown-item-icon .icon,
+.muni-subnav .dropdown-item:not(.active):hover .dropdown-item-icon svg,
+.muni-subnav .dropdown-item:not(.active):focus .dropdown-item-icon .icon,
+.muni-subnav .dropdown-item:not(.active):focus .dropdown-item-icon svg,
+body:not([data-bs-theme="dark"]) .muni-subnav .dropdown-item:not(.active):hover .dropdown-item-icon .icon,
+body:not([data-bs-theme="dark"]) .muni-subnav .dropdown-item:not(.active):hover .dropdown-item-icon svg,
+body:not([data-bs-theme="dark"]) .muni-subnav .dropdown-item:not(.active):focus .dropdown-item-icon .icon,
+body:not([data-bs-theme="dark"]) .muni-subnav .dropdown-item:not(.active):focus .dropdown-item-icon svg {
+  color: var(--muni-text-primary) !important;
+  stroke: var(--muni-text-primary) !important;
+}
+
+/* Subseccion activa (cuando estas dentro de esa subsección): azul institucional en fondo, texto e icono */
 body:not([data-bs-theme="dark"]) .muni-subnav .dropdown-item.active,
 body:not([data-bs-theme="dark"]) .muni-subnav .dropdown-item:active {
-  background-color: var(--muni-page-bg);
-  color: var(--muni-brand-blue);
+  background-color: var(--muni-page-bg) !important;
+  color: var(--muni-brand-blue) !important;
   font-weight: 600;
 }
 
-.muni-subnav .dropdown-item .dropdown-item-icon .icon {
-  color: var(--muni-brand-blue);
+.muni-subnav .dropdown-item.active .dropdown-item-icon .icon,
+.muni-subnav .dropdown-item.active .dropdown-item-icon svg,
+body:not([data-bs-theme="dark"]) .muni-subnav .dropdown-item.active .dropdown-item-icon .icon,
+body:not([data-bs-theme="dark"]) .muni-subnav .dropdown-item.active .dropdown-item-icon svg {
+  color: var(--muni-brand-blue) !important;
+  stroke: var(--muni-brand-blue) !important;
 }
 
 /* ==========================================================================

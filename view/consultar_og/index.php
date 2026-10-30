@@ -37,41 +37,61 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                 </div>
               </div>
 
-              <!-- Formulario de Búsqueda -->
-              <div class="row justify-content-center mb-4">
-                <div class="col-12 col-md-8 col-lg-6">
-                  <div class="card shadow-sm muni-stripe-top">
-                    <div class="card-header py-2">
-                      <h3 class="card-title fw-bold mb-0">Buscar Orden de Giro</h3>
-                    </div>
-                    <div class="card-body">
-                      <form id="ordenGiroForm">
-                        <div class="row g-3">
-                          <div class="col-12 col-sm-6">
-                            <label for="ordenNumero" class="form-label required">Número de Orden</label>
-                            <input type="text" id="ordenNumero" class="form-control text-center font-monospace fs-3"
-                              placeholder="Ej: 002616" autofocus required>
-                          </div>
-                          <div class="col-12 col-sm-6">
-                            <label for="ordenAnio" class="form-label required">Año</label>
-                            <input type="number" id="ordenAnio" class="form-control text-center font-monospace fs-3"
-                              value="<?php echo date('Y'); ?>" required>
-                          </div>
-                        </div>
-                        <div class="text-center mt-3">
-                          <button type="submit" id="btnBuscarOrden" class="btn btn-muni-action px-4">
-                            <span id="spinnerBuscar" class="spinner-border spinner-border-sm me-1 d-none" role="status" aria-hidden="true"></span>
-                            <svg id="iconBuscar" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search me-1" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <!-- Card de Búsqueda -->
+              <div class="card shadow-sm muni-stripe-top mb-3">
+                <div class="card-header py-2">
+                  <h3 class="card-title fw-bold mb-0">Criterio de Búsqueda</h3>
+                </div>
+                <div class="card-body">
+                  <form id="ordenGiroForm">
+                    <div class="row g-2 justify-content-center align-items-end">
+                      <div class="col-12 col-sm-5 col-md-4 col-lg-3">
+                        <label for="ordenNumero" class="form-label required fw-medium">Número de Orden</label>
+                        <div class="input-group">
+                          <span class="input-group-text">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                               <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                              <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
-                              <path d="M21 21l-6 -6" />
+                              <path d="M5 9l14 0" />
+                              <path d="M5 15l14 0" />
+                              <path d="M11 4l-4 16" />
+                              <path d="M17 4l-4 16" />
                             </svg>
-                            <span id="textBuscar">Buscar Orden</span>
-                          </button>
+                          </span>
+                          <input type="text" id="ordenNumero" class="form-control font-monospace"
+                            placeholder="Ej: 002616" autofocus required>
                         </div>
-                      </form>
+                      </div>
+                      <div class="col-12 col-sm-4 col-md-3 col-lg-2">
+                        <label for="ordenAnio" class="form-label required fw-medium">Año</label>
+                        <div class="input-group">
+                          <span class="input-group-text">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                              <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" />
+                              <path d="M16 3v4" />
+                              <path d="M8 3v4" />
+                              <path d="M4 11h16" />
+                              <path d="M11 15h1" />
+                              <path d="M12 15v3" />
+                            </svg>
+                          </span>
+                          <input type="number" id="ordenAnio" class="form-control font-monospace"
+                            value="<?php echo date('Y'); ?>" required>
+                        </div>
+                      </div>
+                      <div class="col-12 col-sm-auto">
+                        <button type="submit" id="btnBuscarOrden" class="btn btn-muni-action w-100">
+                          <span id="spinnerBuscar" class="spinner-border spinner-border-sm me-1 d-none" role="status" aria-hidden="true"></span>
+                          <svg id="iconBuscar" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search me-1" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
+                            <path d="M21 21l-6 -6" />
+                          </svg>
+                          <span id="textBuscar">BUSCAR</span>
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  </form>
                 </div>
               </div>
 
@@ -230,7 +250,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
             if (btnBuscar) btnBuscar.disabled = false;
             if (spinnerBuscar) spinnerBuscar.classList.add("d-none");
             if (iconBuscar) iconBuscar.classList.remove("d-none");
-            if (textBuscar) textBuscar.textContent = "Buscar Orden";
+            if (textBuscar) textBuscar.textContent = "BUSCAR";
           });
       });
 

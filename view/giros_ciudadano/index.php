@@ -22,38 +22,17 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
           <div class="page-body">
             <div class="container-xl">
 
-              <!-- Encabezado con breadcrumbs estilo sisGitse -->
-              <nav class="breadcrumb mb-3">
-                <a href="../inicio/">SIGODT</a>
-                <svg class="breadcrumb-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10.1 16.3">
-                  <path fill="currentColor" d="M0,14.4l6.2-6.2L0,1.9L2,0l8.1,8.1L2,16.3L0,14.4z" />
-                </svg>
-                <span class="breadcrumb-item active">Procesos</span>
-                <svg class="breadcrumb-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10.1 16.3">
-                  <path fill="currentColor" d="M0,14.4l6.2-6.2L0,1.9L2,0l8.1,8.1L2,16.3L0,14.4z" />
-                </svg>
-                <span>Órdenes de Derecho de Trámite</span>
-              </nav>
-
-              <!-- Module-card Header estilo sisGitse con page-title y text-muted mt-2 de SIGODT -->
-              <div class="card border-0 mb-3" style="box-shadow: 0 10px 30px rgba(16, 24, 40, 0.06)">
-                <div class="module-card d-flex flex-column flex-md-row align-items-center g-3 px-3 py-2 mb-0">
-                  <!-- Ícono vectorial -->
-                  <div class="text-center mb-2 mb-md-0 me-md-2">
-                    <div class="icon-container">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon text-primary icon-tabler icon-tabler-receipt-tax" width="26" height="26" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <line x1="9" y1="14" x2="15" y2="8" />
-                        <circle cx="9.5" cy="8.5" r=".5" fill="currentColor" />
-                        <circle cx="14.5" cy="13.5" r=".5" fill="currentColor" />
-                        <path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2" />
-                      </svg>
-                    </div>
-                  </div>
-                  <!-- Contenedor de título y descripción -->
-                  <div class="content-wrapper flex-fill ms-md-3 text-center text-md-start">
-                    <h2 class="page-title mb-1">Gestión de Órdenes de Giro</h2>
-                    <div class="text-muted mt-2">Emisión, liquidación y control de trámites por administrado</div>
+              <!-- Encabezado con breadcrumbs -->
+              <div class="page-header d-print-none mb-3">
+                <div class="row align-items-center">
+                  <div class="col">
+                    <ol class="breadcrumb breadcrumb-arrows mb-3" aria-label="breadcrumbs">
+                      <li class="breadcrumb-item"><a href="../inicio/">SIGODT</a></li>
+                      <li class="breadcrumb-item"><a href="#">Procesos</a></li>
+                      <li class="breadcrumb-item active" aria-current="page">Órdenes de Derecho de Trámite</li>
+                    </ol>
+                    <h2 class="page-title">Órdenes de Derecho de Trámite</h2>
+                    <div class="text-secondary mt-2">Emisión y gestión operativa de órdenes de derecho de trámite</div>
                   </div>
                 </div>
               </div>
@@ -63,7 +42,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
               <input type="hidden" name="usu_depe_id_SIGODT" id="usu_depe_id_SIGODT" value="<?php echo $_SESSION["usu_depe_id_SIGODT"]; ?>" />
               <input type="hidden" name="tupa_id" id="tupa_id" />
 
-              <div class="card shadow-sm mb-3">
+              <div class="card shadow-sm muni-stripe-top mb-3">
                 <div class="card-header py-2">
                   <h3 class="card-title fw-bold mb-0">Registrar Orden de Derecho de Trámite</h3>
                 </div>
@@ -103,13 +82,13 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
 
                         <div class="col-12 col-md-2">
                           <label class="form-label d-none d-md-block">&nbsp;</label>
-                          <button class="btn btn-primary w-100 d-inline-flex align-items-center justify-content-center" id="add_button" onclick="nuevo()">
+                          <button class="btn btn-muni-action w-100 d-inline-flex align-items-center justify-content-center" id="add_button" onclick="nuevo()">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus me-1" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                               <line x1="12" y1="5" x2="12" y2="19" />
                               <line x1="5" y1="12" x2="19" y2="12" />
                             </svg>
-                            <span>Nuevo</span>
+                            <span>NUEVO</span>
                           </button>
                         </div>
                       </div>

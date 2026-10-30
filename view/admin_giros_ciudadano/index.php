@@ -38,9 +38,9 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
               </div>
 
               <!-- Card 1: Filtros de Auditoría y Búsqueda -->
-              <div class="card shadow-sm mb-3">
+              <div class="card shadow-sm muni-stripe-top mb-3">
                 <div class="card-header py-2">
-                  <h3 class="card-title fw-bold mb-0">Filtros de Auditoría y Búsqueda</h3>
+                  <h3 class="card-title fw-bold mb-0">Filtros de consulta</h3>
                 </div>
                 <div class="card-body">
                   <div class="row g-3 align-items-start mb-3">
@@ -78,13 +78,13 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                       <span>Imprimir Requisitos</span>
                     </button>
 
-                    <button type="button" class="btn btn-primary d-inline-flex align-items-center" id="add_button" onclick="nuevo()">
+                    <button type="button" class="btn btn-muni-action d-inline-flex align-items-center" id="add_button" onclick="nuevo()">
                       <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus me-1" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                         <path d="M12 5l0 14" />
                         <path d="M5 12l14 0" />
                       </svg>
-                      <span>Abrir Procedimiento</span>
+                      <span>ABRIR PROCEDIMIENTO</span>
                     </button>
                   </div>
                 </div>

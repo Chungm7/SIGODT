@@ -61,7 +61,7 @@ Se utiliza la familia tipografica **Inter** servida localmente desde `public/lib
    - Panel derecho sobre `#FFFFFF` con escudo MPCH (`88px`), controles de `50px` de altura con iconos integrados, fila de CAPTCHA con contenedor `#F1F5F9` y boton de recarga `#EFF7FD` (`50x50px`), y boton primario `#066FD1` de `52px` de altura.
 2. **Header y Footer Institucionales (`mainProfile.php` Nodos `49:747` y `footer.php` Nodo `49:736`):**
    - Header en `#0066CC` con contenedor de logo blanco de `44x44px` (`border-radius: 12px`) y pildora de perfil (`#0167CC`, borde `2px solid #9CCAEC`, `border-radius: 9999px`) mostrando nombre en blanco y cargo en `#FBC02D`.
-   - Barra de navegacion secundaria sobre `#FFFFFF` con indicador inferior activo en `#0066CC`.
+   - Barra de navegacion secundaria sobre `#FFFFFF` con estado activo en `#0066CC` (texto e icono) sin barra inferior.
    - Footer en `#0066CC` con borde superior `rgba(96, 165, 250, 0.4)`, escudo municipal a la izquierda y creditos de version a la derecha.
 3. **Tarjetas de Modulos y Mantenimientos:**
    - Radio de borde consistente de `8px`, sombra de elevacion sutil `0px 1px 2px 0px rgba(0, 0, 0, 0.05)` y borde `1px solid #E2E8F0`.

@@ -41,13 +41,16 @@ if (Conectar::esAdministrador()) {
                                                 <line x1="12" y1="5" x2="12" y2="19" />
                                                 <line x1="5" y1="12" x2="19" y2="12" />
                                             </svg>
-                                            <span>Nuevo Procedimiento</span>
+                                            <span>NUEVO PROCEDIMIENTO</span>
                                         </button>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="card shadow-sm muni-stripe-top mb-3">
+                                <div class="card-header py-2">
+                                    <h3 class="card-title fw-bold mb-0">Filtros de consulta</h3>
+                                </div>
                                 <div class="card-body">
                                     <div class="row g-3 align-items-start">
                                         <div class="col-md-4">

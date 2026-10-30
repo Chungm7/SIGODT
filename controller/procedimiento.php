@@ -501,11 +501,16 @@ switch ($_GET["op"]) {
             $data[] = $sub_array;
         }
 
+        $draw = filter_var($_POST["draw"] ?? $_POST["sEcho"] ?? 1, FILTER_VALIDATE_INT) ?: 1;
         $results = array(
-            "sEcho" => 1,
+            "draw" => $draw,
+            "sEcho" => $draw,
             "iTotalRecords" => count($data),
             "iTotalDisplayRecords" => count($data),
-            "aaData" => $data
+            "recordsTotal" => count($data),
+            "recordsFiltered" => count($data),
+            "aaData" => $data,
+            "data" => $data
         );
         echo json_encode($results);
         break;

@@ -226,7 +226,6 @@ $(document).ready(function () {
   $(".select2").select2();
   validarCheckEmpresa();
   validarCheckCiud();
-  recargarTabla();
   cargardata();
   combo_areas();
   combo_tupa();

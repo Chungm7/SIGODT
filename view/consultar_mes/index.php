@@ -37,22 +37,33 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                 </div>
               </div>
 
-              <!-- Card de Búsqueda y Resultados -->
-              <div class="card shadow-sm muni-stripe-top">
-                <div class="card-header py-2 d-flex flex-wrap justify-content-between align-items-center gap-2">
-                  <h3 class="card-title fw-bold mb-0">Órdenes Emitidas en el Mes</h3>
-                  <div class="col-12 col-sm-6 col-md-4">
-                    <div class="input-group">
-                      <span class="input-group-text">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                          <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
-                          <path d="M21 21l-6 -6" />
-                        </svg>
-                      </span>
-                      <input type="text" id="searchInput" class="form-control" placeholder="Buscar por documento o nombre...">
+              <!-- Card de Búsqueda -->
+              <div class="card shadow-sm muni-stripe-top mb-3">
+                <div class="card-header py-2">
+                  <h3 class="card-title fw-bold mb-0">Criterio de Búsqueda</h3>
+                </div>
+                <div class="card-body">
+                  <div class="row g-2 justify-content-center align-items-center">
+                    <div class="col-12 col-md-6 col-lg-5">
+                      <div class="input-group">
+                        <span class="input-group-text">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
+                            <path d="M21 21l-6 -6" />
+                          </svg>
+                        </span>
+                        <input type="text" id="searchInput" class="form-control" placeholder="Buscar por documento o nombre..." autofocus>
+                      </div>
                     </div>
                   </div>
+                </div>
+              </div>
+
+              <!-- Card de Resultados -->
+              <div class="card shadow-sm mb-3">
+                <div class="card-header py-2">
+                  <h3 class="card-title fw-bold mb-0">Órdenes Emitidas en el Mes</h3>
                 </div>
 
                 <div class="table-responsive">

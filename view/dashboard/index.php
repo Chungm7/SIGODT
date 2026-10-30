@@ -56,34 +56,43 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                                 </div>
                             </div>
 
-                            <div class="row g-3 align-items-center mb-3">
-                                <!-- Filtros de fecha -->
-                                <div class="col-12 col-sm-6 col-md-2">
-                                    <input type="date" class="form-control" id="fechaIni">
+                            <!-- Card de Filtros de consulta -->
+                            <div class="card shadow-sm muni-stripe-top mb-3">
+                                <div class="card-header py-2">
+                                    <h3 class="card-title fw-bold mb-0">Filtros de consulta</h3>
                                 </div>
-                                <div class="col-12 col-sm-6 col-md-2">
-                                    <input type="date" class="form-control" id="fechaFin">
-                                </div>
-                                <div class="col-12 col-sm-6 col-md-2">
-                                    <button class="btn btn-primary d-inline-flex align-items-center w-100" id="filtrarBtn">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search me-1" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                            <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
-                                            <path d="M21 21l-6 -6" />
-                                        </svg>
-                                        <span>Filtrar</span>
-                                    </button>
-                                </div>
-                                <div class="col-12 col-md-6 d-flex flex-wrap align-items-center ps-md-3 border-start-md">
-                                    <label class="me-2 fw-bold text-secondary">Estados:</label>
-                                    <div class="d-flex flex-wrap align-items-center gap-1" id="badgesEstados">
-                                        <span class="badge bg-secondary-lt p-2 cursor-pointer badge-estado active" data-value="all">Todos</span>
-                                        <span class="badge bg-danger-lt p-2 cursor-pointer badge-estado active" data-value="0">Anulado</span>
-                                        <span class="badge bg-info-lt p-2 cursor-pointer badge-estado active" data-value="1">Girado</span>
-                                        <span class="badge bg-warning-lt p-2 cursor-pointer badge-estado active" data-value="3">Improcedente</span>
-                                        <span class="badge bg-success-lt p-2 cursor-pointer badge-estado active" data-value="4">Pagado</span>
-                                        <span class="badge bg-purple-lt p-2 cursor-pointer badge-estado active" data-value="5">Usado</span>
-                                        <span class="badge bg-yellow-lt p-2 cursor-pointer badge-estado active" data-value="6">Extornado</span>
+                                <div class="card-body">
+                                    <div class="row g-3 align-items-center">
+                                        <!-- Filtros de fecha -->
+                                        <div class="col-12 col-sm-6 col-md-2">
+                                            <label for="fechaIni" class="form-label fw-medium mb-1">Desde</label>
+                                            <input type="date" class="form-control" id="fechaIni">
+                                        </div>
+                                        <div class="col-12 col-sm-6 col-md-2">
+                                            <label for="fechaFin" class="form-label fw-medium mb-1">Hasta</label>
+                                            <input type="date" class="form-control" id="fechaFin">
+                                        </div>
+                                        <div class="col-12 col-sm-6 col-md-2 align-self-end">
+                                            <button class="btn btn-muni-action d-inline-flex align-items-center justify-content-center w-100" id="filtrarBtn">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-filter me-1" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                    <path d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v7l-6 2v-8.5l-4.48 -4.928a2 2 0 0 1 -.52 -1.345v-2.227z" />
+                                                </svg>
+                                                <span>FILTRAR</span>
+                                            </button>
+                                        </div>
+                                        <div class="col-12 col-md-6 d-flex flex-wrap align-items-center ps-md-3 border-start-md align-self-end">
+                                            <label class="me-2 fw-bold text-secondary">Estados:</label>
+                                            <div class="d-flex flex-wrap align-items-center gap-1" id="badgesEstados">
+                                                <span class="badge bg-secondary-lt p-2 cursor-pointer badge-estado active" data-value="all">Todos</span>
+                                                <span class="badge bg-danger-lt p-2 cursor-pointer badge-estado active" data-value="0">Anulado</span>
+                                                <span class="badge bg-info-lt p-2 cursor-pointer badge-estado active" data-value="1">Girado</span>
+                                                <span class="badge bg-warning-lt p-2 cursor-pointer badge-estado active" data-value="3">Improcedente</span>
+                                                <span class="badge bg-success-lt p-2 cursor-pointer badge-estado active" data-value="4">Pagado</span>
+                                                <span class="badge bg-purple-lt p-2 cursor-pointer badge-estado active" data-value="5">Usado</span>
+                                                <span class="badge bg-yellow-lt p-2 cursor-pointer badge-estado active" data-value="6">Extornado</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -284,4 +293,4 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
 } else {
     header("Location:" . Conectar::ruta() . "view/404/");
 }
-?>
+?>
