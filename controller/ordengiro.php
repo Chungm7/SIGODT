@@ -4,7 +4,17 @@ $nombreOperation = $_GET['op'] ?? '';
 if (in_array($nombreOperation, ['buscar_entidades_nombre', 'historial_entidad'], true)) {
     ini_set('display_errors', '0');
     header('Content-Type: application/json; charset=utf-8');
-    if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        if (!class_exists('Conectar', false)) {
+            require_once(__DIR__ . '/../config/conexion.php');
+        }
+        if (class_exists('Conectar', false) && method_exists('Conectar', 'initSession')) {
+            Conectar::initSession();
+        } elseif (session_status() === PHP_SESSION_NONE) {
+            session_name('SIGODT_SESSID');
+            session_start();
+        }
+    }
     $rawUser = $_SESSION['usua_id_SIGODT'] ?? null;
     $pers_id = (is_int($rawUser) || is_string($rawUser))
         ? (filter_var($rawUser, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) ?: 0)
@@ -64,7 +74,14 @@ require_once(__DIR__ . "/../models/Bitacora.php");
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    if (class_exists('Conectar', false) && method_exists('Conectar', 'initSession')) {
+        Conectar::initSession();
+    } elseif (session_status() === PHP_SESSION_NONE) {
+        session_name('SIGODT_SESSID');
+        session_start();
+    }
+}
 $rawUser = $_SESSION["usua_id_SIGODT"] ?? null;
 $pers_id = (is_int($rawUser) || is_string($rawUser))
     ? (filter_var($rawUser, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) ?: 0)

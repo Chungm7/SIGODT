@@ -3,7 +3,17 @@ ini_set('display_errors', '0');
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 header('X-Content-Type-Options: nosniff');
-if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    if (!class_exists('Conectar', false)) {
+        require_once __DIR__ . '/../config/conexion.php';
+    }
+    if (class_exists('Conectar', false) && method_exists('Conectar', 'initSession')) {
+        Conectar::initSession();
+    } elseif (session_status() === PHP_SESSION_NONE) {
+        session_name('SIGODT_SESSID');
+        session_start();
+    }
+}
 $emitter = $_SESSION['usua_id_SIGODT'] ?? null;
 if ((!is_string($emitter) && !is_int($emitter)) || !preg_match('/^[1-9][0-9]*$/D', (string)$emitter) ||
     filter_var($emitter, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) === false) {

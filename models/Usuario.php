@@ -226,6 +226,8 @@ class usuario extends conectar
 
         curl_setopt($ch, CURLOPT_URL, $ws_reniec);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 3);
         $response = curl_exec($ch);
 
         if (curl_errno($ch)) {
@@ -235,6 +237,18 @@ class usuario extends conectar
             curl_close($ch);
         }
 
+        $_SESSION = [];
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', [
+                'expires'  => time() - 42000,
+                'path'     => $params["path"],
+                'domain'   => $params["domain"],
+                'secure'   => $params["secure"],
+                'httponly' => $params["httponly"],
+                'samesite' => $params["samesite"] ?? 'Lax'
+            ]);
+        }
         session_destroy();
         header("Location:" . Conectar::ruta() . "index.php");
         exit();
