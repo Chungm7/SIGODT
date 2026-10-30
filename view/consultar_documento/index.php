@@ -100,13 +100,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                         <th class="text-center" style="width: 8%;">Acciones</th>
                       </tr>
                     </thead>
-                    <tbody id="ordenGiroList">
-                      <tr>
-                        <td colspan="10" class="text-center text-muted py-4">
-                          Ingrese un número de documento y haga clic en Buscar para consultar órdenes de giro.
-                        </td>
-                      </tr>
-                    </tbody>
+                    <tbody id="ordenGiroList"></tbody>
                   </table>
                 </div>
               </div>
@@ -120,6 +114,48 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
 
     <?php require_once("../html/mainjs.php"); ?>
     <script>
+      const ordenGiroEmptyText = "Ingrese un número de documento y haga clic en Buscar para consultar órdenes de giro.";
+
+      // Rebuilds the DataTable after each render; the table has no colspan placeholder rows.
+      function initOrdenGiroTable(emptyText) {
+        const $table = $("#ordenGiroTable");
+        if ($.fn.DataTable.isDataTable($table)) {
+          $table.DataTable().destroy();
+        }
+        $table.DataTable({
+          dom: "frtip",
+          pageLength: 10,
+          order: [],
+          columnDefs: [{ targets: [0, 3, 9], orderable: false }],
+          language: {
+            sProcessing: "Procesando...",
+            sLengthMenu: "Mostrar _MENU_ registros",
+            sZeroRecords: "No se encontraron resultados",
+            sEmptyTable: emptyText,
+            sInfo: "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+            sInfoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+            sInfoFiltered: "(filtrado de un total de _MAX_ registros)",
+            sInfoThousands: ",",
+            sLoadingRecords: "Cargando...",
+            sSearch: "Buscar:",
+            oPaginate: {
+              sFirst: "Primero",
+              sLast: "Último",
+              sNext: "Siguiente",
+              sPrevious: "Anterior"
+            },
+            oAria: {
+              sSortAscending: ": Activar para ordenar la columna de manera ascendente",
+              sSortDescending: ": Activar para ordenar la columna de manera descendente"
+            }
+          }
+        });
+      }
+
+      $(document).ready(function () {
+        initOrdenGiroTable(ordenGiroEmptyText);
+      });
+
       document.getElementById("searchForm").addEventListener("submit", function (event) {
         event.preventDefault();
 
@@ -149,12 +185,14 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
           .then(response => response.json())
           .then(data => {
             let tbody = document.getElementById("ordenGiroList");
+            if ($.fn.DataTable.isDataTable("#ordenGiroTable")) {
+              $("#ordenGiroTable").DataTable().destroy();
+            }
             tbody.innerHTML = "";
             if (!data || data.length === 0) {
               messageDiv.classList.remove("d-none", "alert-success", "alert-danger");
               messageDiv.classList.add("alert-warning");
               messageDiv.textContent = "No se encontraron órdenes de giro para el documento ingresado.";
-              tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted py-4">No se encontraron resultados</td></tr>`;
             } else {
               messageDiv.classList.add("d-none");
               data.forEach((orden, index) => {
@@ -168,7 +206,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                               <td>${orden.ciud_nombre}</td>
                               <td class="text-center">${orden.ciudadano_doc}</td>
                               <td>${orden.proced_nom}</td>
-                              <td class="text-end fw-bold">S/ ${parseFloat(orden.importe).toFixed(2)}</td>
+                              <td class="text-end fw-bold" data-order="${parseFloat(orden.importe)}">S/ ${parseFloat(orden.importe).toFixed(2)}</td>
                               <td class="text-center"><span class="muni-status-pill ${estadoData.pill_class} badge bg-${estadoData.color_barra}-lt">${estadoData.estado}</span></td>
                               <td class="text-center">
                                 <button class="btn btn-outline-primary btn-sm d-inline-flex align-items-center" onclick="imprimirGiro('${orden.ogciud_id}')" title="Ver e imprimir orden">
@@ -185,6 +223,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                 tbody.innerHTML += row;
               });
             }
+            initOrdenGiroTable("No se encontraron resultados");
           })
           .catch(error => {
             messageDiv.classList.remove("d-none", "alert-success", "alert-warning");

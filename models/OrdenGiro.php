@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/TableSort.php';
 class Ordengiro extends conectar
 {
     /** Typed owner membership, deliberately independent of all state/date filters. */
@@ -104,7 +105,7 @@ SQL;
         return $result;
     }
 
-    public function buscar_entidades_nombre($search, $page = 1, $limit = 10, $pers_id = 0, $rol_id = 0)
+    public function buscar_entidades_nombre($search, $page = 1, $limit = 10, $pers_id = 0, $rol_id = 0, $sort = '', $dir = '')
     {
         list($search, $page, $limit) = self::validar_nombre_input('buscar_entidades_nombre', compact('search', 'page', 'limit'));
         $preCte = <<<'SQL'
@@ -141,10 +142,12 @@ SQL;
             GROUP BY p.entity_type, p.entity_key, l.nombre, l.documento';
         $literal = '%' . strtr($search, ['!' => '!!', '%' => '!%', '_' => '!_']) . '%';
         $bindings = [':search' => $literal, ':person' => (int)$pers_id, ':role' => (int)$rol_id];
-        return $this->nombre_page($cte, $selection, 'nombre, entity_type, entity_key', $bindings, $page, $limit, 'entity_key');
+        $map = ['tipo' => 'entity_type', 'nombre' => 'nombre', 'documento' => 'documento', 'ordenes' => 'ordenes'];
+        $order = TableSort::orderBy($map, $sort, $dir, 'nombre, entity_type, entity_key', 'nombre, entity_type, entity_key');
+        return $this->nombre_page($cte, $selection, $order, $bindings, $page, $limit, 'entity_key');
     }
 
-    public function historial_entidad($entity_type, $entity_key, $page = 1, $limit = 10, $pers_id = 0, $rol_id = 0)
+    public function historial_entidad($entity_type, $entity_key, $page = 1, $limit = 10, $pers_id = 0, $rol_id = 0, $sort = '', $dir = '')
     {
         list($entity_type, $entity_key, $page, $limit) = self::validar_nombre_input('historial_entidad', compact('entity_type', 'entity_key', 'page', 'limit'));
         if ($entity_type === 'ciudadano') {
@@ -179,7 +182,9 @@ SQL;
         $bindings[':person'] = (int)$pers_id;
         $bindings[':role'] = (int)$rol_id;
         // The same sort is used inside and outside paged; no ambiguous table aliases there.
-        return $this->nombre_page($cte, $selection, 'fechacrea DESC NULLS LAST, ogciud_id DESC',
+        $map = ['orden' => 'ogciud_id', 'fecha' => 'fechacrea', 'recibo' => 'recibo_nro', 'importe' => 'importe', 'estado' => 'orden_est'];
+        $order = TableSort::orderBy($map, $sort, $dir, 'fechacrea DESC NULLS LAST, ogciud_id DESC', 'ogciud_id DESC');
+        return $this->nombre_page($cte, $selection, $order,
             $bindings, $page, $limit, 'ogciud_id');
     }
 
@@ -522,7 +527,7 @@ SQL;
         return $query->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function get_ordenes_mes($search = "", $limit = 10, $offset = 0, $pers_id = 0, $rol_id = 0)
+    public function get_ordenes_mes($search = "", $limit = 10, $offset = 0, $pers_id = 0, $rol_id = 0, $sort = '', $dir = '')
     {
         $conectar = parent::conexion();
 
@@ -536,6 +541,16 @@ SQL;
                         OR c.ciud_numero_documento ILIKE :search
                         OR p.proced_nom ILIKE :search)";
         }
+
+        $orderBy = TableSort::orderBy([
+            'orden' => 'og.ogciud_id',
+            'fecha' => 'og.fechacrea',
+            'ciudadano' => "CONCAT(c.ciud_nombre, ' ', c.ciud_primer_apellido, ' ', c.ciud_segundo_apellido)",
+            'documento' => 'c.ciud_numero_documento',
+            'procedimiento' => 'p.proced_nom',
+            'importe' => 'gt.importe',
+            'estado' => 'og.est'
+        ], $sort, $dir, 'og.fechacrea DESC', 'og.ogciud_id DESC');
 
         $sql = "SELECT 
                     og.ogciud_id,
@@ -555,7 +570,7 @@ SQL;
                 INNER JOIN public.tb_ciudadano c ON c.ciud_id = tt.ciud_id
                 INNER JOIN sc_giros.tm_procedimiento p ON tt.proced_id = p.proced_id
                 $where
-                ORDER BY og.fechacrea DESC
+                ORDER BY $orderBy
                 LIMIT :limit OFFSET :offset";
 
         $query = $conectar->prepare($sql);

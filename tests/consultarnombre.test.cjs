@@ -155,7 +155,7 @@ for (const fixture of documentFixtures) test('document-only display and unchange
 });
 test('entity table heading names documents and RUC, not internal identity', () => {
   const page = require('node:fs').readFileSync(require('node:path').join(__dirname, '../view/consultar_nombre/index.php'), 'utf8');
-  assert.ok(page.includes('<th>Documento / RUC</th>'));
+  assert.ok(/<th[^>]*>Documento \/ RUC<\/th>/.test(page));
   assert.ok(!page.includes('Documento / Identidad'));
 });
 test('every known order state plus explicit unknown', () => {

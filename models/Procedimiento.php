@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/TableSort.php';
 class Procedimiento extends Conectar
 {
 
@@ -353,6 +354,16 @@ class Procedimiento extends Conectar
         $sql->execute();
         return $resultado = $sql->fetchColumn();
     }
+    /** DataTables column index => sort key; action and progress columns are intentionally absent. */
+    const OPERATIONAL_SORT_COLUMNS = ['0' => 'code', '1' => 'document', '2' => 'name', '3' => 'date', '4' => 'state'];
+    const OPERATIONAL_SORT_MAP = [
+        'code' => 'COALESCE({t}ogciud_id, {t}procedciudadano_cod)',
+        'document' => '{t}ciudadano_dni',
+        'name' => '{t}nombre_completo',
+        'date' => '{t}fechacrea',
+        'state' => '{t}filter_state',
+    ];
+
     public static function operational_filters($input)
     {
         if (!is_array($input)) throw new InvalidArgumentException('Filtros inválidos.');
@@ -370,6 +381,15 @@ class Procedimiento extends Conectar
             throw new InvalidArgumentException('Estado inválido.');
         }
         $result['state'] = $state;
+        // DataTables ordering: only whitelisted column indexes and asc/desc are kept.
+        $result['sort'] = null;
+        $result['dir'] = null;
+        $order = is_array($input['order'] ?? null) ? ($input['order'][0] ?? null) : null;
+        if (is_array($order) && (is_int($order['column'] ?? null) || is_string($order['column'] ?? null))) {
+            $result['sort'] = TableSort::key(self::OPERATIONAL_SORT_COLUMNS, (string)$order['column']) === null
+                ? null : self::OPERATIONAL_SORT_COLUMNS[(string)$order['column']];
+            $result['dir'] = TableSort::direction($order['dir'] ?? null);
+        }
         if (isset($input['search']) && !is_array($input['search'])) throw new InvalidArgumentException('Búsqueda inválida.');
         $search = isset($input['search']) && array_key_exists('value', $input['search']) ? $input['search']['value'] : ($input['sSearch'] ?? '');
         if (!is_string($search) || strlen($search) > 200 || preg_match('//u', $search) !== 1) {
@@ -500,12 +520,22 @@ WITH params AS (
     SELECT (SELECT COUNT(*) FROM listing) AS records_total,
            (SELECT COUNT(*) FROM filtered) AS records_filtered
 ), page AS (
-    SELECT * FROM filtered ORDER BY fechacrea DESC NULLS LAST, row_id
+    SELECT * FROM filtered ORDER BY {{PAGE_ORDER}}
     LIMIT (SELECT page_size FROM params) OFFSET (SELECT page_offset FROM params)
 )
 SELECT counts.*, page.* FROM counts LEFT JOIN page ON TRUE
-ORDER BY page.fechacrea DESC NULLS LAST, page.row_id
+ORDER BY {{OUTER_ORDER}}
 SQL;
+        $sort = $filters['sort'] ?? null;
+        $dir = $filters['dir'] ?? null;
+        $sql = str_replace(
+            ['{{PAGE_ORDER}}', '{{OUTER_ORDER}}'],
+            [
+                TableSort::orderBy(self::OPERATIONAL_SORT_MAP, $sort, $dir, 'fechacrea DESC NULLS LAST, row_id', 'row_id'),
+                TableSort::orderBy(self::OPERATIONAL_SORT_MAP, $sort, $dir, 'page.fechacrea DESC NULLS LAST, page.row_id', 'page.row_id', 'page.'),
+            ],
+            $sql
+        );
         $conectar = parent::conexion();
         parent::set_names();
         $stmt = $conectar->prepare($sql);

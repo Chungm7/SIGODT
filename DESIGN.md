@@ -50,7 +50,7 @@ Se utiliza la familia tipografica **Inter** servida localmente desde `public/lib
 - **Titulo de Pagina (`.page-title`):** `1.5rem` (`24px`, `700 Bold`), `letter-spacing: -0.02em`, color `#0F172A`.
 - **Titulo de Modulo / Tarjeta (`.card-title`):** `1.125rem` - `1.25rem` (`18px-20px`, `700 Bold`), color `#0F172A`.
 - **Cuerpo y Formularios:** `0.875rem` (`14px`, `400 Regular` / `500 Medium`), color `#475569`.
-- **Tablas Operativas:** `0.75rem` - `0.8125rem` (`12px-13px`), encabezados en `#0066CC` (`700 Bold`) y celdas con alineacion tabular en importes.
+- **Tablas Operativas:** `0.75rem` - `0.8125rem` (`12px-13px`), encabezados en `#0066CC` (`700 Bold`) y celdas con alineacion tabular en importes. El ordenamiento solo se habilita en columnas utiles (fechas, codigos, nombres, importes y estados), nunca en columnas de acciones.
 
 ---
 

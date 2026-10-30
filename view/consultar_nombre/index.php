@@ -62,8 +62,8 @@ if (!isset($_SESSION['usua_id_SIGODT'])) {
         <section id="nombreResults" class="card shadow-sm mb-3" aria-labelledby="resultsTitle">
           <div class="card-header py-2"><h3 id="resultsTitle" class="card-title fw-bold mb-0">Entidades y Total de Órdenes</h3></div>
           <div class="table-responsive">
-            <table class="table table-vcenter card-table table-striped table-hover">
-              <thead><tr><th>Tipo</th><th>Nombre / Razón social</th><th>Documento / RUC</th><th>Total de órdenes</th><th>Acciones</th></tr></thead>
+            <table class="table table-vcenter card-table table-striped table-hover dataTable" id="tablaEntities">
+              <thead><tr><th class="sorting" data-sort="tipo">Tipo</th><th class="sorting_asc" data-sort="nombre">Nombre / Razón social</th><th class="sorting" data-sort="documento">Documento / RUC</th><th class="sorting" data-sort="ordenes">Total de órdenes</th><th class="sorting_disabled">Acciones</th></tr></thead>
               <tbody id="nombreEntities"></tbody>
             </table>
           </div>
@@ -80,8 +80,8 @@ if (!isset($_SESSION['usua_id_SIGODT'])) {
           </div>
           <div class="card-body py-2"><p id="historyIdentity" class="mb-0"></p></div>
           <div class="table-responsive">
-            <table class="table table-vcenter card-table table-striped table-hover">
-              <thead><tr><th>Orden de Giro</th><th>Fecha</th><th>Hora</th><th>Recibo</th><th>Importe total</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <table class="table table-vcenter card-table table-striped table-hover dataTable" id="tablaHistory">
+              <thead><tr><th class="sorting" data-sort="orden">Orden de Giro</th><th class="sorting_desc" data-sort="fecha">Fecha</th><th class="sorting_disabled">Hora</th><th class="sorting" data-sort="recibo">Recibo</th><th class="sorting text-end" data-sort="importe">Importe total</th><th class="sorting" data-sort="estado">Estado</th><th class="sorting_disabled">Acciones</th></tr></thead>
               <tbody id="nombreOrders"></tbody>
             </table>
           </div>

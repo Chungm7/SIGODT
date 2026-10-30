@@ -57,6 +57,9 @@ $(document).ready(function () {
         "bInfo": true,
         "iDisplayLength": 10,
         "order": [[0, "asc"]],
+        "columnDefs": [
+            { "orderable": false, "targets": [2, 3] }
+        ],
         "language": {
             "sProcessing": "Procesando...",
             "sLengthMenu": "Mostrar _MENU_ registros",

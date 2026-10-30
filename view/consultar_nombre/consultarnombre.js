@@ -132,6 +132,10 @@
     let selected = null;
     let entities = null;
     let history = null;
+    let entitySort = 'nombre';
+    let entityDir = 'asc';
+    let historySort = 'fecha';
+    let historyDir = 'desc';
     const message = (text, error = false) => {
       get('nombreMessage').textContent = text;
       get('nombreMessage').className = 'alert mb-3 alert-' + (error ? 'danger' : 'info');
@@ -169,7 +173,7 @@
       empty(doc, get('nombreEntities'), 5, 'Buscando…');
       get('nombreResults').setAttribute('aria-busy', 'true');
       message('Buscando entidades…');
-      const result = await entityGate.run(signal => request('buscar_entidades_nombre', { search, page, limit: 10 }, signal));
+      const result = await entityGate.run(signal => request('buscar_entidades_nombre', { search, page, limit: 10, sort: entitySort, dir: entityDir }, signal));
       if (!result.current) { return; }
       get('nombreResults').setAttribute('aria-busy', 'false');
       if (result.error) {
@@ -196,7 +200,7 @@
       get('nombreHistory').setAttribute('aria-busy', 'true');
       message('Cargando historial completo…');
       const result = await historyGate.run(signal => request('historial_entidad', {
-        entity_type: selected.entity_type, entity_key: selected.entity_key, page, limit: 10
+        entity_type: selected.entity_type, entity_key: selected.entity_key, page, limit: 10, sort: historySort, dir: historyDir
       }, signal));
       if (!result.current) { return; }
       get('nombreHistory').setAttribute('aria-busy', 'false');
@@ -269,6 +273,38 @@
         });
       });
     });
+    function bindSort(tableId, getSort, setSort, reload) {
+      const tableEl = get(tableId);
+      if (!tableEl || typeof tableEl.querySelectorAll !== 'function') return;
+      const ths = tableEl.querySelectorAll('thead th[data-sort]');
+      if (!ths.length) return;
+      ths.forEach(th => {
+        th.addEventListener('click', () => {
+          const key = th.getAttribute('data-sort');
+          let { sort, dir } = getSort();
+          if (sort === key) {
+            dir = dir === 'asc' ? 'desc' : 'asc';
+          } else {
+            sort = key;
+            dir = 'asc';
+          }
+          setSort(sort, dir);
+          ths.forEach(t => {
+            if (t.classList && t.classList.remove) {
+              t.classList.remove('sorting_asc', 'sorting_desc');
+              t.classList.add('sorting');
+            }
+          });
+          if (th.classList && th.classList.add) {
+            th.classList.remove('sorting');
+            th.classList.add(dir === 'asc' ? 'sorting_asc' : 'sorting_desc');
+          }
+          reload(1);
+        });
+      });
+    }
+    bindSort('tablaEntities', () => ({ sort: entitySort, dir: entityDir }), (s, d) => { entitySort = s; entityDir = d; }, loadEntities);
+    bindSort('tablaHistory', () => ({ sort: historySort, dir: historyDir }), (s, d) => { historySort = s; historyDir = d; }, loadHistory);
     empty(doc, get('nombreEntities'), 5, 'Ingrese un nombre y haga clic en Buscar.');
   }
   const api = { state, renderEntities, renderOrders, printOrder, requestGate, mount };

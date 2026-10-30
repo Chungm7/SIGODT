@@ -56,6 +56,9 @@ if (in_array($nombreOperation, ['buscar_entidades_nombre', 'historial_entidad'],
         $arguments = Ordengiro::validar_nombre_input($nombreOperation, $_POST);
         $arguments[] = $pers_id;
         $arguments[] = $rol_id;
+        // Sort values only select keys from the model whitelist; unknown values keep the default order.
+        $arguments[] = is_string($_POST['sort'] ?? null) ? $_POST['sort'] : '';
+        $arguments[] = is_string($_POST['dir'] ?? null) ? $_POST['dir'] : '';
         $result = call_user_func_array([$model, $nombreOperation], $arguments);
         ob_end_clean();
         echo json_encode($result, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
@@ -325,7 +328,7 @@ switch ($_GET["op"] ?? "") {
         $limit = isset($_POST["limit"]) ? intval($_POST["limit"]) : 10;
         $offset = ($page - 1) * $limit;
 
-        $data = $pers_id > 0 ? $ordengiro->get_ordenes_mes($search, $limit, $offset, $pers_id, $rol_id) : [];
+        $data = $pers_id > 0 ? $ordengiro->get_ordenes_mes($search, $limit, $offset, $pers_id, $rol_id, is_string($_POST["sort"] ?? null) ? $_POST["sort"] : '', is_string($_POST["dir"] ?? null) ? $_POST["dir"] : '') : [];
         $total = $pers_id > 0 ? $ordengiro->get_total_ordenes_mes($search, $pers_id, $rol_id) : 0;
 
         echo json_encode([

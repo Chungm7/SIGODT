@@ -66,7 +66,7 @@ catch (InvalidArgumentException $error) {
   <section class="card shadow-sm mb-3" aria-labelledby="reportDetailsTitle">
     <div class="card-header"><h2 id="reportDetailsTitle" class="card-title">Detalle de órdenes</h2></div>
     <div class="table-responsive" tabindex="0" role="region" aria-label="Detalle de órdenes">
-      <table class="table card-table table-vcenter report-details"><thead><tr><th>N° ODT</th><th>Fecha y hora de emisión</th><th>Ciudadano / Razón social</th><th>Documento</th><th>Código del procedimiento</th><th>Nombre del procedimiento</th><th>Estado actual</th><th>Importe (S/)</th></tr></thead><tbody id="reportDetails"></tbody></table>
+      <table class="table card-table table-vcenter report-details dataTable" id="tableReportDetails"><thead><tr><th class="sorting" data-sort="order">N° ODT</th><th class="sorting_desc" data-sort="date">Fecha y hora de emisión</th><th class="sorting" data-sort="citizen">Ciudadano / Razón social</th><th class="sorting" data-sort="document">Documento</th><th class="sorting" data-sort="code">Código del procedimiento</th><th class="sorting" data-sort="procedure">Nombre del procedimiento</th><th class="sorting" data-sort="state">Estado actual</th><th class="sorting text-end" data-sort="amount">Importe (S/)</th></tr></thead><tbody id="reportDetails"></tbody></table>
     </div>
     <nav class="card-footer report-pagination" aria-label="Paginación del detalle"><button id="reportPrev" class="btn btn-outline-secondary" type="button">Anterior</button><span id="reportPage" aria-live="polite"></span><button id="reportNext" class="btn btn-outline-secondary" type="button">Siguiente</button></nav>
   </section>

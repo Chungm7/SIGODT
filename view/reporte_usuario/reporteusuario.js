@@ -60,7 +60,7 @@
   }
   function reportUrl(filters, operation = 'json') {
     const params = new URLSearchParams({ op: operation });
-    for (const key of ['start', 'end', 'state', 'document', 'procedure']) {
+    for (const key of ['start', 'end', 'state', 'document', 'procedure', 'sort', 'dir']) {
       if (filters[key] !== undefined && filters[key] !== '') params.set(key, filters[key]);
     }
     if (operation === 'json') params.set('page', filters.page || 1);
@@ -82,6 +82,8 @@
     let applied = null;
     let request = 0;
     let pdfRequest = 0;
+    let detailSort = 'date';
+    let detailDir = 'desc';
     const pdfButton = get('reportPdf');
     const invalidatePdf = () => {
       pdfRequest++;
@@ -93,15 +95,37 @@
       end: get('reportEnd').value,
       state: get('reportState') ? get('reportState').value : 'todos',
       document: get('reportDocument').value,
-      procedure: get('reportProcedure').value
+      procedure: get('reportProcedure').value,
+      sort: detailSort,
+      dir: detailDir
     });
-    const table = (id, rows) => {
+    const table = (id, rows, sortable) => {
       const body = get(id);
+      const $ = root.jQuery;
+      const grid = sortable && $ && $.fn && $.fn.DataTable ? $(body).closest('table') : null;
+      if (grid && $.fn.DataTable.isDataTable(grid)) grid.DataTable().destroy();
       body.replaceChildren();
       for (const values of rows) {
         const tr = doc.createElement('tr');
         for (const value of values) cell(tr, value, doc);
         body.appendChild(tr);
+      }
+      // The breakdown is complete (not paged), so client-side sorting is accurate.
+      if (grid && rows.length) {
+        grid.DataTable({
+          dom: 't',
+          paging: false,
+          searching: false,
+          info: false,
+          order: [],
+          language: {
+            sZeroRecords: 'No se encontraron resultados',
+            oAria: {
+              sSortAscending: ': Activar para ordenar la columna de manera ascendente',
+              sSortDescending: ': Activar para ordenar la columna de manera descendente'
+            }
+          }
+        });
       }
     };
     const options = (id, values, selected) => {
@@ -157,7 +181,7 @@
         get('reportCancelled').textContent = String(summary.cancelled);
         get('reportLines').textContent = String(summary.lines);
         get('reportAmount').textContent = `S/ ${summary.amount}`;
-        table('reportBreakdown', data.breakdown.map(row => [row.document, row.code, row.procedure, row.orders, row.lines, row.amount]));
+        table('reportBreakdown', data.breakdown.map(row => [row.document, row.code, row.procedure, row.orders, row.lines, row.amount]), true);
         table('reportDetails', data.details.map(row => [row.order_id, row.emitted_at, row.citizens, row.documents, row.codes, row.procedures, row.state_label, row.amount]));
         get('reportPrint').href = reportUrl(applied, 'print');
         get('reportPage').textContent = `Página ${page} de ${Math.max(1, Math.ceil(data.total / data.limit))} · ${data.total} órdenes`;
@@ -217,6 +241,32 @@
     });
     get('reportPrev').addEventListener('click', () => { if (applied) load(applied, page - 1); });
     get('reportNext').addEventListener('click', () => { if (applied) load(applied, page + 1); });
+    const detailsTable = get('tableReportDetails');
+    if (detailsTable && typeof detailsTable.querySelectorAll === 'function') {
+      const ths = detailsTable.querySelectorAll('thead th[data-sort]');
+      ths.forEach(th => {
+        th.addEventListener('click', () => {
+          const key = th.getAttribute('data-sort');
+          if (detailSort === key) {
+            detailDir = detailDir === 'asc' ? 'desc' : 'asc';
+          } else {
+            detailSort = key;
+            detailDir = 'asc';
+          }
+          ths.forEach(t => {
+            if (t.classList && t.classList.remove) {
+              t.classList.remove('sorting_asc', 'sorting_desc');
+              t.classList.add('sorting');
+            }
+          });
+          if (th.classList && th.classList.add) {
+            th.classList.remove('sorting');
+            th.classList.add(detailDir === 'asc' ? 'sorting_asc' : 'sorting_desc');
+          }
+          if (applied) load({ ...applied, sort: detailSort, dir: detailDir }, 1);
+        });
+      });
+    }
     load(readFilters());
   }
   if (typeof module !== 'undefined' && module.exports) module.exports = { monthRange, reportUrl, cell, mount, getSummaryCopy };

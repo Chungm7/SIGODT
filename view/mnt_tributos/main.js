@@ -108,7 +108,8 @@ function cargardata() {
         "order": [[2, "asc"]],
         "columnDefs": [
             { "targets": [2, 4, 5, 6, 7], "className": "text-center" },
-            { "targets": [3], "className": "text-end" }
+            { "targets": [3], "className": "text-end" },
+            { "targets": [6, 7], "orderable": false }
         ],
         "language": {
             "sProcessing": "Procesando...",

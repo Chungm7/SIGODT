@@ -785,7 +785,10 @@ function cargardata(resetPaging) {
     processing: true,
     serverSide: true,
     dom: "lfrtip",
-    ordering: false,
+    order: [[3, "desc"]],
+    columnDefs: [
+      { targets: [5, 6, 7], orderable: false }
+    ],
     ajax: loadGiroList,
     responsive: true,
     info: true,

@@ -520,6 +520,7 @@ function cargardata() {
     bInfo: true,
     iDisplayLength: 10,
     order: [[3, "desc"]],
+    columnDefs: [{ targets: [5, 6, 7, 8], orderable: false }],
     language: {
       sProcessing: "Procesando...",
       sLengthMenu: "Mostrar _MENU_ registros",

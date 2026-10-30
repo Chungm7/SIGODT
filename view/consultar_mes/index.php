@@ -67,19 +67,19 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                 </div>
 
                 <div class="table-responsive">
-                  <table class="table table-vcenter card-table table-striped table-hover w-100">
+                  <table class="table table-vcenter card-table table-striped table-hover w-100 dataTable" id="tablaOrdenesMes">
                     <thead>
                       <tr>
-                        <th class="text-center" style="width: 5%;">#</th>
-                        <th class="text-center" style="width: 10%;">Orden de Giro</th>
-                        <th class="text-center" style="width: 10%;">Fecha</th>
-                        <th class="text-center" style="width: 8%;">Hora</th>
-                        <th style="width: 20%;">Ciudadano</th>
-                        <th class="text-center" style="width: 10%;">Documento</th>
-                        <th style="width: 20%;">Procedimiento</th>
-                        <th class="text-end" style="width: 8%;">Importe</th>
-                        <th class="text-center" style="width: 8%;">Estado</th>
-                        <th class="text-center" style="width: 8%;">Acciones</th>
+                        <th class="text-center sorting_disabled" style="width: 5%;">#</th>
+                        <th class="text-center sorting" data-sort="orden" style="width: 10%;">Orden de Giro</th>
+                        <th class="text-center sorting_desc" data-sort="fecha" style="width: 10%;">Fecha</th>
+                        <th class="text-center sorting" data-sort="hora" style="width: 8%;">Hora</th>
+                        <th class="sorting" data-sort="ciudadano" style="width: 20%;">Ciudadano</th>
+                        <th class="text-center sorting" data-sort="documento" style="width: 10%;">Documento</th>
+                        <th class="sorting" data-sort="procedimiento" style="width: 20%;">Procedimiento</th>
+                        <th class="text-end sorting" data-sort="importe" style="width: 8%;">Importe</th>
+                        <th class="text-center sorting" data-sort="estado" style="width: 8%;">Estado</th>
+                        <th class="text-center sorting_disabled" style="width: 8%;">Acciones</th>
                       </tr>
                     </thead>
                     <tbody id="ordenesMesList">
@@ -184,10 +184,12 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
         let limit = 10;
         let totalPages = 1;
         let searchTimeout = null;
+        let currentSort = "fecha";
+        let currentDir = "desc";
 
         function fetchOrdenes(page = 1, search = "") {
           currentPage = page;
-          let body = `page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`;
+          let body = `page=${page}&limit=${limit}&search=${encodeURIComponent(search)}&sort=${encodeURIComponent(currentSort)}&dir=${encodeURIComponent(currentDir)}`;
 
           fetch("../../controller/ordengiro.php?op=get_ordenes_mes", {
             method: "POST",
@@ -284,6 +286,19 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
           if (!isNaN(page) && page >= 1 && page <= totalPages && page !== currentPage) {
             fetchOrdenes(page, $("#searchInput").val().trim());
           }
+        });
+
+        $("#tablaOrdenesMes thead").on("click", "th[data-sort]", function () {
+          let sortKey = $(this).data("sort");
+          if (currentSort === sortKey) {
+            currentDir = currentDir === "asc" ? "desc" : "asc";
+          } else {
+            currentSort = sortKey;
+            currentDir = "asc";
+          }
+          $("#tablaOrdenesMes thead th[data-sort]").removeClass("sorting_asc sorting_desc").addClass("sorting");
+          $(this).removeClass("sorting").addClass(currentDir === "asc" ? "sorting_asc" : "sorting_desc");
+          fetchOrdenes(1, $("#searchInput").val().trim());
         });
 
         fetchOrdenes();

@@ -101,6 +101,7 @@ function updateDataTable() {
     bInfo: true,
     iDisplayLength: 10,
     order: [[0, "desc"]],
+    columnDefs: [{ targets: [7, 8], orderable: false }],
     language: {
       sProcessing: "Procesando...",
       sLengthMenu: "Mostrar _MENU_ registros",

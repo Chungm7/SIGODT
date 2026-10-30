@@ -1,5 +1,18 @@
 <?php
+require_once __DIR__ . '/TableSort.php';
 class ReporteUsuario extends Conectar {
+    /** Sort key => [order field, comparison type]; the only columns the details table may sort by. */
+    const DETAIL_SORT_MAP = [
+        'order' => ['order_id', 'number'],
+        'date' => ['emitted_at', 'text'],
+        'citizen' => ['citizens', 'text'],
+        'document' => ['documents', 'text'],
+        'code' => ['codes', 'text'],
+        'procedure' => ['procedures', 'text'],
+        'state' => ['state_label', 'text'],
+        'amount' => ['amount', 'number'],
+    ];
+
     public static function positiveId($value) {
         if ((!is_string($value) && !is_int($value)) || !preg_match('/^[1-9][0-9]*$/D', (string)$value)) {
             throw new InvalidArgumentException('Identificador inválido.');
@@ -31,6 +44,11 @@ class ReporteUsuario extends Conectar {
             throw new InvalidArgumentException('Estado inválido.');
         }
         $filters['state'] = $state;
+        // Unknown sort keys or directions fall back to the default order instead of reaching any query.
+        $sort = TableSort::key(self::DETAIL_SORT_MAP, $input['sort'] ?? null);
+        $dir = TableSort::direction($input['dir'] ?? null);
+        $filters['sort'] = $sort !== null && $dir !== null ? $sort : null;
+        $filters['dir'] = $sort !== null && $dir !== null ? strtolower($dir) : null;
         foreach (['page' => 1000000000, 'limit' => 100] as $key => $max) {
             $value = self::positiveId($input[$key] ?? ($key === 'page' ? 1 : 20));
             if ($value > $max) { throw new InvalidArgumentException('Paginación inválida.'); }
@@ -177,6 +195,19 @@ SQL;
         }
         $summary['amount'] = self::money($summary['amount']);
         $total = count($orders);
+        if ($f['sort'] !== null) {
+            [$field, $type] = self::DETAIL_SORT_MAP[$f['sort']];
+            $sign = $f['dir'] === 'desc' ? -1 : 1;
+            $value = function ($order) use ($field, $type) {
+                $v = $order[$field];
+                $v = is_array($v) ? implode(' / ', $v) : (string)$v;
+                return $type === 'number' ? (float)$v : mb_strtolower($v, 'UTF-8');
+            };
+            // usort is stable in PHP 8, so ties keep the default newest-first order.
+            usort($orders, function ($a, $b) use ($value, $sign) {
+                return $sign * ($value($a) <=> $value($b));
+            });
+        }
         $page = min($f['page'], max(1, (int)ceil($total / $f['limit'])));
         return ['filters' => $f, 'state_label' => $filterStateLabels[$f['state']] ?? $f['state'],
             'summary' => $summary, 'breakdown' => $formattedGroups,
