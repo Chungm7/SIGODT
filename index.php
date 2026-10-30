@@ -22,7 +22,12 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
   <link rel="stylesheet" href="public/tabler/css/tabler-flags.min.css" />
   <link rel="stylesheet" href="public/tabler/css/tabler-payments.min.css" />
   <link rel="stylesheet" href="public/tabler/css/tabler-vendors.min.css" />
-  <link rel="stylesheet" href="public/lib/inter/inter.css" />
+  <link rel="stylesheet" href="public/lib/roboto/roboto.css" />
+  <style>
+    :root {
+      --tblr-font-sans-serif: 'Roboto', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Helvetica Neue, sans-serif;
+    }
+  </style>
   <link rel="stylesheet" href="public/css/municipal-theme.css" />
   <link rel="icon" href="public/img/mpch.ico" type="image/x-icon">
 </head>

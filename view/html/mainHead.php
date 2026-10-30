@@ -28,24 +28,17 @@
 <link href="../../public/lib/select2/css/select2-bootstrap4.min.css" rel="stylesheet">
 <link href="../html/global/css/select2.css" rel="stylesheet" />
 
-<!-- FontAwesome 5.15.4 (Local) -->
-<link href="../../public/lib/fontawesome/css/all.min.css" rel="stylesheet">
-
 <!-- Toastr & SweetAlert CSS -->
 <link href="../../public/lib/toastr/toastr.min.css" rel="stylesheet" />
 <link href="../../public/lib/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
 <script src="../../public/lib/xlsx/xlsx.full.min.js"></script>
 
-<!-- Tipografía Inter (Local) -->
+<!-- Tipografía Roboto (Local) -->
 <style>
-    @import url('../../public/lib/inter/inter.css');
+    @import url('../../public/lib/roboto/roboto.css');
 
     :root {
-        --tblr-font-sans-serif: 'Inter Var', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
-    }
-
-    body {
-        font-feature-settings: "cv03", "cv04", "cv11";
+        --tblr-font-sans-serif: 'Roboto', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Helvetica Neue, sans-serif;
     }
 </style>
 

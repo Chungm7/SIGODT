@@ -1,0 +1,44 @@
+/**
+ * Roboto Local Webfonts (SIGODT)
+ * Standard weights: 300 (Light), 400 (Regular), 500 (Medium), 700 (Bold), 400 (Italic)
+ */
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('font-files/Roboto-Light.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('font-files/Roboto-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('font-files/Roboto-Italic.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('font-files/Roboto-Medium.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('font-files/Roboto-Bold.woff2') format('woff2');
+}
