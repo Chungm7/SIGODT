@@ -175,4 +175,95 @@ describe('Filter and Search Cards Institutional Standardization', () => {
       assert.ok(html.includes(`id="${id}"`), `Expected critical DOM ID "${id}" in mnt_tributos`);
     }
   });
+
+  test('view/mnt_ciudadano: standardized search card, results card, and event handlers', () => {
+    const html = readFileSync('view/mnt_ciudadano/index.php', 'utf8');
+    const js = readFileSync('view/mnt_ciudadano/ciud.js', 'utf8');
+
+    // Dedicated search card
+    assert.match(html, /class="card shadow-sm muni-stripe-top mb-3"/);
+    assert.match(html, /<div class="card-header py-2">\s*<h3 class="card-title fw-bold mb-0">Criterio de Búsqueda<\/h3>\s*<\/div>/);
+    assert.match(html, /icon-tabler-id[\s\S]*?id="search"/);
+
+    // Dedicated results card with proper title
+    assert.match(html, /<div class="card shadow-sm mb-3">\s*<div class="card-header py-2">\s*<h3 class="card-title fw-bold mb-0">Listado General de Administrados<\/h3>\s*<\/div>/);
+
+    // Action button with btn-muni-action and uppercase BUSCAR
+    assert.match(html, /class="[^"]*btn-muni-action[^"]*"[^>]*id="btnBuscarCiudadano"|id="btnBuscarCiudadano"[^>]*class="[^"]*btn-muni-action[^"]*"/);
+    assert.match(html, /BUSCAR/);
+
+    // Critical DOM IDs preserved
+    const criticalIds = ['formSearchCiudadano', 'search', 'btnBuscarCiudadano', 'tabla-ciudadano'];
+    for (const id of criticalIds) {
+      assert.ok(html.includes(`id="${id}"`), `Expected critical DOM ID "${id}" in mnt_ciudadano`);
+    }
+
+    // JS handlers
+    assert.match(js, /\$\(["']#search["']\)\.on\(["']input["']/);
+    assert.match(js, /\$\(["']#formSearchCiudadano["']\)\.on\(["']submit["']/);
+    assert.match(js, /\$\(["']#btnBuscarCiudadano["']\)\.on\(["']click["']/);
+    assert.match(js, /tabla\.ajax\.reload\(\)/);
+  });
+
+  test('view/mnt_empresa: standardized search card, results card, and event handlers', () => {
+    const html = readFileSync('view/mnt_empresa/index.php', 'utf8');
+    const js = readFileSync('view/mnt_empresa/empresa.js', 'utf8');
+
+    // Dedicated search card
+    assert.match(html, /class="card shadow-sm muni-stripe-top mb-3"/);
+    assert.match(html, /<div class="card-header py-2">\s*<h3 class="card-title fw-bold mb-0">Criterio de Búsqueda<\/h3>\s*<\/div>/);
+    assert.match(html, /icon-tabler-building[\s\S]*?id="search"/);
+
+    // Dedicated results card with proper title
+    assert.match(html, /<div class="card shadow-sm mb-3">\s*<div class="card-header py-2">\s*<h3 class="card-title fw-bold mb-0">Listado General de Empresas<\/h3>\s*<\/div>/);
+
+    // Action button with btn-muni-action and uppercase BUSCAR
+    assert.match(html, /class="[^"]*btn-muni-action[^"]*"[^>]*id="btnBuscarEmpresa"|id="btnBuscarEmpresa"[^>]*class="[^"]*btn-muni-action[^"]*"/);
+    assert.match(html, /BUSCAR/);
+
+    // Critical DOM IDs preserved
+    const criticalIds = ['formSearchEmpresa', 'search', 'btnBuscarEmpresa', 'tabla-empresa'];
+    for (const id of criticalIds) {
+      assert.ok(html.includes(`id="${id}"`), `Expected critical DOM ID "${id}" in mnt_empresa`);
+    }
+
+    // JS handlers
+    assert.match(js, /\$\(["']#search["']\)\.on\(["']input["']/);
+    assert.match(js, /\$\(["']#formSearchEmpresa["']\)\.on\(["']submit["']/);
+    assert.match(js, /\$\(["']#btnBuscarEmpresa["']\)\.on\(["']click["']/);
+    assert.match(js, /tabla\.ajax\.reload\(\)/);
+  });
+
+  test('view/mnt_tasas: standardized search card, results card, dom Brtip, and event handlers', () => {
+    const html = readFileSync('view/mnt_tasas/index.php', 'utf8');
+    const js = readFileSync('view/mnt_tasas/main.js', 'utf8');
+
+    // Dedicated search card
+    assert.match(html, /class="card shadow-sm muni-stripe-top mb-3"/);
+    assert.match(html, /<div class="card-header py-2">\s*<h3 class="card-title fw-bold mb-0">Criterio de Búsqueda<\/h3>\s*<\/div>/);
+    assert.match(html, /icon-tabler-coin[\s\S]*?id="searchTasa"/);
+
+    // Dedicated results card with proper title
+    assert.match(html, /<div class="card shadow-sm mb-3">\s*<div class="card-header py-2">\s*<h3 class="card-title fw-bold mb-0">Listado de Tasas Registradas<\/h3>\s*<\/div>/);
+
+    // Action button with btn-muni-action and uppercase BUSCAR
+    assert.match(html, /class="[^"]*btn-muni-action[^"]*"[^>]*id="btnBuscarTasa"|id="btnBuscarTasa"[^>]*class="[^"]*btn-muni-action[^"]*"/);
+    assert.match(html, /BUSCAR/);
+
+    // Critical DOM IDs preserved
+    const criticalIds = ['formSearchTasa', 'searchTasa', 'btnBuscarTasa', 'tasa_data', 'add_button'];
+    for (const id of criticalIds) {
+      assert.ok(html.includes(`id="${id}"`), `Expected critical DOM ID "${id}" in mnt_tasas`);
+    }
+
+    // DataTables dom updated to 'Brtip' to eliminate redundant search box
+    assert.match(js, /dom:\s*['"]Brtip['"]/);
+    assert.doesNotMatch(js, /dom:\s*['"]Bfrtip['"]/);
+
+    // JS handlers
+    assert.match(js, /\$\(["']#searchTasa["']\)\.on\(["']keyup input["']/);
+    assert.match(js, /\$\(["']#formSearchTasa["']\)\.on\(["']submit["']/);
+    assert.match(js, /\$\(["']#btnBuscarTasa["']\)\.on\(["']click["']/);
+    assert.match(js, /\$\(['"]#tasa_data['"]\)\.DataTable\(\)\.search\(\$\(['"]#searchTasa['"]\)\.val\(\)\)\.draw\(\)/);
+  });
 });

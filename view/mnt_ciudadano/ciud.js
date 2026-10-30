@@ -1,6 +1,7 @@
 // js/ciudadano.js
 
 let tabla_ciudadano;
+let tabla;
 
 function cargarTiposDocumento() {
     $.ajax({
@@ -79,6 +80,7 @@ function listar_todos(resetPaging = false) {
             { className: "align-middle", targets: [2, 3, 4, 5] }
         ]
     });
+    tabla = tabla_ciudadano;
 }
 
 $(document).ready(function () {
@@ -89,6 +91,24 @@ $(document).ready(function () {
         clearTimeout($.data(this, "timer"));
         let wait = setTimeout(listar_todos, 350);
         $(this).data("timer", wait);
+    });
+
+    $("#formSearchCiudadano").on("submit", function (e) {
+        e.preventDefault();
+        if (tabla) {
+            tabla.ajax.reload();
+        } else if (tabla_ciudadano) {
+            tabla_ciudadano.ajax.reload();
+        }
+    });
+
+    $("#btnBuscarCiudadano").on("click", function (e) {
+        e.preventDefault();
+        if (tabla) {
+            tabla.ajax.reload();
+        } else if (tabla_ciudadano) {
+            tabla_ciudadano.ajax.reload();
+        }
     });
 
     $(document).on('change', '#ciud_foto_file', function (e) {

@@ -8,7 +8,7 @@ Target views:
 - Queries: `view/consultar_og/index.php`, `view/consultar_mes/index.php`, `view/consultar_nombre/index.php`
 - Dashboard: `view/dashboard/index.php`
 - Processes: `view/giros_ciudadano/index.php`, `view/admin_giros_ciudadano/index.php`
-- Catalogs / Maintenance: `view/mnt_procedimiento/index.php`, `view/mnt_tributos/index.php`
+- Catalogs / Maintenance: `view/mnt_procedimiento/index.php`, `view/mnt_tributos/index.php`, `view/mnt_ciudadano/index.php`, `view/mnt_empresa/index.php`, `view/mnt_tasas/index.php`
 Preserve all existing JavaScript IDs, form event bindings, and query parameter contracts.
 
 ## Design boundaries
@@ -24,8 +24,9 @@ Preserve all existing JavaScript IDs, form event bindings, and query parameter c
 - [x] T2 — Standardize Dashboard filter controls (`view/dashboard/index.php`).
 - [x] T3 — Standardize Processes views (`giros_ciudadano`, `admin_giros_ciudadano`).
 - [x] T4 — Standardize Catalogs filter cards (`mnt_procedimiento`, `mnt_tributos`).
-- [x] T5 — Automated test suite verifying markup standard across all views and regression tests.
+- [x] T5 — Standardize Maintenance search sections (`mnt_ciudadano`, `mnt_empresa`, `mnt_tasas`) into dedicated search cards and result tables with `btn-muni-action` and DataTables integration.
+- [x] T6 — Automated test suite verifying markup standard across all views and regression tests.
 
 ## Evidence and verification
-- Suite `tests/filter-search-standardization.test.cjs`: 8 tests covering stripe headers, action buttons, breadcrumbs, and preserved DOM IDs across all updated views.
-- Full regression run: 61/61 passing tests across functional and theme suites. Zero regressions.
+- Suite `tests/filter-search-standardization.test.cjs`: 11 tests covering stripe headers, action buttons, breadcrumbs, search cards, and preserved DOM IDs across all updated views.
+- Full regression run: 115 passing tests across functional and theme suites. Zero regressions.

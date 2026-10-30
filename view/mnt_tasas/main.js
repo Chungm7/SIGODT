@@ -46,7 +46,7 @@ $(document).ready(function () {
     $('#tasa_data').DataTable({
         "aProcessing": true,
         "aServerSide": true,
-        dom: 'Bfrtip',
+        dom: 'Brtip',
         buttons: [],
         "ajax": {
             url: "../../controller/tasa.php?op=listar",
@@ -81,6 +81,20 @@ $(document).ready(function () {
                 "sSortDescending": ": Activar para ordenar la columna de manera descendente"
             }
         },
+    });
+
+    $("#searchTasa").on("keyup input", function () {
+        $('#tasa_data').DataTable().search($(this).val()).draw();
+    });
+
+    $("#formSearchTasa").on("submit", function (e) {
+        e.preventDefault();
+        $('#tasa_data').DataTable().search($('#searchTasa').val()).draw();
+    });
+
+    $("#btnBuscarTasa").on("click", function (e) {
+        e.preventDefault();
+        $('#tasa_data').DataTable().search($('#searchTasa').val()).draw();
     });
 });
 

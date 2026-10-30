@@ -43,28 +43,57 @@ if (Conectar::esAdministrador()) {
                         <line x1="12" y1="5" x2="12" y2="19" />
                         <line x1="5" y1="12" x2="19" y2="12" />
                       </svg>
-                      <span>Nueva Empresa</span>
+                      <span>NUEVA EMPRESA</span>
                     </button>
                   </div>
                 </div>
               </div>
 
-              <!-- Tarjeta principal con tabla a ancho completo -->
-              <div class="card shadow-sm muni-stripe-top">
-                <div class="card-header d-flex justify-content-between align-items-center py-2">
-                  <h3 class="card-title fw-bold mb-0">Listado General de Empresas</h3>
-                  <div class="card-actions">
-                    <div class="input-icon">
-                      <span class="input-icon-addon">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                          <circle cx="10" cy="10" r="7" />
-                          <line x1="21" y1="21" x2="15" y2="15" />
-                        </svg>
-                      </span>
-                      <input type="text" id="search" class="form-control" placeholder="Buscar por RUC o Razón Social..." aria-label="Buscar empresa">
+              <!-- Card de Búsqueda -->
+              <div class="card shadow-sm muni-stripe-top mb-3">
+                <div class="card-header py-2">
+                  <h3 class="card-title fw-bold mb-0">Criterio de Búsqueda</h3>
+                </div>
+                <div class="card-body">
+                  <form id="formSearchEmpresa">
+                    <div class="row g-2 align-items-center">
+                      <div class="col">
+                        <div class="input-group">
+                          <span class="input-group-text">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-building" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                              <path d="M3 21l18 0" />
+                              <path d="M9 8l1 0" />
+                              <path d="M9 12l1 0" />
+                              <path d="M9 16l1 0" />
+                              <path d="M14 8l1 0" />
+                              <path d="M14 12l1 0" />
+                              <path d="M14 16l1 0" />
+                              <path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16" />
+                            </svg>
+                          </span>
+                          <input type="text" id="search" class="form-control" placeholder="Buscar por RUC o Razón Social..." aria-label="Buscar empresa">
+                        </div>
+                      </div>
+                      <div class="col-12 col-md-auto">
+                        <button class="btn btn-muni-action w-100" type="submit" id="btnBuscarEmpresa">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search me-1" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
+                            <path d="M21 21l-6 -6" />
+                          </svg>
+                          <span>BUSCAR</span>
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  </form>
+                </div>
+              </div>
+
+              <!-- Card de Resultados -->
+              <div class="card shadow-sm mb-3">
+                <div class="card-header py-2">
+                  <h3 class="card-title fw-bold mb-0">Listado General de Empresas</h3>
                 </div>
 
                 <div class="table-responsive">

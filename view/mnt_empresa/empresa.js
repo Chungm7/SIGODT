@@ -1,6 +1,7 @@
 // js/empresa.js
 
 let tabla_empresa;
+let tabla;
 
 function listar_todos(resetPaging = false) {
     if ($.fn.DataTable.isDataTable("#tabla-empresa") && tabla_empresa) {
@@ -54,6 +55,7 @@ function listar_todos(resetPaging = false) {
             { className: "align-middle text-wrap", targets: [4] }
         ]
     });
+    tabla = tabla_empresa;
 }
 
 $(document).ready(function () {
@@ -63,6 +65,24 @@ $(document).ready(function () {
         clearTimeout($.data(this, "timer"));
         let wait = setTimeout(listar_todos, 350);
         $(this).data("timer", wait);
+    });
+
+    $("#formSearchEmpresa").on("submit", function (e) {
+        e.preventDefault();
+        if (tabla) {
+            tabla.ajax.reload();
+        } else if (tabla_empresa) {
+            tabla_empresa.ajax.reload();
+        }
+    });
+
+    $("#btnBuscarEmpresa").on("click", function (e) {
+        e.preventDefault();
+        if (tabla) {
+            tabla.ajax.reload();
+        } else if (tabla_empresa) {
+            tabla_empresa.ajax.reload();
+        }
     });
 
     $('#empr_ruc').on('input', function () {
