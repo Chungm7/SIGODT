@@ -54,7 +54,10 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
           <p class="muni-login-entity">MUNICIPALIDAD PROVINCIAL DE CHICLAYO</p>
         </div>
 
-        <h2 class="muni-login-heading">Iniciar sesión</h2>
+        <h2 class="muni-login-heading d-flex align-items-center gap-2">
+          <span>Iniciar sesión</span>
+          <span class="badge bg-warning text-dark" style="font-size: 0.85rem; font-weight: 700; background-color: var(--muni-security-yellow) !important; color: #182433 !important;">1.0.1</span>
+        </h2>
         <p class="muni-login-subheading">Ingresa tus credenciales institucionales para continuar.</p>
 
         <!-- Mensajes de error -->
