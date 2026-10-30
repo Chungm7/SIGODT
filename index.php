@@ -38,7 +38,10 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
     <!-- 01 Identidad visual / Chiclayo -->
     <section class="muni-login-hero" aria-label="Identidad institucional">
       <div class="muni-login-hero-content">
-        <h1 class="muni-login-hero-title">Sistema de Gestión de Órdenes de Derecho de Trámite</h1>
+        <h1 class="muni-login-hero-title">
+          Sistema de Gestión de Órdenes de Derecho de Trámite
+          <span class="badge bg-warning text-dark align-middle ms-2" style="font-size: 0.45em; font-weight: 700; background-color: var(--muni-security-yellow) !important; color: #182433 !important; vertical-align: middle;">1.0.1</span>
+        </h1>
         <p class="muni-login-hero-desc">
           Plataforma institucional para la emisión, seguimiento, consulta y control de órdenes de derecho de trámite de la gestión municipal.
         </p>
@@ -54,10 +57,7 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
           <p class="muni-login-entity">MUNICIPALIDAD PROVINCIAL DE CHICLAYO</p>
         </div>
 
-        <h2 class="muni-login-heading d-flex align-items-center gap-2">
-          <span>Iniciar sesión</span>
-          <span class="badge bg-warning text-dark" style="font-size: 0.85rem; font-weight: 700; background-color: var(--muni-security-yellow) !important; color: #182433 !important;">1.0.1</span>
-        </h2>
+        <h2 class="muni-login-heading">Iniciar sesión</h2>
         <p class="muni-login-subheading">Ingresa tus credenciales institucionales para continuar.</p>
 
         <!-- Mensajes de error -->
