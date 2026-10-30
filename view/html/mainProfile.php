@@ -26,15 +26,21 @@
     if (isset($_SESSION["usua_id_SIGODT"])) {
       $usuario = $_SESSION["nombre_completo_SIGODT"];
       $perfil = $_SESSION["rol_nombre_SIGODT"];
+      if (!array_key_exists("usua_foto_SIGODT", $_SESSION)) {
+        require_once __DIR__ . '/../../models/Usuario.php';
+        $_SESSION["usua_foto_SIGODT"] = (new Usuario())->get_foto_persona($_SESSION["usua_id_SIGODT"]);
+      }
+      $avatar = !empty($_SESSION["usua_foto_SIGODT"]) ? $_SESSION["usua_foto_SIGODT"] : "../../public/img/perfil.jpeg";
     } else {
       $usuario = "Invitado";
       $perfil = "Sin perfil";
+      $avatar = "../../public/img/perfil.jpeg";
     }
     ?>
     <div class="navbar-nav flex-row order-md-last">
       <div class="nav-item dropdown">
         <a href="#" class="nav-link muni-profile-pill" data-bs-toggle="dropdown" aria-label="Abrir menú de usuario">
-          <span class="avatar avatar-sm muni-profile-avatar" style="background-image: url(../../public/img/perfil.jpeg)"></span>
+          <span class="avatar avatar-sm muni-profile-avatar" style="background-image: url('<?php echo htmlspecialchars($avatar, ENT_QUOTES, 'UTF-8'); ?>')"></span>
           <div class="d-none d-xl-block muni-profile-info">
             <div class="muni-profile-name"><?php echo htmlspecialchars(mb_strtoupper($usuario)); ?></div>
             <div class="muni-profile-role"><?php echo htmlspecialchars(mb_strtoupper($perfil)); ?></div>

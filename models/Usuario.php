@@ -148,7 +148,7 @@ class usuario extends conectar
             }
 
             $sql = "SELECT p.pers_id, p.pers_dni, p.pers_nombre, p.pers_apelpat, p.pers_apelmat,
-                           p.pers_estado, p.pers_emailm, p.pers_celu01,
+                           p.pers_estado, p.pers_emailm, p.pers_celu01, p.pers_foto,
                            perm.perf_id, pf.perf_nombre, perm.depe_id
                     FROM sc_escalafon.tb_persona p
                     INNER JOIN sc_seguridad.tb_permiso perm ON p.pers_id = perm.pers_id 
@@ -207,6 +207,15 @@ class usuario extends conectar
             $_SESSION["pers_celu01_SIGODT"] = $userData["pers_celu01"] ?? '';
             $_SESSION["historial_login_SIGODT"] = $hise_id;
             $_SESSION["usu_depe_id_SIGODT"] = $userData["depe_id"];
+
+            $rawFoto = !empty($userData["pers_foto"]) ? trim($userData["pers_foto"]) : '';
+            if ($rawFoto !== '') {
+                $_SESSION["usua_foto_SIGODT"] = (strpos($rawFoto, 'data:image') === 0)
+                    ? $rawFoto
+                    : 'data:image/jpeg;base64,' . $rawFoto;
+            } else {
+                $_SESSION["usua_foto_SIGODT"] = '';
+            }
 
             // 9. Redirect to main module
             header("Location: " . Conectar::ruta() . "view/giros_ciudadano/");
@@ -460,5 +469,27 @@ class usuario extends conectar
         $sql->bindValue(1, $depe_id);
         $sql->execute();
         return $resultado = $sql->fetchAll();
+    }
+
+    public function get_foto_persona($pers_id)
+    {
+        try {
+            $conectar = parent::conexion();
+            parent::set_names();
+            $sql = "SELECT pers_foto FROM sc_escalafon.tb_persona WHERE pers_id = ? LIMIT 1;";
+            $stmt = $conectar->prepare($sql);
+            $stmt->bindValue(1, (int)$pers_id, PDO::PARAM_INT);
+            $stmt->execute();
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $raw = !empty($row["pers_foto"]) ? trim($row["pers_foto"]) : '';
+            if ($raw !== '') {
+                return (strpos($raw, 'data:image') === 0)
+                    ? $raw
+                    : 'data:image/jpeg;base64,' . $raw;
+            }
+        } catch (Exception $e) {
+            // Silencioso ante fallos para asegurar el fallback a perfil.jpeg
+        }
+        return '';
     }
 }
