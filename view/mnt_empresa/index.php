@@ -76,7 +76,7 @@ if (Conectar::esAdministrador()) {
                         </div>
                       </div>
                       <div class="col-12 col-md-auto">
-                        <button class="btn btn-muni-action w-100" type="submit" id="btnBuscarEmpresa">
+                        <button class="btn btn-muni-action btn-search-action w-100" type="submit" id="btnBuscarEmpresa">
                           <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search me-1" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                             <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />

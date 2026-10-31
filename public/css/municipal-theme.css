@@ -157,6 +157,31 @@ body:not([data-bs-theme="dark"]) .card-title {
   color: var(--muni-text-primary) !important;
 }
 
+/* Botón de acción alineado con selectores estándar (38px de altura) */
+.btn-muni-action.btn-muni-inline,
+.row.align-items-end #add_button.btn-muni-action {
+  height: 38px !important;
+  min-height: 38px !important;
+  padding: 0.35rem 1rem !important;
+  border-radius: 8px;
+}
+
+/* Botones de búsqueda y filtros alineados con campos de entrada (40px de altura estándar Tabler) */
+.btn-muni-action.btn-search-action,
+.btn-muni-action.btn-filter-action,
+#searchBtn.btn-muni-action,
+#btnBuscarOrden.btn-muni-action,
+#btnBuscarCiudadano.btn-muni-action,
+#btnBuscarEmpresa.btn-muni-action,
+#btnBuscarTasa.btn-muni-action,
+#filtrarBtn.btn-muni-action,
+#nombreForm button[type="submit"].btn-muni-action {
+  height: 40px !important;
+  min-height: 40px !important;
+  padding: 0.5rem 1.25rem !important;
+  border-radius: 8px;
+}
+
 .btn-muni-security {
   background-color: var(--muni-security-yellow) !important;
   border: 1px solid #F5C72B !important;

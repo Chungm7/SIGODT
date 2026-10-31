@@ -73,7 +73,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                                             <input type="date" class="form-control" id="fechaFin">
                                         </div>
                                         <div class="col-12 col-sm-6 col-md-2 align-self-end">
-                                            <button class="btn btn-muni-action d-inline-flex align-items-center justify-content-center w-100" id="filtrarBtn">
+                                            <button class="btn btn-muni-action btn-filter-action d-inline-flex align-items-center justify-content-center w-100" id="filtrarBtn">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-filter me-1" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                                     <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                                                     <path d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v7l-6 2v-8.5l-4.48 -4.928a2 2 0 0 1 -.52 -1.345v-2.227z" />

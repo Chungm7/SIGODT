@@ -49,7 +49,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
 
                     <div class="card-body">
                       <!-- Filtros normativos en cascada -->
-                      <div class="row g-3 align-items-start mb-3">
+                      <div class="row g-3 align-items-end mb-3">
                         <div class="col-12 col-md-5">
                           <label for="area_id" class="form-label fw-bold">Área / Dependencia: <span class="text-danger">*</span></label>
                           <select class="form-select select2" name="area_id" id="area_id" data-placeholder="Seleccione un área...">
@@ -81,8 +81,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                         </div>
 
                         <div class="col-12 col-md-2">
-                          <label class="form-label d-none d-md-block">&nbsp;</label>
-                          <button class="btn btn-muni-action w-100 d-inline-flex align-items-center justify-content-center" id="add_button" onclick="nuevo()">
+                          <button class="btn btn-muni-action btn-muni-inline w-100 d-inline-flex align-items-center justify-content-center" id="add_button" onclick="nuevo()" style="height: 38px; min-height: 38px; padding: 0.35rem 1rem;">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus me-1" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                               <line x1="12" y1="5" x2="12" y2="19" />

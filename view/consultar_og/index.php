@@ -80,7 +80,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                         </div>
                       </div>
                       <div class="col-12 col-sm-auto">
-                        <button type="submit" id="btnBuscarOrden" class="btn btn-muni-action w-100">
+                        <button type="submit" id="btnBuscarOrden" class="btn btn-muni-action btn-search-action w-100">
                           <span id="spinnerBuscar" class="spinner-border spinner-border-sm me-1 d-none" role="status" aria-hidden="true"></span>
                           <svg id="iconBuscar" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search me-1" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>

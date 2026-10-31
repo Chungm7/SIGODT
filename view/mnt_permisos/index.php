@@ -51,7 +51,7 @@ if (Conectar::esAdministrador()) {
                       </select>
                     </div>
                     <div class="col-12 col-md-4 col-lg-6 d-flex justify-content-md-end">
-                      <button class="btn btn-muni-action" id="add_button" onclick="nuevo()">
+                      <button class="btn btn-muni-action btn-muni-inline" id="add_button" onclick="nuevo()">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user-plus" width="20" height="20" viewBox="0 0 24 24" stroke-width="2.25" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                           <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                           <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
