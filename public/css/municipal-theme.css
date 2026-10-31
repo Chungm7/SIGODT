@@ -579,8 +579,15 @@ body:not([data-bs-theme="dark"]) .muni-subnav .dropdown-item.active .dropdown-it
   margin-bottom: 0.75rem;
 }
 
+.muni-welcome-greeting {
+  color: #FFFFFF;
+  font-weight: 800;
+}
+
 .muni-welcome-user {
   color: var(--muni-hero-user);
+  font-weight: 800;
+  word-break: break-word;
 }
 
 .muni-welcome-subtitle {
@@ -597,11 +604,14 @@ body:not([data-bs-theme="dark"]) .muni-subnav .dropdown-item.active .dropdown-it
 }
 
 .muni-welcome-year-box {
-  border-left: 1px solid var(--muni-text-aux);
-  padding-left: 32px;
+  border-left: 1px solid rgba(148, 163, 184, 0.35);
+  padding-left: 36px;
   display: flex;
   flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
   justify-content: center;
+  min-width: 140px;
 }
 
 .muni-welcome-year-label {
@@ -614,7 +624,7 @@ body:not([data-bs-theme="dark"]) .muni-subnav .dropdown-item.active .dropdown-it
 }
 
 .muni-welcome-year-value {
-  font-size: 1.875rem;
+  font-size: 2rem;
   font-weight: 800;
   line-height: 1.1;
   color: #FFFFFF;
@@ -630,6 +640,8 @@ body:not([data-bs-theme="dark"]) .muni-subnav .dropdown-item.active .dropdown-it
     padding-left: 0;
     padding-top: 16px;
     margin-top: 16px;
+    align-items: flex-start;
+    text-align: left;
   }
 }
 

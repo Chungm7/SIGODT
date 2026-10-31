@@ -46,7 +46,7 @@ El Sistema de Gestion de Ordenes de Derecho de Tramite (SIGODT) adopta el sistem
 Se utiliza la familia tipografica **Inter** servida localmente desde `public/lib/inter/inter.css` con caracteristicas OpenType `"cv03", "cv04", "cv11"` para distinguir caracteres alfanumericos en codigos de orden, DNI, RUC y CAPTCHA.
 
 - **Titulo de Login (Panel Izquierdo):** `clamp(2rem, 3.2vw, 2.75rem)` (`600 SemiBold`), `line-height: 1.15`, color `#FFFFFF`.
-- **Titulo de Bienvenida (Hero Inicio):** `clamp(1.5rem, 2.5vw, 1.875rem)` (`800 ExtraBold`), `line-height: 1.2`, color `#FFFFFF` con nombre de usuario en `#93C5FD`.
+- **Titulo de Bienvenida (Hero Inicio):** `clamp(1.5rem, 2.5vw, 1.875rem)` (`800 ExtraBold`), `line-height: 1.2`, saludo blanco con nombre de usuario debajo en bloque (`#93C5FD`); bloque de año de gestión desplazado al extremo derecho con divisor vertical y alineación a la derecha.
 - **Titulo de Pagina (`.page-title`):** `1.5rem` (`24px`, `700 Bold`), `letter-spacing: -0.02em`, color `#0F172A`.
 - **Titulo de Modulo / Tarjeta (`.card-title`):** `1.125rem` - `1.25rem` (`18px-20px`, `700 Bold`), color `#0F172A`.
 - **Cuerpo y Formularios:** `0.875rem` (`14px`, `400 Regular` / `500 Medium`), color `#475569`.

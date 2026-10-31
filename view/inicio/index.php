@@ -25,17 +25,17 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
 
               <!-- Panel Hero de Bienvenida (Figma Nodo 49:665) -->
               <section class="muni-welcome-hero" aria-label="Bienvenida institucional">
-                <div class="row align-items-center g-4">
-                  <div class="col-12 col-md-9">
+                <div class="row align-items-center g-4 justify-content-between">
+                  <div class="col-12 col-md">
                     <h2 class="muni-welcome-title">
-                      ¡Bienvenido al Sistema, <span class="muni-welcome-user" style="color: #93C5FD;"><?php echo htmlspecialchars($nombre_completo); ?></span>!
+                      <span class="d-block muni-welcome-greeting">¡Bienvenido al sistema,</span>
+                      <span class="d-block muni-welcome-user"><?php echo htmlspecialchars(mb_strtoupper($nombre_completo)); ?>!</span>
                     </h2>
-                      <br>
                     <p class="muni-welcome-subtitle">
-                        Usted ha iniciado sesión con el rol: <strong class="muni-welcome-role" style="color: #FBC02D; font-weight: 600;"><?php echo htmlspecialchars($perfil); ?></strong>.
+                      Usted ha iniciado sesión con el rol: <strong class="muni-welcome-role"><?php echo htmlspecialchars(mb_strtoupper($perfil)); ?></strong>.
                     </p>
                   </div>
-                  <div class="col-12 col-md-3">
+                  <div class="col-12 col-md-auto ms-md-auto">
                     <div class="muni-welcome-year-box">
                       <span class="muni-welcome-year-label">AÑO DE GESTIÓN</span>
                       <span class="muni-welcome-year-value"><?php echo date('Y'); ?></span>
