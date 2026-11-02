@@ -772,7 +772,7 @@ body:not([data-bs-theme="dark"]) .muni-subnav .dropdown-item.active .dropdown-it
   width: 100%;
   padding: 10px 16px;
   background-color: #FFFBEB;
-  border: 1px solid #FF9500;
+  border: 2px solid #FF9500;
   border-radius: 10px;
   box-shadow: 0px 1px 2px 0px rgba(249, 115, 22, 0.2);
   color: #111827 !important;
@@ -981,6 +981,12 @@ table.dataTable thead > tr > th.sorting_disabled {
 
 table.dataTable thead > tr > th.sorting_disabled:before,
 table.dataTable thead > tr > th.sorting_disabled:after {
+  display: none !important;
+}
+
+/* Ocultar el indicador por defecto 'Procesando...' de DataTables para usar el spinner institucional */
+div.dataTables_processing,
+.dataTables_wrapper .dataTables_processing {
   display: none !important;
 }
 
