@@ -368,13 +368,15 @@ body:not([data-bs-theme="dark"]) .card-title {
 .muni-profile-dropdown .dropdown-item:hover,
 .muni-profile-dropdown .dropdown-item:focus {
   background-color: var(--muni-nav-hover, #E1E8F0) !important;
-  color: var(--muni-brand-blue) !important;
+  color: var(--muni-text-primary) !important;
 }
 
 .muni-profile-dropdown .dropdown-item:hover .icon,
-.muni-profile-dropdown .dropdown-item:focus .icon {
-  color: var(--muni-brand-blue) !important;
-  stroke: var(--muni-brand-blue) !important;
+.muni-profile-dropdown .dropdown-item:focus .icon,
+.muni-profile-dropdown .dropdown-item:hover svg,
+.muni-profile-dropdown .dropdown-item:focus svg {
+  color: var(--muni-text-primary) !important;
+  stroke: var(--muni-text-primary) !important;
 }
 
 .muni-profile-dropdown .dropdown-divider {
