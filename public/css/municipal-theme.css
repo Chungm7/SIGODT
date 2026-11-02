@@ -270,7 +270,9 @@ body:not([data-bs-theme="dark"]) .card-title {
   margin-top: 2px;
 }
 
-.muni-profile-pill {
+.muni-profile-pill,
+.muni-header .muni-profile-pill,
+.navbar .nav-link.muni-profile-pill {
   background-color: var(--muni-profile-bg) !important;
   border: 2px solid var(--muni-profile-border) !important;
   border-radius: 9999px !important;
@@ -285,9 +287,16 @@ body:not([data-bs-theme="dark"]) .card-title {
 }
 
 .muni-profile-pill:hover,
-.muni-profile-pill:focus {
+.muni-profile-pill:focus,
+.muni-header .muni-profile-pill:hover,
+.muni-header .muni-profile-pill:focus,
+.navbar .nav-link.muni-profile-pill:hover,
+.navbar .nav-link.muni-profile-pill:focus,
+.muni-header .nav-item .nav-link.muni-profile-pill:hover,
+.muni-header .nav-item .nav-link.muni-profile-pill:focus {
   background-color: var(--muni-brand-blue-hover) !important;
   border-color: #FFFFFF !important;
+  color: #FFFFFF !important;
 }
 
 .muni-profile-avatar {
@@ -308,7 +317,7 @@ body:not([data-bs-theme="dark"]) .card-title {
 .muni-profile-name {
   font-size: 0.75rem;
   font-weight: 700;
-  color: #FFFFFF;
+  color: #FFFFFF !important;
   text-transform: uppercase;
   letter-spacing: 0.01em;
 }
@@ -316,7 +325,7 @@ body:not([data-bs-theme="dark"]) .card-title {
 .muni-profile-role {
   font-size: 0.625rem;
   font-weight: 700;
-  color: var(--muni-action-yellow);
+  color: var(--muni-action-yellow) !important;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-top: 2px;
@@ -437,11 +446,11 @@ body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-link .nav-link-ic
   transition: color 0.15s ease, stroke 0.15s ease;
 }
 
-/* Hover en secciones inactivas: conserva el texto e icono en gris/negro sin cambiar a azul */
+/* Hover en secciones inactivas del subnav: conserva el texto e icono en gris/negro sin cambiar a azul */
 body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item:not(.active) > .nav-link:hover,
 body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item:not(.active) > .nav-link:focus,
-.navbar-expand-md .navbar-nav .nav-item:not(.active) > .nav-link:hover,
-.navbar-expand-md .navbar-nav .nav-item:not(.active) > .nav-link:focus {
+.muni-subnav .navbar-nav .nav-item:not(.active) > .nav-link:hover,
+.muni-subnav .navbar-nav .nav-item:not(.active) > .nav-link:focus {
   color: var(--muni-text-primary) !important;
   background-color: var(--muni-nav-hover, #E1E8F0) !important;
   border-radius: 8px;
@@ -457,27 +466,24 @@ body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item:not(.active)
 
 /* Seccion activa (cuando estas dentro de esa seccion o subseccion): azul institucional */
 body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item.active > .nav-link,
-.navbar-expand-md .navbar-nav .nav-item.active > .nav-link {
+.muni-subnav .navbar-nav .nav-item.active > .nav-link {
   color: var(--muni-brand-blue) !important;
   font-weight: 700;
 }
 
 body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item.active > .nav-link .nav-link-icon .icon,
 body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item.active > .nav-link .nav-link-icon svg,
-.navbar-expand-md .navbar-nav .nav-item.active > .nav-link .nav-link-icon .icon,
-.navbar-expand-md .navbar-nav .nav-item.active > .nav-link .nav-link-icon svg {
+.muni-subnav .navbar-nav .nav-item.active > .nav-link .nav-link-icon .icon,
+.muni-subnav .navbar-nav .nav-item.active > .nav-link .nav-link-icon svg {
   color: var(--muni-brand-blue) !important;
   stroke: var(--muni-brand-blue) !important;
 }
 
 /* Quitar la rayita azul inferior de las secciones activas */
-.navbar-expand-md .navbar-nav .nav-item.active::after,
-.navbar-expand-md .navbar-collapse .nav-item.active::after,
-.navbar-expand-md .nav-item.active::after,
 .muni-subnav .navbar-nav .nav-item.active::after,
 .muni-subnav .navbar-nav .nav-item::after,
 body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item.active > .nav-link:not(.dropdown-toggle)::after,
-.navbar-expand-md .navbar-nav .nav-item.active > .nav-link:not(.dropdown-toggle)::after {
+.muni-subnav .navbar-nav .nav-item.active > .nav-link:not(.dropdown-toggle)::after {
   display: none !important;
   content: none !important;
   border: none !important;
