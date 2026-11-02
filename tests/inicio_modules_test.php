@@ -53,4 +53,16 @@ check(preg_match('/if\s*\(\s*Conectar::esAdministrador\(\)\s*\)/', $adminGirosFi
 $menuFile = file_get_contents(__DIR__ . '/../view/html/menu.php');
 check(preg_match('/<\?php\s+if\s*\(\$isMntAllowed\)\s*\{\s*\?>\s*<a href="\.\.\/admin_giros_ciudadano\/"/', $menuFile) === 1, 'admin_giros_ciudadano link in menu must be guarded by $isMntAllowed');
 
+// 5. Figma Node 156:27 design compliance
+check(strpos($inicioFile, 'muni-module-eyebrow') !== false, 'Eyebrow OPCION must be present in view/inicio');
+check(strpos($inicioFile, 'status-active') !== false, 'Status pill Activo must be present in view/inicio');
+check(strpos($inicioFile, 'btn-muni-card-action') !== false, 'Action button class btn-muni-card-action must be present');
+
+$cssFile = file_get_contents(__DIR__ . '/../public/css/municipal-theme.css');
+check(strpos($cssFile, '.btn-muni-card-action') !== false, 'CSS must define .btn-muni-card-action');
+check(strpos($cssFile, '#FBC02D') !== false, 'CSS must define hover fill #FBC02D for .btn-muni-card-action');
+check(preg_match('/\.btn-muni-card-action:hover[^{]*\{[^}]*#FBC02D/s', $cssFile) === 1, 'Hover on .btn-muni-card-action must set background #FBC02D');
+check(preg_match('/\.muni-module-icon\s*\{[^}]*width:\s*50px/s', $cssFile) === 1, 'Icon container must have width 50px');
+check(preg_match('/\.muni-module-icon\s*\{[^}]*border-radius:\s*14px/s', $cssFile) === 1, 'Icon container must have border-radius 14px');
+
 echo "All inicio modules and admin_giros_ciudadano visibility tests passed successfully!\n";

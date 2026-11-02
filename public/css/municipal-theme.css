@@ -688,56 +688,115 @@ body:not([data-bs-theme="dark"]) .muni-subnav .dropdown-item.active .dropdown-it
 
 /* Tarjetas de Modulos en Inicio (#49:982) */
 .muni-module-card {
-  background-color: var(--muni-card-bg);
-  border: 1px solid var(--muni-border-muted);
+  background-color: var(--muni-card-bg, #FFFFFF);
+  border: 1px solid var(--muni-border-muted, #E2E8F0);
   border-radius: 8px;
   box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.05);
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  padding: 24px;
+  padding: 20px;
+  gap: 16px;
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .muni-module-card:hover {
-  border-color: var(--muni-profile-border);
+  border-color: var(--muni-profile-border, #0066CC);
   box-shadow: 0px 4px 12px rgba(0, 102, 204, 0.08);
 }
 
+.muni-module-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .muni-module-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 9999px;
-  background-color: var(--muni-page-bg);
-  border: 1px solid var(--muni-icon-border);
-  color: var(--muni-brand-blue);
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  background-color: var(--muni-page-bg, #E7F1FB);
+  border: 1px solid var(--muni-icon-border, #BAE6FD);
+  color: var(--muni-brand-blue, #0066CC);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
+.muni-module-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.muni-module-eyebrow {
+  font-family: var(--tblr-font-monospace, "Roboto Mono", monospace);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 14px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muni-text-muted, #64748B);
+}
+
 .muni-module-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--muni-text-primary);
-  margin-top: 1rem;
-  margin-bottom: 0.5rem;
+  color: var(--muni-text-heading, #111827);
+  line-height: 1.3;
+  letter-spacing: -0.025em;
+  margin: 0;
 }
 
 .muni-module-desc {
   font-size: 0.875rem;
   font-weight: 400;
-  color: var(--muni-text-body);
-  line-height: 1.5;
-  margin-bottom: 1.25rem;
+  color: var(--muni-text-body, #475569);
+  line-height: 22px;
+  margin: 0;
 }
 
 .muni-module-footer {
-  border-top: 1px solid var(--muni-surface-muted);
-  padding-top: 1rem;
   margin-top: auto;
+  padding-top: 0;
+  border-top: none;
+}
+
+/* Link - Modern Premium Action Button (Figma Nodo 156:57) */
+.btn-muni-card-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 16px;
+  background-color: #FFFBEB;
+  border: 1px solid #FF9500;
+  border-radius: 10px;
+  box-shadow: 0px 1px 2px 0px rgba(249, 115, 22, 0.2);
+  color: #111827 !important;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Hover: el relleno cambia a #FBC02D */
+.btn-muni-card-action:hover,
+.btn-muni-card-action:focus {
+  background-color: #FBC02D !important;
+  border-color: #FF9500 !important;
+  color: #111827 !important;
+  box-shadow: 0px 2px 4px 0px rgba(249, 115, 22, 0.25);
+}
+
+.btn-muni-card-action svg {
+  stroke: #111827;
+  flex-shrink: 0;
 }
 
 /* ==========================================================================
@@ -1560,14 +1619,38 @@ body.theme-dark .muni-module-title {
   color: #FFFFFF;
 }
 
+[data-bs-theme="dark"] .muni-module-eyebrow,
+body.theme-dark .muni-module-eyebrow {
+  color: #94A3B8;
+}
+
 [data-bs-theme="dark"] .muni-module-desc,
 body.theme-dark .muni-module-desc {
   color: #CBD5E1;
 }
 
-[data-bs-theme="dark"] .muni-module-footer,
-body.theme-dark .muni-module-footer {
-  border-top-color: #2c3c51;
+[data-bs-theme="dark"] .btn-muni-card-action,
+body.theme-dark .btn-muni-card-action {
+  background-color: rgba(255, 251, 235, 0.08);
+  border-color: #FF9500;
+  color: #F8FAFC !important;
+}
+
+[data-bs-theme="dark"] .btn-muni-card-action svg,
+body.theme-dark .btn-muni-card-action svg {
+  stroke: #F8FAFC;
+}
+
+[data-bs-theme="dark"] .btn-muni-card-action:hover,
+body.theme-dark .btn-muni-card-action:hover {
+  background-color: #FBC02D !important;
+  border-color: #FF9500 !important;
+  color: #111827 !important;
+}
+
+[data-bs-theme="dark"] .btn-muni-card-action:hover svg,
+body.theme-dark .btn-muni-card-action:hover svg {
+  stroke: #111827;
 }
 
 [data-bs-theme="dark"] .muni-settings-panel,
