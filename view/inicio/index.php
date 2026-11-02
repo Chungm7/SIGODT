@@ -48,7 +48,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                 <div class="row row-cards g-4 mt-1">
 
                   <!-- Módulo 1: Registrar Órdenes de Giro -->
-                  <div class="col-12 col-md-6 col-lg-4">
+                  <div class="col-12 col-md-6">
                     <article class="muni-module-card">
                       <div>
                         <div class="d-flex align-items-center justify-content-between">
@@ -68,7 +68,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                         </p>
                       </div>
                       <div class="muni-module-footer">
-                        <a href="../giros_ciudadano" class="btn btn-muni-action w-100">
+                        <a href="../giros_ciudadano/" class="btn btn-muni-action w-100">
                           <span>REGISTRAR NUEVO</span>
                           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -81,30 +81,29 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                     </article>
                   </div>
 
-                  <!-- Módulo 2: Consulta por Documento -->
-                  <div class="col-12 col-md-6 col-lg-4">
+                  <?php if (Conectar::esAdministrador()) { ?>
+                  <!-- Módulo 2: Auditoría de Órdenes de Giro (Solo Administrador) -->
+                  <div class="col-12 col-md-6">
                     <article class="muni-module-card">
                       <div>
                         <div class="d-flex align-items-center justify-content-between">
                           <span class="muni-module-icon" aria-hidden="true">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clipboard-check">
                               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                              <path d="M3 4m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v10a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z" />
-                              <path d="M9 10m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-                              <path d="M15 8l2 0" />
-                              <path d="M15 12l2 0" />
-                              <path d="M7 16l10 0" />
+                              <path d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />
+                              <path d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" />
+                              <path d="M9 14l2 2l4 -4" />
                             </svg>
                           </span>
                         </div>
-                        <h3 class="muni-module-title">Consulta por Documento</h3>
+                        <h3 class="muni-module-title">Auditoría de Órdenes de Giro</h3>
                         <p class="muni-module-desc">
-                          Realiza búsquedas históricas de órdenes de giro emitidas filtrando por número de DNI, RUC, CEE o CPP.
+                          Control, fiscalización y supervisión administrativa de procedimientos y órdenes de recaudación emitidas.
                         </p>
                       </div>
                       <div class="muni-module-footer">
-                        <a href="../consultar_documento" class="btn btn-muni-action w-100">
-                          <span>IR A CONSULTAS</span>
+                        <a href="../admin_giros_ciudadano/" class="btn btn-muni-action w-100">
+                          <span>IR A AUDITORÍA</span>
                           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                             <path d="M5 12l14 0" />
@@ -115,39 +114,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                       </div>
                     </article>
                   </div>
-
-                  <!-- Módulo 3: Consulta por Orden de Giro -->
-                  <div class="col-12 col-md-6 col-lg-4">
-                    <article class="muni-module-card">
-                      <div>
-                        <div class="d-flex align-items-center justify-content-between">
-                          <span class="muni-module-icon" aria-hidden="true">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                              <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-                              <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
-                              <path d="M9 15l2 2l4 -4" />
-                            </svg>
-                          </span>
-                        </div>
-                        <h3 class="muni-module-title">Consulta por Orden de Giro</h3>
-                        <p class="muni-module-desc">
-                          Valida los datos, estado de pago y comprobante PDF de una orden de giro existente mediante su número y año.
-                        </p>
-                      </div>
-                      <div class="muni-module-footer">
-                        <a href="../consultar_og/" class="btn btn-muni-action w-100">
-                          <span>VALIDAR ORDEN</span>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M5 12l14 0" />
-                            <path d="M13 18l6 -6" />
-                            <path d="M13 6l6 6" />
-                          </svg>
-                        </a>
-                      </div>
-                    </article>
-                  </div>
+                  <?php } ?>
 
                 </div>
               </section>

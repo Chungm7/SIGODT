@@ -1,7 +1,7 @@
 <?php
 require_once("../../config/conexion.php");
 
-if (isset($_SESSION["usua_id_SIGODT"])) {
+if (Conectar::esAdministrador()) {
 ?>
   <!DOCTYPE html>
   <html lang="es">
