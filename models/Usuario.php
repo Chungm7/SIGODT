@@ -217,8 +217,8 @@ class usuario extends conectar
                 $_SESSION["usua_foto_SIGODT"] = '';
             }
 
-            // 9. Redirect to main module
-            header("Location: " . Conectar::ruta() . "view/giros_ciudadano/");
+            // 9. Redirect to main module (Inicio)
+            header("Location: " . Conectar::ruta() . "view/inicio/");
             exit();
         }
     }

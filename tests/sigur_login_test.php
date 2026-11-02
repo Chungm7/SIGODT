@@ -16,7 +16,7 @@
  *    - Session history recording in sc_seguridad.tb_historial_sesion
  *    - Area auto-provisioning via Area::sincronizar_area_defecto
  *    - Session variables population (usua_id_SIGODT, rol_id_SIGODT, etc.)
- *    - Redirection to view/giros_ciudadano/
+ *    - Redirection to view/inicio/
  * 7. Auth service failure handling (connection failure or missing token).
  * 8. index.php error alert display for $_SESSION['login_error'] and immediate unsetting.
  */
@@ -431,8 +431,8 @@ try {
     $res7 = $executeLoginTest('valid_user');
     check($res7['httpCode'] === 302, "Expected HTTP 302 redirect");
     check(
-        $res7['location'] === 'http://10.10.10.16/SIGODT/view/giros_ciudadano/',
-        "Expected redirect to view/giros_ciudadano/, got: " . var_export($res7['location'], true)
+        $res7['location'] === 'http://10.10.10.16/SIGODT/view/inicio/',
+        "Expected redirect to view/inicio/, got: " . var_export($res7['location'], true)
     );
     $session = $res7['session'];
     check($session['usua_id_SIGODT'] === 3914, "usua_id_SIGODT mismatch");

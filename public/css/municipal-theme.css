@@ -468,13 +468,38 @@ body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item:not(.active)
 body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item.active > .nav-link,
 .muni-subnav .navbar-nav .nav-item.active > .nav-link {
   color: var(--muni-brand-blue) !important;
+  background-color: var(--muni-page-bg) !important;
   font-weight: 700;
+  border-radius: 8px;
 }
 
 body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item.active > .nav-link .nav-link-icon .icon,
 body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item.active > .nav-link .nav-link-icon svg,
 .muni-subnav .navbar-nav .nav-item.active > .nav-link .nav-link-icon .icon,
 .muni-subnav .navbar-nav .nav-item.active > .nav-link .nav-link-icon svg {
+  color: var(--muni-brand-blue) !important;
+  stroke: var(--muni-brand-blue) !important;
+}
+
+/* Hover en seccion activa: conserva fondo y acento azul */
+body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item.active > .nav-link:hover,
+body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item.active > .nav-link:focus,
+.muni-subnav .navbar-nav .nav-item.active > .nav-link:hover,
+.muni-subnav .navbar-nav .nav-item.active > .nav-link:focus {
+  color: var(--muni-brand-blue) !important;
+  background-color: var(--muni-nav-hover, #E1E8F0) !important;
+  font-weight: 700;
+  border-radius: 8px;
+}
+
+body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item.active > .nav-link:hover .nav-link-icon .icon,
+body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item.active > .nav-link:hover .nav-link-icon svg,
+body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item.active > .nav-link:focus .nav-link-icon .icon,
+body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item.active > .nav-link:focus .nav-link-icon svg,
+.muni-subnav .navbar-nav .nav-item.active > .nav-link:hover .nav-link-icon .icon,
+.muni-subnav .navbar-nav .nav-item.active > .nav-link:hover .nav-link-icon svg,
+.muni-subnav .navbar-nav .nav-item.active > .nav-link:focus .nav-link-icon .icon,
+.muni-subnav .navbar-nav .nav-item.active > .nav-link:focus .nav-link-icon svg {
   color: var(--muni-brand-blue) !important;
   stroke: var(--muni-brand-blue) !important;
 }
