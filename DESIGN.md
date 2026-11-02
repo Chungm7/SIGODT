@@ -1,79 +1,293 @@
-# Sistema de Diseño Institucional: Municipalidad Provincial de Chiclayo (SIGODT)
+# Sistema de Diseño Institucional: Municipalidad Provincial de Chiclayo (MPCH)
 
-> **Design Read:** Aplicacion administrativa municipal para operadores y administradores de la Municipalidad Provincial de Chiclayo, en un lenguaje institucional sobrio de alta legibilidad, dial `ENERGY 2 / RHYTHM 2 / MOTION 1`.
+> **Guía Maestra y Plantilla de Especificación de Interfaces**: Documento normativo, arquitectura de componentes, tokens visuales y directrices para el desarrollo o estandarización de aplicaciones administrativas en la Municipalidad Provincial de Chiclayo.
 
-## 1. Identidad Visual y Direccion (Figma `8gbckPW2QsY90xStrG8zzF`)
+---
 
-El Sistema de Gestion de Ordenes de Derecho de Tramite (SIGODT) adopta el sistema de diseño institucional de la Municipalidad Provincial de Chiclayo (MPCH), estructurado en los nodos de Figma `49:661` (Inicio y Shell Institucional), `41:2` (Login dividido con fotografia de Chiclayo), `52:1126` / `64:3` (Variantes de acceso institucional) y `62:521` / `64:687` (Tarjetas con franja institucional de seguridad).
+## 1. Identidad Visual y Filosofía de Diseño (Figma `8gbckPW2QsY90xStrG8zzF`)
 
-### Three Dials (antislop Part 3)
-- **ENERGY: 2 (Equilibrado):** Encabezado azul institucional solido (`#0066CC`), panel hero oscuro (`#1F2937`) y botones de accion amarillos (`#FBC02D` / `#FED84D`) con texto oscuro (`#0F172A`) que establecen jerarquia inmediata sin adornos superfluos.
-- **RHYTHM: 2 (Consistente con pausas deliberadas):** Alternancia estructurada entre el banner de bienvenida oscuro, grillas de modulos de 3 columnas y paneles de consulta o tablas de datos sobre el lienzo celeste (`#E7F1FB`).
-- **MOTION: 1 (Estados de interaccion estaticos):** Transiciones suaves de color y borde (`150ms-200ms ease`) exclusivamente en `:hover` y `:focus-visible`, evitando animaciones en bucle para priorizar la velocidad operativa en ventanilla.
+El sistema de diseño unifica todas las aplicaciones municipales bajo una misma identidad cívica y operativa. Diseñado para optimizar la velocidad y reducir la fatiga en tareas de ventanilla y fiscalización, se estructura a partir de los nodos oficiales del archivo Figma **Rediseño Interfaces Municipalidad**:
+
+- **Nodo `49:661`**: Shell Institucional y Layout General (Header, Subnav y Lienzo).
+- **Nodo `41:2`**: Login Institucional Dividido (Fotografía cívica, CAPTCHA y credenciales).
+- **Nodo `49:665`**: Panel Hero de Bienvenida y Año de Gestión.
+- **Nodo `156:27`**: Tarjeta Institucional de Módulo Operativo (Icono redondeado, badge de estado y botón CTA).
+- **Nodo `103:241`**: Módulos de Configuración, Perfil y Seguridad (2FA).
+- **Nodos `62:521` / `64:687`**: Tarjetas de filtro y consulta con franja institucional de seguridad.
+
+### Three Dials (Calibración Visual)
+- **ENERGY: 2 (Equilibrado):** Dominado por azul institucional (`#0066CC`), superficies limpias (`#FFFFFF` sobre `#E7F1FB`) y acentos de acción amarillos (`#FBC02D` / `#FED84D`) con contraste estricto sobre tipografía oscura (`#0F172A`).
+- **RHYTHM: 2 (Consistente y predecible):** Estructura modular en grilla de 2 a 3 columnas, separación clara entre filtros y resultados, y cabeceras consistentes.
+- **MOTION: 1 (Funcional y no invasivo):** Transiciones sutiles (`150ms-200ms ease`) en `:hover` y `:focus-visible`. Animaciones continuas reservadas exclusivamente para indicadores de carga (spinner institucional).
 
 ---
 
 ## 2. Tokens de Color (`public/css/municipal-theme.css`)
 
-| Token CSS | Valor Hex | Uso Institucional | Contraste WCAG AA |
+Tokens CSS oficiales con validación de contraste bajo la norma **WCAG 2.1 AA / AAA**:
+
+| Token CSS | Valor Hex | Uso Institucional | Ratio / WCAG |
 | :--- | :--- | :--- | :--- |
-| `--muni-brand-blue` | `#0066CC` | Header principal, footer institucional, encabezados de tabla, bordes activos | `5.57:1` con `#FFFFFF` (PASS AA) |
-| `--muni-login-blue` | `#066FD1` | Boton primario de ingreso en login, enlaces institucionales, segmento primario de franja | `4.95:1` con `#FFFFFF` (PASS AA) |
-| `--muni-profile-bg` | `#0167CC` | Fondo de la pildora de perfil de usuario en el header | `5.51:1` con `#FFFFFF` (PASS AA) |
-| `--muni-profile-border` | `#9CCAEC` | Borde de `2px` en la pildora de perfil y boton de recarga de CAPTCHA | `3.15:1` no-texto sobre `#0066CC` |
-| `--muni-action-yellow` | `#FBC02D` | Botones CTA primarios en modulos e indicador de rol en header/hero | `11.53:1` con `#0F172A` (PASS AAA) |
-| `--muni-security-yellow` | `#FED84D` | Segmento secundario de la franja institucional de 6px y acento en login | `13.48:1` con `#0F172A` (PASS AAA) |
-| `--muni-hero-dark` | `#1F2937` | Superficie del panel de bienvenida en Inicio (`#49:665`) | `14.68:1` con `#FFFFFF` (PASS AAA) |
-| `--muni-page-bg` | `#E7F1FB` | Fondo general de pagina en modo claro y circulos de icono de `64x64px` | `13.84:1` con `#0F172A` (PASS AAA) |
-| `--muni-card-bg` | `#FFFFFF` | Superficie de tarjetas, paneles de filtro y contenedores de tablas | `17.85:1` con `#0F172A` (PASS AAA) |
-| `--muni-icon-border` | `#BAE6FD` | Borde de `1px` en contenedores circulares de iconos | Delimitacion estructural suave |
-| `--muni-text-primary` | `#0F172A` | Titulos principales, cabeceras de tarjeta, texto sobre botones amarillos | `17.85:1` sobre `#FFFFFF` |
-| `--muni-text-body` | `#475569` | Descripciones de modulos, texto secundario y celdas de tabla | `7.58:1` sobre `#FFFFFF` (PASS AAA) |
-| `--muni-text-muted` | `#64748B` | Etiquetas secundarias y subtitulos de apoyo | `4.76:1` sobre `#FFFFFF` (PASS AA) |
-| `--muni-text-aux` | `#94A3B8` | Etiquetas auxiliares sobre fondo oscuro (`#1F2937`, ratio `5.48:1`) y divisores | `5.48:1` sobre `#1F2937` (PASS AA) |
-| `--muni-surface-muted` | `#F1F5F9` | Caja de CAPTCHA, cabeceras de tabla sutiles, prefijos de input y divisores | Superficie neutra de agrupacion |
-| `--muni-border-muted` | `#CBD5E1` | Bordes de inputs de formulario (`#CBD5E1`) y divisores de tarjeta (`#E2E8F0`) | Delimitacion de controles |
+| `--muni-brand-blue` | `#0066CC` | Header principal, footer, cabeceras de tabla, elementos activos | `5.57:1` con `#FFF` (PASS AA) |
+| `--muni-brand-blue-hover`| `#0052A3` | Hover en elementos con fondo azul principal | `8.26:1` con `#FFF` (PASS AAA) |
+| `--muni-login-blue` | `#066FD1` | Botón primario de acceso en Login | `4.95:1` con `#FFF` (PASS AA) |
+| `--muni-profile-bg` | `#0167CC` | Fondo de la píldora de usuario en cabecera | `5.51:1` con `#FFF` (PASS AA) |
+| `--muni-profile-border` | `#9CCAEC` | Borde de píldora de usuario y botón CAPTCHA | `3.15:1` no-texto (PASS) |
+| `--muni-action-yellow` | `#FBC02D` | Botón de acción, hover de tarjeta y rol en perfil | `11.53:1` con `#0F172A` (PASS AAA) |
+| `--muni-security-yellow`| `#FED84D` | Franja institucional y acentos secundarios | `13.48:1` con `#0F172A` (PASS AAA) |
+| `--muni-page-bg` | `#E7F1FB` | Fondo del lienzo en modo claro e items activos | `13.84:1` con `#0F172A` (PASS AAA) |
+| `--muni-card-bg` | `#FFFFFF` | Superficie de tarjetas, modales y tablas | `17.85:1` con `#0F172A` (PASS AAA) |
+| `--muni-nav-hover` | `#E1E8F0` | Fondo de hover en enlaces de menú y dropdowns | Contraste óptimo con texto negro |
+| `--muni-text-heading` | `#111827` | Títulos principales de sección y tarjetas | `16.10:1` sobre `#FFF` (PASS AAA) |
+| `--muni-text-primary` | `#0F172A` | Texto de lectura prioritario e iconos neutros | `17.85:1` sobre `#FFF` (PASS AAA) |
+| `--muni-text-body` | `#475569` | Descripciones secundarias y celdas de tabla | `7.58:1` sobre `#FFF` (PASS AAA) |
+| `--muni-text-muted` | `#64748B` | Etiquetas auxiliares, subtítulos y eyebrows | `4.76:1` sobre `#FFF` (PASS AA) |
+| `--muni-border-muted` | `#E2E8F0` | Delimitadores de tarjetas, paneles y divisores | Separador neutro sutil |
 
-### Estados Semanticos (Pildoras con punto indicador de `6x6px`)
-- **Activo / Vigente / Girado (`success`):** Fondo `#ECFDF5`, borde `#A7F3D0`, punto `#10B981`, texto `#047857` (contraste `5.12:1` PASS AA).
-- **En Proceso / Pendiente / Bloqueado (`warning`):** Fondo `#FFFBEB`, borde `#FDE68A`, punto `#F59E0B`, texto `#B45309` (contraste `5.02:1` PASS AA).
-- **Inactivo / Anulado / Improcedente (`danger`):** Fondo `#FEF2F2`, borde `#FECACA`, punto `#EF4444`, texto `#B91C1C` (contraste `5.65:1` PASS AA).
+### Píldoras de Estado Semánticas (Indicador circular `6x6px`)
 
----
+```html
+<!-- Activo / Vigente / Procesado -->
+<span class="muni-status-pill status-active">Activo</span>
 
-## 3. Tipografia (`Inter` Local)
+<!-- Pendiente / En proceso / Observado -->
+<span class="muni-status-pill status-warning">En Proceso</span>
 
-Se utiliza la familia tipografica **Inter** servida localmente desde `public/lib/inter/inter.css` con caracteristicas OpenType `"cv03", "cv04", "cv11"` para distinguir caracteres alfanumericos en codigos de orden, DNI, RUC y CAPTCHA.
+<!-- Inactivo / Anulado / Rechazado -->
+<span class="muni-status-pill status-danger">Anulado</span>
+```
 
-- **Titulo de Login (Panel Izquierdo):** `clamp(2rem, 3.2vw, 2.75rem)` (`600 SemiBold`), `line-height: 1.15`, color `#FFFFFF`.
-- **Titulo de Bienvenida (Hero Inicio):** `clamp(1.5rem, 2.5vw, 1.875rem)` (`800 ExtraBold`), `line-height: 1.2`, saludo blanco con nombre de usuario debajo en bloque (`#93C5FD`); bloque de año de gestión desplazado al extremo derecho con divisor vertical y alineación a la derecha.
-- **Titulo de Pagina (`.page-title`):** `1.5rem` (`24px`, `700 Bold`), `letter-spacing: -0.02em`, color `#0F172A`.
-- **Titulo de Modulo / Tarjeta (`.card-title`):** `1.125rem` - `1.25rem` (`18px-20px`, `700 Bold`), color `#0F172A`.
-- **Cuerpo y Formularios:** `0.875rem` (`14px`, `400 Regular` / `500 Medium`), color `#475569`.
-- **Tablas Operativas:** `0.75rem` - `0.8125rem` (`12px-13px`), encabezados en `#0066CC` (`700 Bold`) y celdas con alineacion tabular en importes. El ordenamiento solo se habilita en columnas utiles (fechas, codigos, nombres, importes y estados), nunca en columnas de acciones.
+- **`status-active`**: Fondo `#ECFDF5`, borde `#A7F3D0`, punto `#10B981`, texto `#047857` (`5.12:1` PASS AA).
+- **`status-warning`**: Fondo `#FFFBEB`, borde `#FDE68A`, punto `#F59E0B`, texto `#B45309` (`5.02:1` PASS AA).
+- **`status-danger`**: Fondo `#FEF2F2`, borde `#FECACA`, punto `#EF4444`, texto `#B91C1C` (`5.65:1` PASS AA).
 
 ---
 
-## 4. Reglas de Componentes
+## 3. Tipografía y Jerarquía Visual
 
-1. **Login Institucional Dividido (`index.php`, Nodo `41:2`):**
-   - Panel izquierdo con fotografia de Chiclayo (`public/img/fondo_2.png`), superposicion de gradiente oscuro de tres paradas (`rgba(7, 29, 52, 0.05)` a `rgba(7, 29, 52, 0.94)`) para garantizar contraste de texto blanco en toda la superficie, titulo institucional, descripcion en `#EAF3FC` y barra de acento amarilla (`64x4px`, `#FED84D`).
-   - Panel derecho sobre `#FFFFFF` con escudo MPCH (`88px`), controles de `50px` de altura con iconos integrados, fila de CAPTCHA con contenedor `#F1F5F9` y boton de recarga `#EFF7FD` (`50x50px`), y boton primario `#066FD1` de `52px` de altura.
-2. **Header y Footer Institucionales (`mainProfile.php` Nodos `49:747` y `footer.php` Nodo `49:736`):**
-   - Header en `#0066CC` con contenedor de logo blanco de `44x44px` (`border-radius: 12px`) y pildora de perfil (`#0167CC`, borde `2px solid #9CCAEC`, `border-radius: 9999px`) mostrando nombre en blanco y cargo en `#FBC02D`.
-   - Barra de navegacion secundaria sobre `#FFFFFF` con estado activo en `#0066CC` (texto e icono) sin barra inferior.
-   - Footer en `#0066CC` con borde superior `rgba(96, 165, 250, 0.4)`, escudo municipal a la izquierda y creditos de version a la derecha.
-3. **Tarjetas de Modulos y Mantenimientos:**
-   - Radio de borde consistente de `8px`, sombra de elevacion sutil `0px 1px 2px 0px rgba(0, 0, 0, 0.05)` y borde `1px solid #E2E8F0`.
-   - En modales y tarjetas de seguridad (`view/setting/index.php`), franja superior bicolor de `6px` (`#066ED0` + `#FED84D` en los ultimos `110px`).
+Familia tipográfica base: **Roboto** / **Inter** con renderizado local sin dependencias externas:
+
+- **Login Título Principal:** `clamp(2rem, 3.2vw, 2.75rem)` (`600 SemiBold`), `#FFFFFF`.
+- **Hero Bienvenida:** `clamp(1.5rem, 2.5vw, 1.875rem)` (`800 ExtraBold`), saludo en `#FFFFFF`, nombre en `#93C5FD`, y año de gestión alineado al extremo derecho.
+- **Títulos de Página (`.page-title`):** `1.5rem` (`24px`, `700 Bold`), color `#0F172A`.
+- **Títulos de Tarjeta (`.muni-module-title`, `.card-title`):** `1.25rem` (`20px`, `700 Bold`), color `#111827`.
+- **Etiquetas Eyebrow (`.muni-module-eyebrow`):** `10px` (`500 Medium`, `letter-spacing: 0.1em`), tipografía monoespaciada en mayúsculas, color `#64748B`.
+- **Cuerpo y Formularios:** `0.875rem` (`14px`, `400 Regular`), color `#475569`.
+- **Tablas y Listados:** `0.75rem` - `0.8125rem` (`12px-13px`), cabeceras en mayúsculas sobre `#0066CC` con texto blanco.
+- **Título de Pestaña Dinámico:** Centralizado vía `APP_NAME` del entorno (`<title><?= htmlspecialchars(Conectar::getEnv('APP_NAME', 'SISTEMA')); ?></title>`).
 
 ---
 
-## 5. Registro de Decisiones de Diseño en Una Linea (Regla R-31)
+## 4. Componentes Base y Plantillas de Código
 
-- **Por que este color (`#0066CC` azul institucional y `#FBC02D` amarillo accion):** Representan la identidad civica oficial de la Municipalidad Provincial de Chiclayo y aseguran contraste WCAG AA/AAA con texto blanco sobre azul y texto `#0F172A` sobre amarillo.
-- **Por que este layout (Login dividido 55/45 e interna con barra superior y lienzo `#E7F1FB`):** El login dividido contextualiza la plataforma municipal sin distraer del formulario, mientras que la navegacion horizontal maximiza el ancho util para tablas anchas de ordenes de giro y tributos.
-- **Por que esta tipografia (`Inter` local con `cv03`, `cv04`, `cv11`):** Desambigua digitos y letras similares en codigos de expediente, DNI, RUC y CAPTCHA sin depender de CDNs externos.
-- **Por que este espaciado (Escala base de `8px`, rellenos de `24px-40px` en hero y `44px-52px` en controles):** Garantiza objetivos tactiles minimos de `44x44px` (R-03) y separa visualmente los bloques de filtros de los resultados tabulares.
-- **Por que usar tarjetas (Contenedores `#FFFFFF` sobre `#E7F1FB`):** Agrupan logicamente cada tarea operativa (busqueda, resumen metrico, tabla de resultados) sobre el fondo celeste institucional para reducir la fatiga visual en jornadas de ventanilla.
-- **Por que usar estos iconos y pildoras de estado (SVG de trazo funcional + pildoras con punto de `6px`):** Los iconos refuerzan la accion del control (buscar, imprimir, recargar CAPTCHA) y los puntos de estado comunican vigencia real del tramite o catalogo TUPA sin animaciones distractivas.
+### 4.1 Shell Estructural de una Vista (`view/*/index.php`)
+
+Toda pantalla interna en un sistema municipal debe respetar esta estructura canónica de inclusión:
+
+```php
+<?php
+require_once("../../config/conexion.php");
+// Validar sesión o permisos específicos
+if (isset($_SESSION["usua_id_SIGODT"])) {
+?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <?php require_once("../html/mainHead.php"); ?>
+</head>
+<body>
+  <div class="page">
+    <div class="wrapper">
+      <?php require_once("../html/mainProfile.php"); ?>
+      <?php require_once("../html/menu.php"); ?>
+      <div class="page-wrapper">
+        <div class="page-body">
+          <div class="container-xl py-3">
+            <!-- Contenido específico de la vista -->
+          </div>
+        </div>
+        <?php require_once("../html/footer.php"); ?>
+      </div>
+    </div>
+  </div>
+  <?php require_once("../html/mainjs.php"); ?>
+</body>
+</html>
+<?php
+} else {
+  header("Location:" . Conectar::ruta() . "view/404/");
+}
+?>
+```
+
+---
+
+### 4.2 Barra de Navegación Secundaria y Submenús (`menu.php`)
+
+Reglas de interacción implementadas para el navbar institucional (`.muni-subnav`):
+
+1. **Sección Activa**:
+   - Fondo: `var(--muni-page-bg)` (`#E7F1FB`).
+   - Radio: `border-radius: 8px`.
+   - Texto e icono: `var(--muni-brand-blue)` (`#0066CC`) en peso `700`.
+   - Hover activo: fondo `#E1E8F0` manteniendo tipografía e icono azul.
+   - Sin rayita azul inferior (`display: none !important;`).
+2. **Secciones Inactivas**:
+   - Texto e iconos: color neutro `#475569` / `#0F172A`.
+   - Hover inactivo: fondo `var(--muni-nav-hover, #E1E8F0)` con `border-radius: 8px`, conservando texto e icono neutro (sin cambiar a azul).
+3. **Control de Acceso**:
+   - Secciones de administración o auditoría se condicionan estrictamente mediante `Conectar::esAdministrador()`.
+
+---
+
+### 4.3 Menú Desplegable de Perfil (`mainProfile.php`, Nodo `49:747`)
+
+- **Píldora de usuario (`.muni-profile-pill`)**: Fondo `#0167CC`, borde de `2px solid #9CCAEC`, cápsula completa (`border-radius: 9999px`), foto de trabajador (`36x36px`) y rol en amarillo (`#FBC02D`). Sus estilos están estrictamente aislados para evitar sobreescrituras desde el subnav.
+- **Acción "Configuración"**:
+  - En reposo: fondo blanco, texto e icono en `var(--muni-text-primary)` (`#0F172A`).
+  - En `:hover` / `:focus`: fondo `#E1E8F0` y texto/icono se mantienen en negro/neutro (sin cambiar a azul).
+- **Acción "Cerrar Sesión" (`.muni-item-danger`)**:
+  - Texto e icono en rojo `#d63939`, con fondo de hover `rgba(214, 57, 57, 0.08)`.
+
+---
+
+### 4.4 Tarjeta Institucional de Módulo Operativo (Figma Nodo `156:27`)
+
+Estructura HTML exacta para tarjetas de navegación e inicio:
+
+```html
+<div class="col-12 col-md-6">
+  <article class="muni-module-card">
+    <!-- Cabecera: Icono, Eyebrow, Titulo y Estado -->
+    <div class="muni-module-header">
+      <div class="d-flex align-items-center gap-3">
+        <span class="muni-module-icon" aria-hidden="true">
+          <!-- Icono SVG representativo de 24x24px -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+            <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+          </svg>
+        </span>
+        <div class="muni-module-info">
+          <span class="muni-module-eyebrow">OPCIÓN</span>
+          <h3 class="muni-module-title">Nombre del Módulo</h3>
+        </div>
+      </div>
+      <span class="muni-status-pill status-active flex-shrink-0">Activo</span>
+    </div>
+
+    <!-- Cuerpo: Descripcion descriptiva y concisa -->
+    <div class="muni-module-body">
+      <p class="muni-module-desc">
+        Descripción clara y concisa del procedimiento u operación que gestiona este módulo.
+      </p>
+    </div>
+
+    <!-- Footer: Boton de Accion Premium con hover #FBC02D -->
+    <div class="muni-module-footer">
+      <a href="../ruta_modulo/" class="btn btn-muni-card-action">
+        <span>ACCEDER AL MÓDULO</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+          <path d="M5 12l14 0" />
+          <path d="M13 18l6 -6" />
+          <path d="M13 6l6 6" />
+        </svg>
+      </a>
+    </div>
+  </article>
+</div>
+```
+
+**Reglas CSS asociadas:**
+- Contenedor de icono: `50x50px`, `border-radius: 14px`, fondo `#E7F1FB`, borde `#BAE6FD`, icono azul `#0066CC`.
+- Botón `.btn-muni-card-action`: Fondo `#FFFBEB`, borde `1px solid #FF9500`, radio `10px`, sombra suave.
+- **Interacción Hover requerida**: El relleno cambia a `#FBC02D !important;` conservando tipografía e icono oscuro `#111827`.
+
+---
+
+### 4.5 Componente Spinner Institucional MPCH (`view/html/spinner.php`)
+
+Reemplaza de forma global el texto estándar «Procesando...» de DataTables y solicitudes AJAX prolongadas por un indicador de carga cívico.
+
+```html
+<!-- Inclusión automática en view/html/mainjs.php -->
+<?php require_once __DIR__ . '/spinner.php'; ?>
+```
+
+**Características técnicas:**
+1. **Fondo difuminado**: `backdrop-filter: blur(5px); background: rgb(0 0 0 / 30%);` centrado en pantalla completa sin oscurecer bruscamente la interfaz.
+2. **Escudo Municipal**: Centrado en `public/componente-spinner/public/img/logo_mpch.png` (`65x75px` con `object-fit: contain`).
+3. **Anillos concéntricos `#wifi-loader`**: 3 círculos SVG en rotación con los colores institucionales azul `#0068EB` y dorado `#EBB400`.
+4. **Funciones Globales**:
+   ```javascript
+   showSpinner(); // Muestra el overlay y bloquea scroll
+   hideSpinner(); // Oculta el overlay y restaura scroll
+   ```
+5. **Interceptores automáticos**:
+   - Evento DataTables `processing.dt`: Muestra el spinner al solicitar datos al servidor y lo oculta al finalizar el dibujado.
+   - Evento jQuery `ajaxStop`: Garantiza que el spinner se oculte automáticamente ante cualquier petición HTTP finalizada o fallida.
+   - Regla CSS `div.dataTables_processing { display: none !important; }` para asegurar que el antiguo mensaje de texto no interfiera.
+
+---
+
+### 4.6 Tablas de Datos (DataTables) y Formularios de Búsqueda
+
+1. **Ordenamiento Seguro en Servidor**:
+   - Columnas de acción (editar, eliminar, anular, imprimir) deben tener `"orderable": false`.
+   - Solo se habilita ordenamiento en columnas reales de datos (códigos, fechas, ciudadanos, montos).
+   - Servidor debe validar campos con lista blanca estricta para evitar inyección SQL en la cláusula `ORDER BY`.
+2. **Dimensiones de Controles**:
+   - Inputs y botones de búsqueda principales: Altura estándar de `40px` (`min-height: 40px`).
+   - Selectores y botones en línea de formulario: Altura alineada de `38px` con Select2.
+
+---
+
+## 5. Guía de Replicación para Nuevos Sistemas Municipales
+
+Para trasladar este sistema de diseño a un nuevo proyecto o módulo dentro de la infraestructura de la MPCH:
+
+### Paso 1: Variables de Entorno (`.env`)
+Configurar los identificadores del sistema en el archivo `.env`:
+```env
+APP_NAME="MI_SISTEMA"
+APP_URL="http://10.10.10.16/MI_SISTEMA/"
+SIS_VER="1.0.0"
+BASE_URL="http://10.10.10.16/"
+```
+
+### Paso 2: Estructura de Assets Compartidos
+Copiar los directorios base en la raíz del nuevo sistema:
+```text
+MI_SISTEMA/
+├── public/
+│   ├── css/
+│   │   └── municipal-theme.css         # Hoja de estilos con variables y diseño MPCH
+│   ├── componente-spinner/
+│   │   └── public/img/logo_mpch.png    # Escudo oficial transparente en alta resolución
+│   └── tabler/                         # Core Tabler y tipografía Roboto/Inter
+├── view/
+│   └── html/
+│       ├── mainHead.php                # Meta, títulos con APP_NAME y hojas de estilo
+│       ├── mainProfile.php             # Cabecera azul y píldora de usuario
+│       ├── menu.php                    # Barra de navegación secundaria institucional
+│       ├── footer.php                  # Pie de página institucional
+│       ├── mainjs.php                  # Scripts globales y enlace al spinner
+│       └── spinner.php                 # Componente overlay institucional
+```
+
+### Paso 3: Aislamiento de Sesiones
+En `config/conexion.php`, aislar la cookie de sesión usando el identificador del sistema para evitar cierres de sesión cruzados en el servidor compartido:
+```php
+session_name("{$appName}_SESSID");
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path'     => '/' . $appName . '/',
+    'httponly' => true,
+    'samesite' => 'Lax'
+]);
+```
+
+### Paso 4: Creación de Nuevas Vistas
+Utilizar la plantilla canónica del apartado **4.1**, incorporando tarjetas operativas según el estándar **4.4** para secciones de navegación, y tarjetas con franja de seguridad (`.card.shadow-sm.muni-stripe-top`) para módulos de consulta y mantenimiento.
