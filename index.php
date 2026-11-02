@@ -2,6 +2,7 @@
 require_once "config/conexion.php";
 require_once "helpers/Recaptcha.php";
 $recaptchaSiteKey = Recaptcha::siteKey();
+$sisVersion = Conectar::getEnv('SIS_VER', '1.0.1');
 
 if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
   require_once "models/Usuario.php";
@@ -40,7 +41,7 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
       <div class="muni-login-hero-content">
         <h1 class="muni-login-hero-title">
           Sistema de Gestión de Órdenes de Derecho de Trámite
-          <span class="muni-status-pill status-warning align-middle ms-2" style="vertical-align: middle; letter-spacing: normal;">1.0.1</span>
+          <span class="muni-status-pill status-warning align-middle ms-2" style="vertical-align: middle; letter-spacing: normal;"><?php echo htmlspecialchars($sisVersion, ENT_QUOTES, 'UTF-8'); ?></span>
         </h1>
         <p class="muni-login-hero-desc">
           Plataforma institucional para la emisión, seguimiento, consulta y control de órdenes de derecho de trámite de la gestión municipal.
