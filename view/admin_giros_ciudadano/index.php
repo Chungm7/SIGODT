@@ -8,7 +8,6 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
 
   <head>
     <?php require_once("../html/mainHead.php"); ?>
-    <title>SIGODT::Auditoría de Órdenes de Giro</title>
   </head>
 
   <body>

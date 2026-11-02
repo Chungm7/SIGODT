@@ -8,7 +8,6 @@ if (Conectar::esAdministrador()) {
 
   <head>
     <?php require_once("../html/mainHead.php"); ?>
-    <title>SIGODT::Asignación de Usuarios por Área</title>
   </head>
 
   <body>

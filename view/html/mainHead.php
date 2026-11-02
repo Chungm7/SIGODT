@@ -1,6 +1,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+<title><?php echo htmlspecialchars(Conectar::getEnv('APP_NAME', 'SIGODT')); ?></title>
 <link rel="icon" href="../../public/img/mpch.ico" type="image/x-icon">
 
 <!-- Tabler Core CSS (Template base de sisGitse) -->

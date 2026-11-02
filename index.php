@@ -3,6 +3,7 @@ require_once "config/conexion.php";
 require_once "helpers/Recaptcha.php";
 $recaptchaSiteKey = Recaptcha::siteKey();
 $sisVersion = Conectar::getEnv('SIS_VER', '1.0.1');
+$appName = Conectar::getEnv('APP_NAME', 'SIGODT');
 
 if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
   require_once "models/Usuario.php";
@@ -18,7 +19,7 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-  <title>SIGODT :: Acceso Institucional</title>
+  <title><?php echo htmlspecialchars($appName); ?></title>
   <link rel="stylesheet" href="public/tabler/css/tabler.min.css" />
   <link rel="stylesheet" href="public/tabler/css/tabler-flags.min.css" />
   <link rel="stylesheet" href="public/tabler/css/tabler-payments.min.css" />

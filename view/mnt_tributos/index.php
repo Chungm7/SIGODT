@@ -8,7 +8,6 @@ if (Conectar::esAdministrador()) {
 
     <head>
         <?php require_once("../html/mainHead.php"); ?>
-        <title>SIGODT::Gestión de Tributos y Tasas por Procedimiento</title>
     </head>
 
     <body>

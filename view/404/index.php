@@ -1,3 +1,7 @@
+<?php
+require_once "../../config/conexion.php";
+$appName = Conectar::getEnv('APP_NAME', 'SIGODT');
+?>
 <!doctype html>
 <!--
 * Tabler - Premium and Open Source dashboard template with responsive and high quality UI.
@@ -13,7 +17,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-  <title>MPCH::404</title>
+  <title><?php echo htmlspecialchars($appName); ?></title>
   <!-- CSS files -->
   <link href="../../public/tabler/css/tabler.min.css?1692870487" rel="stylesheet" />
   <link href="../../public/tabler/css/tabler-flags.min.css?1692870487" rel="stylesheet" />

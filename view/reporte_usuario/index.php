@@ -10,7 +10,6 @@ catch (InvalidArgumentException $error) {
 <!doctype html>
 <html lang="es"><head>
 <?php require_once '../html/mainHead.php'; ?>
-<title>SIGODT::Reportes</title>
 <link rel="stylesheet" href="reporteusuario.css">
 </head><body>
 <script src="../../public/tabler/js/demo-theme.min.js"></script>

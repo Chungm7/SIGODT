@@ -10,7 +10,6 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
 
   <head>
     <?php require_once("../html/mainHead.php"); ?>
-    <title>SIGODT::Bienvenido</title>
   </head>
 
   <body>
