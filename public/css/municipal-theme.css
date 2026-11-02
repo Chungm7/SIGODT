@@ -30,6 +30,7 @@
   --muni-surface-subtle: #F8FAFC;
   --muni-border-muted: #E2E8F0;
   --muni-border-input: #CBD5E1;
+  --muni-nav-hover: #E1E8F0;
 
   /* Estados semanticos (Pildoras con punto de 6x6px) */
   --muni-success-bg: #ECFDF5;
@@ -357,7 +358,7 @@ body:not([data-bs-theme="dark"]) .card-title {
 
 .muni-profile-dropdown .dropdown-item:hover,
 .muni-profile-dropdown .dropdown-item:focus {
-  background-color: var(--muni-page-bg) !important;
+  background-color: var(--muni-nav-hover, #E1E8F0) !important;
   color: var(--muni-brand-blue) !important;
 }
 
@@ -442,7 +443,8 @@ body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item:not(.active)
 .navbar-expand-md .navbar-nav .nav-item:not(.active) > .nav-link:hover,
 .navbar-expand-md .navbar-nav .nav-item:not(.active) > .nav-link:focus {
   color: var(--muni-text-primary) !important;
-  background-color: rgba(0, 0, 0, 0.04);
+  background-color: var(--muni-nav-hover, #E1E8F0) !important;
+  border-radius: 8px;
 }
 
 body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item:not(.active) > .nav-link:hover .nav-link-icon .icon,
@@ -483,8 +485,16 @@ body:not([data-bs-theme="dark"]) .muni-subnav .navbar-nav .nav-item.active > .na
 }
 
 /* Elementos de submenú (dropdown-items) */
+body:not([data-bs-theme="dark"]) .muni-subnav .dropdown-menu {
+  padding: 0.5rem !important;
+  border-radius: 10px !important;
+  border: 1px solid var(--muni-border-muted) !important;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.12), 0 4px 10px -2px rgba(15, 23, 42, 0.06) !important;
+}
+
 body:not([data-bs-theme="dark"]) .muni-subnav .dropdown-item {
   color: var(--muni-text-body);
+  border-radius: 8px;
   transition: color 0.15s ease, background-color 0.15s ease;
 }
 
@@ -502,7 +512,7 @@ body:not([data-bs-theme="dark"]) .muni-subnav .dropdown-item .dropdown-item-icon
 body:not([data-bs-theme="dark"]) .muni-subnav .dropdown-item:not(.active):hover,
 body:not([data-bs-theme="dark"]) .muni-subnav .dropdown-item:not(.active):focus {
   color: var(--muni-text-primary) !important;
-  background-color: rgba(0, 0, 0, 0.04);
+  background-color: var(--muni-nav-hover, #E1E8F0) !important;
 }
 
 .muni-subnav .dropdown-item:not(.active):hover .dropdown-item-icon .icon,

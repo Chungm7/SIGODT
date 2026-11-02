@@ -1,7 +1,7 @@
 
     body:not([data-bs-theme="dark"]) .dropdown-item:hover,
     body:not([data-bs-theme="dark"]) .nav-link:hover {
-        background-color: rgba(0, 0, 0, 0.03);
+        background-color: #E1E8F0;
         transition: all 0.2s ease-in-out;
     }
 
