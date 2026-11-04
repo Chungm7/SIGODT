@@ -45,6 +45,7 @@
 
 <!-- Sistema de Diseño Institucional MPCH -->
 <link href="../../public/css/municipal-theme.css" rel="stylesheet" />
+<link href="../../public/css/institutional-shell.css" rel="stylesheet" />
 
 <!-- Estilos Globales de Plantilla (SIGODT / MPCH) -->
 <style>

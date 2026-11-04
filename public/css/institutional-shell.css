@@ -1,0 +1,250 @@
+/* sisIndicadores visual geometry only; SIGODT owns routes, roles and actions. */
+.app-global-header {
+  background: var(--muni-brand-blue);
+  border-bottom: 1px solid rgba(59, 130, 246, .4);
+  min-height: 80px;
+  padding: 0;
+  position: relative;
+  z-index: 1030; /* Above secondary navigation, below Bootstrap backdrops/modals. */
+  flex-shrink: 0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, .1);
+}
+.app-header-container,
+.app-footer-container {
+  width: 100%;
+  max-width: 1347px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+.app-header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 80px;
+}
+.app-global-header .navbar-brand { min-width: 0; white-space: normal; }
+.app-global-header .shell-header-controls { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-decoration: none;
+  color: #fff;
+}
+.header-icon-box {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: #fff;
+  color: var(--muni-brand-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 6px -1px rgba(30, 58, 138, .2);
+}
+.header-brand-info { display: flex; flex-direction: column; gap: 2px; }
+.header-brand-title {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 18px;
+  letter-spacing: -.025em;
+}
+.header-brand-badge {
+  color: var(--muni-action-yellow);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 18px;
+  letter-spacing: .05em;
+}
+.app-global-header .nav-link.user-profile-pill {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 12px;
+  border: 2px solid var(--muni-profile-border);
+  border-radius: 9999px;
+  background: var(--muni-profile-bg);
+  color: #fff;
+}
+.app-global-header .user-profile-pill:hover,
+.app-global-header .user-profile-pill:focus {
+  background: #0055ab;
+  border-color: #fff;
+}
+.user-avatar-circle {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background-color: #fff;
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 0 0 2px rgba(147, 197, 253, .5);
+}
+.app-global-header .user-meta-info { flex-direction: column; text-align: left; line-height: 15px; padding-right: 4px; }
+.user-full-name {
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: -.025em;
+}
+.user-role-badge { color: var(--muni-action-yellow); font-size: 10px; font-weight: 700; }
+.app-global-header .user-role-badge { letter-spacing: .05em; }
+/* Pin CSS values: Tabler overrides SVG presentation attributes and ms-1. */
+.app-global-header .user-chevron {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2.5;
+  margin-left: 0 !important;
+  flex-shrink: 0;
+}
+.app-global-header .header-icon-box .icon { width: 1.25rem; height: 1.25rem; }
+/* Higher specificity + important intentionally beats municipal-theme's important rules. */
+.app-global-header .muni-profile-dropdown {
+  min-width: 230px !important;
+  border-radius: 12px !important;
+  padding: 6px !important;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, .15) !important;
+}
+.app-global-header .muni-profile-dropdown .dropdown-item {
+  padding: 9px 14px !important;
+  border-radius: 8px;
+}
+.app-global-header .muni-profile-dropdown .dropdown-divider {
+  margin: 6px 4px !important;
+  border-top: 1px solid #e2e8f0 !important;
+}
+.app-global-header .muni-profile-dropdown .dropdown-item:hover,
+.app-global-header .muni-profile-dropdown .dropdown-item:focus { background-color: #e2e8f0 !important; }
+.app-global-header .muni-profile-dropdown .dropdown-item.muni-item-danger,
+.app-global-header .muni-profile-dropdown .dropdown-item.muni-item-danger:hover,
+.app-global-header .muni-profile-dropdown .dropdown-item.muni-item-danger:focus { color: #dc2626 !important; }
+.app-global-header .muni-profile-dropdown .dropdown-item.muni-item-danger:hover,
+.app-global-header .muni-profile-dropdown .dropdown-item.muni-item-danger:focus {
+  background-color: #fee2e2 !important;
+  color: #dc2626 !important;
+}
+.app-global-header .muni-profile-dropdown .dropdown-item.muni-item-danger .icon,
+.app-global-header .muni-profile-dropdown .dropdown-item.muni-item-danger:hover .icon,
+.app-global-header .muni-profile-dropdown .dropdown-item.muni-item-danger:focus .icon {
+  color: #dc2626 !important;
+  stroke: #dc2626 !important;
+}
+.user-profile-pill[aria-expanded="true"] .user-chevron { transform: rotate(180deg); }
+.app-global-header a:focus-visible,
+.app-global-header button:focus-visible { outline-color: #fff !important; }
+
+/* Stick the collapse's outer shell, not a child constrained by its height. */
+.institutional-nav-shell { position: sticky; top: 0; z-index: 1020; }
+#navbar-menu .mpch-subsys-navbar {
+  /* SIINDI sizes this bar from its list, not Tabler's 3.5rem navbar floor. */
+  min-height: 0;
+  background: #fff !important;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, .05);
+}
+#navbar-menu .mpch-subsys-navbar > .container-xl {
+  max-width: 1347px;
+  padding: 0 32px;
+}
+#navbar-menu .mpch-subsys-navbar .navbar-nav {
+  min-height: 52px; /* Reference list minimum; the outer border adds 1px. */
+  gap: 6px;
+  padding: 4px 0;
+  flex-wrap: wrap;
+}
+#navbar-menu .mpch-subsys-navbar .navbar-nav .nav-item > .nav-link {
+  min-height: 40px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14.5px;
+  font-weight: 500;
+  color: #0f172a !important;
+}
+#navbar-menu .mpch-subsys-navbar .navbar-nav .nav-item > .nav-link:hover,
+#navbar-menu .mpch-subsys-navbar .dropdown-item:not(.active):hover,
+#navbar-menu .mpch-subsys-navbar .dropdown-item:not(.active):focus {
+  background: #e2e8f0 !important;
+}
+#navbar-menu .mpch-subsys-navbar .navbar-nav .nav-item.active > .nav-link,
+#navbar-menu .mpch-subsys-navbar .navbar-nav .nav-item > .nav-link[aria-expanded="true"],
+#navbar-menu .mpch-subsys-navbar .dropdown-item.active {
+  background: #e8f2fc !important;
+  color: var(--muni-brand-blue) !important;
+  font-weight: 600;
+}
+#navbar-menu .mpch-subsys-navbar .nav-link .nav-link-icon svg {
+  width: 19px;
+  height: 19px;
+  color: inherit !important;
+  stroke: currentColor !important;
+}
+#navbar-menu .mpch-subsys-navbar .nav-link-icon { color: inherit; }
+#navbar-menu .mpch-subsys-navbar .dropdown-menu { background: #fff; }
+
+.app-global-footer {
+  display: flex;
+  align-items: center;
+  min-height: 84px;
+  padding: 0;
+  background: var(--muni-brand-blue);
+  border-top: 1px solid rgba(96, 165, 250, .4);
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, .05);
+}
+.app-global-footer .app-footer-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.app-global-footer .muni-footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: -.025em;
+}
+.app-global-footer .muni-footer-brand img { width: 24px; height: 27px; object-fit: contain; flex-shrink: 0; }
+.app-global-footer .muni-footer-copy { font-size: 14px; font-weight: 500; line-height: 20px; opacity: .95; }
+
+@media (min-width: 1400px) {
+  #navbar-menu .mpch-subsys-navbar > .container-xl {
+    max-width: 1320px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+@media (max-width: 1199.98px) {
+  .user-full-name { max-width: 180px; }
+}
+@media (max-width: 768px) {
+  .app-global-header { height: auto; padding: 14px 0; }
+  .app-header-container { flex-direction: column; gap: 14px; padding: 0 20px; min-height: auto; }
+  /* Keep SIGODT's hamburger in flow beside the profile on the second row. */
+  .app-global-header .navbar-brand { padding-right: 0 !important; }
+  .app-global-header .shell-header-controls { width: 100%; justify-content: space-between; }
+  .app-global-header .shell-profile-actions { margin-left: auto; }
+  .app-global-footer { height: auto; padding: 18px 0; }
+  .app-global-footer .app-footer-container { flex-direction: column; text-align: center; gap: 10px; padding: 0 20px; }
+  #navbar-menu .mpch-subsys-navbar > .container-xl { padding-left: 20px; padding-right: 20px; }
+  #navbar-menu .mpch-subsys-navbar .navbar-nav { width: 100%; }
+  /* Nested maintenance stays in flow on narrow screens instead of opening offscreen. */
+  #navbar-menu .mpch-subsys-navbar .dropdown-menu {
+    min-width: 0;
+    max-width: 100%;
+    position: static !important;
+    transform: none !important;
+  }
+  #navbar-menu .mpch-subsys-navbar .dropdown-item { white-space: normal; }
+}

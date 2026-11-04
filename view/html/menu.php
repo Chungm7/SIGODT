@@ -15,9 +15,9 @@ if (class_exists('Conectar') && method_exists('Conectar', 'esAdministrador')) {
     $isMntAllowed = ($roleId === 9) || (is_string($roleName) && strcasecmp(trim($roleName), 'ADMINISTRADOR') === 0);
 }
 ?>
-<header class="navbar-expand-md">
+<header class="navbar-expand-md institutional-nav-shell">
   <div class="collapse navbar-collapse" id="navbar-menu">
-    <div class="navbar muni-subnav">
+    <div class="navbar muni-subnav mpch-subsys-navbar">
       <div class="container-xl">
         <ul class="navbar-nav">
           <li class="nav-item <?php echo $isInicioActive ? 'active' : ''; ?>">
