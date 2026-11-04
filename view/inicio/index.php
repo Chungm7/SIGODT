@@ -10,6 +10,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
 
   <head>
     <?php require_once("../html/mainHead.php"); ?>
+    <link href="../../public/css/institutional-home.css" rel="stylesheet" />
   </head>
 
   <body>
@@ -19,39 +20,35 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
         <?php require_once("../html/mainProfile.php"); ?>
         <?php require_once("../html/menu.php"); ?>
         <div class="page-wrapper">
-          <div class="page-body">
-            <div class="container-xl py-3">
+          <div class="page-body institutional-home-body">
+            <main class="institutional-home">
 
               <!-- Panel Hero de Bienvenida (Figma Nodo 49:665) -->
               <section class="muni-welcome-hero" aria-label="Bienvenida institucional">
-                <div class="row align-items-center g-4 justify-content-between">
-                  <div class="col-12 col-md">
-                    <h2 class="muni-welcome-title">
-                      <span class="d-block muni-welcome-greeting">¡Bienvenido al sistema,</span>
-                      <span class="d-block muni-welcome-user"><?php echo htmlspecialchars(mb_strtoupper($nombre_completo)); ?>!</span>
-                    </h2>
-                    <p class="muni-welcome-subtitle">
-                      Usted ha iniciado sesión con el rol: <strong class="muni-welcome-role"><?php echo htmlspecialchars(mb_strtoupper($perfil)); ?></strong>.
-                    </p>
-                  </div>
-                  <div class="col-12 col-md-auto ms-md-auto">
-                    <div class="muni-welcome-year-box">
-                      <span class="muni-welcome-year-label">AÑO DE GESTIÓN</span>
-                      <span class="muni-welcome-year-value"><?php echo date('Y'); ?></span>
-                    </div>
-                  </div>
+                <div class="home-welcome-copy">
+                  <h2 class="muni-welcome-title">
+                    <span class="d-block muni-welcome-greeting">¡Bienvenido al sistema,</span>
+                    <span class="d-block muni-welcome-user"><?php echo htmlspecialchars(mb_strtoupper($nombre_completo)); ?>!</span>
+                  </h2>
+                  <p class="muni-welcome-subtitle">
+                    Usted ha iniciado sesión con el rol: <strong class="muni-welcome-role"><?php echo htmlspecialchars(mb_strtoupper($perfil)); ?></strong>.
+                  </p>
+                </div>
+                <div class="muni-welcome-year-box">
+                  <span class="muni-welcome-year-label">AÑO DE GESTIÓN</span>
+                  <span class="muni-welcome-year-value"><?php echo date('Y'); ?></span>
                 </div>
               </section>
 
               <!-- Grilla de Módulos Operativos (Figma Nodo 156:27) -->
               <section aria-label="Módulos principales del sistema">
-                <div class="row row-cards g-4 mt-1">
+                <div class="home-module-grid">
 
                   <!-- Módulo 1: Registrar Órdenes de Giro -->
-                  <div class="col-12 col-md-6">
+                  <div class="home-module-slot">
                     <article class="muni-module-card">
                       <div class="muni-module-header">
-                        <div class="d-flex align-items-center gap-3">
+                        <div class="home-module-identity">
                           <span class="muni-module-icon" aria-hidden="true">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -89,10 +86,10 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
 
                   <?php if (Conectar::esAdministrador()) { ?>
                   <!-- Módulo 2: Auditoría de Órdenes de Giro (Solo Administrador) -->
-                  <div class="col-12 col-md-6">
+                  <div class="home-module-slot">
                     <article class="muni-module-card">
                       <div class="muni-module-header">
-                        <div class="d-flex align-items-center gap-3">
+                        <div class="home-module-identity">
                           <span class="muni-module-icon" aria-hidden="true">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clipboard-check">
                               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -131,7 +128,7 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
                 </div>
               </section>
 
-            </div>
+            </main>
           </div>
           <?php require_once("../html/footer.php"); ?>
         </div>

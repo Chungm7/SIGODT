@@ -1,0 +1,132 @@
+/* Inicio only: SIINDI geometry, SIGODT content and permissions. */
+.institutional-home-body {
+  margin: 0;
+  padding: 0;
+}
+.institutional-home {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1347px;
+  margin: 0 auto;
+  padding: 20px 32px 52px;
+}
+.institutional-home .muni-welcome-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 40px;
+  gap: 40px;
+  margin-bottom: 40px;
+  /* Surface, border, 8px radius and shadow already match in municipal-theme. */
+}
+.institutional-home .home-welcome-copy {
+  flex: 1;
+  min-width: 0;
+}
+.institutional-home .muni-welcome-title {
+  font-size: 30px;
+  line-height: 36px;
+  letter-spacing: -0.025em;
+  margin: 0 0 12px;
+}
+.institutional-home .muni-welcome-subtitle {
+  font-size: 16px;
+  line-height: 24px;
+  overflow-wrap: anywhere;
+}
+.institutional-home .muni-welcome-year-box {
+  border-left: 1px solid var(--muni-text-aux);
+  border-top: none;
+  padding: 0;
+  padding-left: 32px;
+  min-width: 0;
+  margin: 0;
+  flex-shrink: 0;
+}
+.institutional-home .muni-welcome-year-label {
+  line-height: 16px;
+}
+.institutional-home .muni-welcome-year-value {
+  font-size: 30px;
+  line-height: 36px;
+  letter-spacing: -0.025em;
+}
+.institutional-home .home-module-grid {
+  display: grid;
+  /* Two existing SIGODT actions, not SIINDI's three subsystems. */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 36px;
+}
+.institutional-home .home-module-slot {
+  min-width: 0;
+}
+.institutional-home .muni-module-card {
+  padding: 20px;
+  gap: 16px;
+  /* No artificial 280px height: SIGODT has no SIINDI metric boxes. */
+}
+.institutional-home .home-module-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+.institutional-home .muni-module-info {
+  min-width: 0;
+}
+.institutional-home .muni-module-icon svg {
+  width: 25px;
+  height: 25px;
+}
+.institutional-home .muni-module-title {
+  font-size: 19px;
+  line-height: 24px;
+  /* Keep full SIGODT action names readable instead of reference ellipsis. */
+  overflow-wrap: anywhere;
+}
+.institutional-home .muni-status-pill {
+  line-height: 16px;
+  gap: 5px;
+}
+.institutional-home .btn-muni-card-action {
+  min-height: 40px;
+  padding: 10px 16px;
+}
+@media (max-width: 1024px) {
+  .institutional-home .home-module-grid {
+    gap: 24px;
+  }
+  .institutional-home .muni-welcome-hero {
+    padding: 32px;
+  }
+}
+@media (max-width: 768px) {
+  .institutional-home {
+    padding: 24px 16px 36px;
+  }
+  .institutional-home .muni-welcome-hero {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 26px 20px;
+    gap: 20px;
+  }
+  .institutional-home .muni-welcome-title {
+    font-size: 24px;
+    line-height: 30px;
+  }
+  .institutional-home .muni-welcome-year-box {
+    border-left: none;
+    border-top: 1px solid var(--muni-text-aux);
+    padding-left: 0;
+    padding-top: 16px;
+    width: 100%;
+    margin-top: 0;
+    align-items: flex-start;
+    text-align: left;
+  }
+  .institutional-home .home-module-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}

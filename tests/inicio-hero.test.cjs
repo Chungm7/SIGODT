@@ -13,8 +13,11 @@ describe('Hero Welcome Banner UI Standardization', () => {
 
   test('view/inicio/index.php pushes the year box and divider to the far right', () => {
     const html = readFileSync('view/inicio/index.php', 'utf8');
-    assert.match(html, /justify-content-between/);
-    assert.match(html, /col-12 col-md-auto ms-md-auto/);
+    const css = readFileSync('public/css/institutional-home.css', 'utf8');
+    assert.match(html, /class="home-welcome-copy"/);
+    assert.match(html, /class="muni-welcome-year-box"/);
+    assert.match(css, /\.institutional-home \.muni-welcome-hero\s*\{[^}]*justify-content:\s*space-between;/);
+    assert.match(css, /\.institutional-home \.muni-welcome-year-box\s*\{[^}]*flex-shrink:\s*0;/);
   });
 
   test('public/css/municipal-theme.css defines right-aligned year box with divider', () => {
