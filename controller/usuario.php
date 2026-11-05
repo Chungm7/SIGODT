@@ -4,7 +4,112 @@ require_once("../models/Usuario.php");
 require_once("../models/Bitacora.php");
 $bitacora = new Bitacora();
 $usuario =  new Usuario();
+
+/** SIINDI contact seam: the original token + POST contract, with verified transport. */
+function sigurUsuarioRequest(string $url, array $fields, ?string $token = null): array
+{
+    if (parse_url($url, PHP_URL_SCHEME) !== 'https' || !parse_url($url, PHP_URL_HOST)) {
+        throw new RuntimeException('Servicio no disponible.');
+    }
+    $ch = curl_init($url);
+    if ($ch === false) {
+        throw new RuntimeException('Servicio no disponible.');
+    }
+    try {
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($fields));
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array_merge(
+            ['Content-Type: application/x-www-form-urlencoded'],
+            $token === null ? [] : ['Authorization: Bearer ' . $token]
+        ));
+        $response = curl_exec($ch);
+        $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($response === false || curl_errno($ch) || $status < 200 || $status >= 300) {
+            throw new RuntimeException('Servicio no disponible.');
+        }
+        $decoded = json_decode($response, true);
+        if (!is_array($decoded)) {
+            throw new RuntimeException('Respuesta no válida.');
+        }
+        return $decoded;
+    } finally {
+        curl_close($ch);
+    }
+}
+
 switch ($_GET["op"]) {
+    // Directly transferred from SIINDI controller/usuario.php; existing admin cases below stay intact.
+    case 'mostrar_datos':
+    case 'update_telefono':
+    case 'update_emailp':
+        header('Content-Type: application/json; charset=utf-8');
+        if (empty($_SESSION['usua_id_SIGODT']) || !is_string($_SESSION['usua_dni_SIGODT'] ?? null)
+            || $_SESSION['usua_dni_SIGODT'] === '') {
+            http_response_code(401);
+            echo json_encode(['success' => false, 'message' => 'Sesión no válida.']);
+            break;
+        }
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+            http_response_code(405);
+            header('Allow: POST');
+            echo json_encode(['success' => false, 'message' => 'Método no permitido.']);
+            break;
+        }
+        if (!is_string($_SESSION['csrf_token'] ?? null) || $_SESSION['csrf_token'] === ''
+            || !is_string($_POST['csrf_token'] ?? null)
+            || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Solicitud no válida.']);
+            break;
+        }
+        $op = $_GET['op'];
+        $dato = $_POST['dato'] ?? '';
+        if ($op !== 'mostrar_datos' && (!is_string($dato)
+            || ($op === 'update_telefono' && !preg_match('/^[0-9]{9}$/D', $dato))
+            || ($op === 'update_emailp' && (strlen($dato) > 254 || !filter_var($dato, FILTER_VALIDATE_EMAIL))))) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Dato de contacto no válido.']);
+            break;
+        }
+        try {
+            $sigurUrl = rtrim((string)Conectar::getEnv('SIGUR_URL', ''), '/') . '/';
+            $authUrl = (string)Conectar::getEnv('SIGUR_AUTH_URL', $sigurUrl . 'auth/');
+            $authJson = sigurUsuarioRequest($authUrl, [
+                'sist_inic' => Conectar::getEnv('SIST_INIC', ''),
+                'sist_pass' => Conectar::getEnv('SIST_PASS', '')
+            ]);
+            $token = $authJson['data']['token'] ?? null;
+            if (!is_string($token) || $token === '' || preg_match('/[\r\n]/', $token)) {
+                throw new RuntimeException('Autorización no disponible.');
+            }
+            // Identity comes exclusively from the destination's completed session, never from POST.
+            $updateData = ['usu_doc' => $_SESSION['usua_dni_SIGODT'], 'usu_tipo' => 'P'];
+            if ($op !== 'mostrar_datos') {
+                $updateData['tipo_cambio'] = $op === 'update_telefono' ? '1' : '2';
+                $updateData['dato'] = $dato;
+            }
+            $decoded = sigurUsuarioRequest($sigurUrl . 'ws/' . ($op === 'mostrar_datos' ? 'mostrar.php' : 'actualizar.php'), $updateData, $token);
+            if (($decoded['success'] ?? null) !== true || !is_array($decoded['data'] ?? null)) {
+                throw new RuntimeException('Operación no confirmada.');
+            }
+            $filtered = [];
+            foreach (['usu_celu01', 'usu_emailp', 'usu_emaili'] as $field) {
+                // SIINDI's observed provider alias is usu_emails; its HTML expects usu_emaili.
+                $value = $decoded['data'][$field] ?? ($field === 'usu_emaili' ? ($decoded['data']['usu_emails'] ?? '') : '');
+                $filtered[$field] = is_string($value) ? $value : '';
+            }
+            echo json_encode(['success' => true, 'data' => $filtered]);
+        } catch (Throwable $e) {
+            http_response_code(502);
+            echo json_encode(['success' => false, 'message' => 'No se pudo completar la solicitud al servicio de seguridad.']);
+        }
+        break;
     case "mostrar":
         $datos = $usuario->get_usuarios($_POST["usua_id"]);
         if (is_array($datos) == true and count($datos) <> 0) {
