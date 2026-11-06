@@ -211,7 +211,7 @@ function standaloneContract() {
 // its environment loader and any real PDO connection must remain unexecuted.
 function connectorMethod() {
     $source=file_get_contents(__DIR__.'/../config/conexion.php');
-    check(preg_match('~    protected function conexion\([^)]*\)\s*\{.*?^    \}~ms',$source,$match)===1,'Connector source method found');
+    check(preg_match('~    (?:protected|public) function conexion\([^)]*\)\s*\{.*?^    \}~ms',$source,$match)===1,'Connector source method found');
     return $match[0];
 }
 function connectorProcess($method,$stage,$call) {

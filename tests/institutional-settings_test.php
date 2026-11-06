@@ -1,40 +1,41 @@
 <?php
-// Evaluate only the template with synthetic session values; never load DB/config or shared includes.
-function renderSettings(array $session): string {
-    $_SESSION = $session;
-    $source = file_get_contents(__DIR__ . '/../view/setting/index.php');
-    $source = preg_replace('/require_once\([^;]+\);/', '', $source);
-    ob_start();
-    eval('?>' . $source);
-    return ob_get_clean();
+// Focused settings-only renderer: no dependency on changing peer login fixtures.
+namespace SiindiViewFixture {
+    function check($ok, $message) { if (!$ok) throw new \RuntimeException($message); }
+    function render($path, $session) {
+        $source = file_get_contents(__DIR__ . '/../' . $path);
+        $source = preg_replace('/require_once\([^;]+;/', '', $source);
+        $source = preg_replace('/include\s+\$twoFactorPerfilFile\s*;/', '', $source);
+        $dir = sys_get_temp_dir() . '/settings-render-' . bin2hex(random_bytes(5));
+        mkdir($dir, 0700);
+        file_put_contents($dir . '/view.php', $source);
+        file_put_contents($dir . '/run.php', '<?php class Conectar { static function initSession(){} static function ruta(){return "/SIGODT/";} } $_SESSION=json_decode(stream_get_contents(STDIN),true); require __DIR__."/view.php";');
+        $p = proc_open([PHP_BINARY,'-n',$dir . '/run.php'], [0=>['pipe','r'],1=>['pipe','w'],2=>['pipe','w']], $pipes);
+        fwrite($pipes[0], json_encode($session)); fclose($pipes[0]);
+        $out=stream_get_contents($pipes[1]); $err=stream_get_contents($pipes[2]); fclose($pipes[1]); fclose($pipes[2]);
+        check(proc_close($p)===0 && $err==='', 'settings fixture stderr/stdout: '.$err.$out);
+        return $out;
+    }
 }
-function checkSettings(bool $ok, string $message): void {
-    if (!$ok) throw new RuntimeException($message);
+namespace {
+$session = [
+    'usua_id_SIGODT' => 1, 'sigur_usuario_id_SIGODT' => 2, 'usua_dni_SIGODT' => '00000000',
+    'pers_nombre_SIGODT' => '<Synthetic & Example>', 'pers_apelpat_SIGODT' => '"Family"',
+    'pers_apelmat_SIGODT' => '<Second>', 'pers_emailm_SIGODT' => 'synthetic@example.invalid',
+    'pers_emailp_SIGODT' => '<bad&mail>', 'rol_nombre_SIGODT' => '<Actual profile>',
+];
+$html = \SiindiViewFixture\render('view/setting/index.php', $session);
+foreach (['&lt;Synthetic &amp; Example&gt;', '&quot;Family&quot;', '&lt;Second&gt;', 'value="synthetic@example.invalid"', '&lt;bad&amp;mail&gt;'] as $value) {
+    \SiindiViewFixture\check(str_contains($html, $value), 'Escaped genuine session field: ' . $value);
 }
-$base = ['usua_id_SIGODT' => 1];
-$html = renderSettings($base);
-checkSettings(str_contains($html, '>CONFIGURACIÓN</h1>'), 'Expected CONFIGURACIÓN heading');
-checkSettings(preg_match_all('/<input\b[^>]*\sreadonly\b/', $html) === 6, 'All six original fields must remain readonly');
-foreach (['Usuario', 'Sin perfil', 'No cuenta con correo electrónico registrado', 'No cuenta con número de teléfono registrado', 'SIGODT - Órdenes de Derecho de Trámite'] as $text) {
-    checkSettings(str_contains($html, $text), 'Missing fallback: ' . $text);
+\SiindiViewFixture\check(str_contains($html, 'value="&lt;Actual profile&gt;"'), 'Cargo uses the existing profile label, escaped');
+\SiindiViewFixture\check(!str_contains($html, '00000000'), 'Identity document remains server-side');
+foreach (['telefono', 'emailp'] as $id) {
+    preg_match('/<input\b[^>]*id="' . $id . '"[^>]*>/', $html, $match);
+    \SiindiViewFixture\check(!empty($match) && !preg_match('/disabled|readonly/', $match[0]), 'Approved editable contact: ' . $id);
 }
-$filled = renderSettings($base + [
-    'nombre_completo_SIGODT' => '<Synthetic & Example>', 'usua_dni_SIGODT' => '<DNI>',
-    'rol_nombre_SIGODT' => '<Role>', 'pers_emailm_SIGODT' => '  synthetic@example.invalid  ',
-    'pers_celu01_SIGODT' => '  000000000  ',
-]);
-foreach (['&lt;Synthetic &amp; Example&gt;', '&lt;DNI&gt;', '&lt;Role&gt;', 'value="synthetic@example.invalid"', 'value="000000000"'] as $text) {
-    checkSettings(str_contains($filled, $text), 'Escaping/trim contract: ' . $text);
+preg_match('/<input\b[^>]*id="emaili"[^>]*>/', $html, $match);
+\SiindiViewFixture\check(!empty($match) && str_contains($match[0], 'disabled'), 'Institutional email readonly');
+\SiindiViewFixture\check(str_contains($html, 'cambiar-clave') && str_contains($html, 'seguridad/actualizar_contrasena/views/'), 'Real transplanted password action');
+echo "PASS institutional settings: actual fields, approved contact actions, password link, escaped synthetic render\n";
 }
-checkSettings(!str_contains($filled, 'No cuenta con'), 'No missing-contact warnings for populated values');
-$partial = renderSettings($base + ['pers_emailm_SIGODT' => '  ', 'pers_celu01_SIGODT' => '000000000']);
-checkSettings(str_contains($partial, 'No cuenta con correo') && !str_contains($partial, 'No cuenta con número'), 'Independent empty-contact conditions');
-checkSettings(!preg_match('/<(form|button)\b/', $html), 'Do not add reference mutation controls');
-// Preview is synthetic and generated from this same template, without a real session or database.
-if (in_array('--preview', $argv ?? [], true)) {
-    $preview = preg_replace('/<script\b[^>]*>.*?<\/script>/s', '', $html);
-    $preview = str_replace('../../public/', '../public/', $preview);
-    $preview = str_replace('<head>', '<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="../public/css/tabler.min.css"><link rel="stylesheet" href="../public/lib/roboto/roboto.css">', $preview);
-    file_put_contents(__DIR__ . '/../.playwright-mcp/institutional-settings-preview.html', $preview);
-}
-echo "Institutional settings render checks passed (fallback, populated, escaped and partial contact).\n";

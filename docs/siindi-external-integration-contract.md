@@ -1,0 +1,47 @@
+# Approved external SIINDI compatibility contract
+
+Spec: `odd/tasks/siindi-account-settings-2fa.md`, T7, S3–S4 and S8–S12. This is coordination for the authorized nine-file outside-only implementation, not another authentication framework. The 19 original `seguridad/` files and pinned hashes must not change.
+
+## Stable shared foundation (parent-owned)
+
+`helpers/SiindiSessionBridge.php`, `config/conexion.php`, `config/jwt.php` are implemented before parallel wiring starts. Writers must reuse their current implementation, not edit them or provide production substitutes.
+
+- `SiindiSessionBridge::beginPending(array $pending): void`: validates institutional/local identity, clears prior module/reset state and old full SIGODT identity, creates server nonce + CSRF, keeps private `2fa_pending_SIGODT`, projects minimal server-only `2fa_pending_user` (source fields + nonce + actual profile labels, not complete private snapshot). Cookie-only original views additionally receive an identity-only pending JWE WITHOUT the nonce. Before original controller processing, incoming pending cookies are ignored so it consumes the authoritative private alias; only successful source verification may copy the nonce into a completed session. Caller supplies current existing private pending array (`usu_id`, `pers_id`, `usu_doc`, names, expires_at, challenge_id, user_data, ip). Keep current300-second host expiry; do not invent defaults.
+- `completionProof(object $decryptedEnvelope): ?array`: only for a cryptographically verified envelope from the host `JwtHandler`. Requires type=session, current app, nonce, account/doc/type, host and JWT expiry, no full session. Returns server receipt `{kind:siindi_completion,sigodt_nonce,challenge_id,usu_doc,usu_id,expires_at}`. Original source does not reveal which factor branch succeeded; do not fabricate method=email/totp.
+- `bootstrap(): void`: already invoked after existing session/class initialization in `config/conexion.php`; narrow real SCRIPT_FILENAME routing and re-entry guard. Original module-changing requests require same-origin POST before touching state. Source pending alias refreshed/expired externally. On `view/inicio/index.php` only, verify original session cookie then set server receipt and call `Usuario::finalizarLogin2FA()`. Deny/redirect before page authorization on failure, clean pending/cookies. No promotion inside encryption.
+- `trustedPost(): bool` / `requireTrustedPost(): void`: POST + exact scheme/host/effective-port Origin from configured APP_URL/Conectar::ruta. Reject missing/null/malformed/mismatch, never trust Host or forwarded origin. A server-injected token alone is NOT browser CSRF proof.
+- `startPasswordContext(array $identity, string $stage='recovery', int $ttl=900): void`: accepts provider-established employee identity, creates separate private `sigodt_password_context`, source-compatible `blanqueamiento_user`/JWE cookie and controller CSRF. Valid initial stages: `recovery`, `first_access`; the latter is only for an authoritative login-blanqueamiento response.
+- `passwordContext(?string $stage=null): ?array`: returns unexpired `{identity,stage,nonce,expires_at}` or null; read-only lookup. All subsequent password operations use this server identity, never browser doc/type or decrypted cookie alone.
+- `advancePasswordContext(string $stage): void`: only recovery→recovery_sent→first_access, rotates nonce and limits lifetime; use only after acknowledged corresponding central operation. Successful validation to first_access is NOT a full login.
+- `clearPasswordContext(): void`: removes temporary grant/cookie only, preserving ordinary full session.
+- `clearLogin(): void`: clears module pending/reset cookies and aliases in SIGODT path ONLY; use on logout and fresh login lifecycle. Never clear /sigur/.
+- For original module requests only, adapt configured host-root or `/sigur/`/`sigur/ws/` URL conventions to the host root the unchanged mailer appends `sigur/` onto; do not edit environment files or its original transport policy.
+- For an already completed host session, discard residual source pending cookies/aliases so they cannot override the authenticated host identity. Module/landing bootstrap can issue a source-compatible cookie tied to the current PHP session hash and server-owned identity/profile. It contains **no pending nonce**, so cannot promote a new login. Legacy sessions without a distinct institutional ID must reauthenticate for module operations; never guess institutional ID from local person ID.
+
+Foundation test `tests/siindi_session_bridge_test.php`: initial meaningful RED5 rules/GREEN5; extra temporary-CSRF RED/GREEN. Later source-page, public-pending-forgery, mail-base and residual-identity regressions were observed RED and corrected externally; the expanded suite has8 rule groups. Source pin19/19 and central JWE/blanqueamiento5/5 also pass before wiring. This is foundation proof, not completed integration.
+
+## Independent wiring units after this foundation
+
+### Login/2FA unit
+
+Own `models/Usuario.php` and its assigned login/view tests/docs only. Use `beginPending()` instead of direct pending assignment, change finalizer verification from old fabricated method to exact correlated kind/nonce/challenge/account receipt, preserve fresh active system8/person/department query and existing history/area/session semantics. Initial institutional/local IDs remain distinct. Actual original controller→JWT→host landing must be exercised with isolated fake DB/mail/provider; a manually assigned receipt alone is not end-to-end proof. Original first enrollment during login remains allowed. H1 correction: primary-only pending requests cannot replace a linked enrollment. Host bootstrap reads the existing linked state fail-closed before source enrollment operations; confirmation also requires an eligible initial-enrollment intent bound to the private challenge/nonce/account. Completed host sessions retain original rebind behavior; source files are unchanged.
+
+For authoritative login blanqueamiento: clear old module state, call `startPasswordContext($param,'first_access',1900)`, redirect to local `seguridad/primer_acceso/views/`, not central UI. Preserve existing crypto helper/API and session isolation. Logout calls `clearLogin()` before session destruction.
+
+### Password/recovery/UI unit
+
+Own only `auth/proxy.php`, `controller/clave.php`, `models/Reset.php`, `index.php`, `view/setting/index.php` and assigned tests/docs. Reuse already implemented helper for Origin, temporary contexts and cookies. Do not import source global Auth/middleware/Permisos stack.
+
+Proxy accepts exact POST `api` strings only: `clave.php?op=actualizar`, `clave.php?op=token`, `clave.php?op=validar_token`, `clave.php?op=blanqueamiento`. Before dispatch, verify Origin; retain direct controller CSRF guard. Forward current server CSRF only after browser-origin proof and appropriate authority. Ignore posted doc/type in subsequent operations. No arbitrary URL, filename, query, method or refresh relay.
+
+- actualizar: completed host session owns account; original fields `usu_pass_actual`, `usu_pass_nueva`; acknowledged success→settings, no logout.
+- reset initiation: original source `models/Reset.php` system-token exchange then POST `ws/reset.php`, using configured SIGUR base conventions (do not accidentally duplicate /sigur/). Local root entry collects document, uses existing CAPTCHA/reCAPTCHA plus same-origin POST before provider; source/provider acknowledged identity must match submitted account before recovery context. No local OTP store/DB schema or new credential defaults.
+- token: context recovery (allow resend in recovery_sent without downgrading authority); original metodo1/2 sent unchanged; successful acknowledged send→recovery_sent.
+- validar_token: only recovery_sent; original codigo; success→first_access and local source screen. Failed/ambiguous acknowledgement must not grant password authority; HTTP2xx alone is not validation. Source's explicit success/status values can be normalized, not invented provider responses.
+- blanqueamiento: only first_access from login or validated recovery; `pers_pass_nueva`; positive provider acknowledgement consumes temporary authority and returns login. Plain full session/pending2FA is not a reset grant.
+- local reset/first-access routes replace user entry points; original guarded screens remain byte-identical. Do not remove CAPTCHA or pretend a direct link alone establishes reset authority.
+- Cargo: set source `perf_nombre` from existing `rol_nombre_SIGODT`; retain requested DNI/Module exclusions. No new personnel column or role-based privilege change.
+
+## Checks and limitations
+
+Use public entries and full body/exit/counter/state assertions, one test per requested rule and touched old behavior. Observe RED before implementation, GREEN then self-review. All target execution uses bounded read-only/network-unshared sandbox, masks .env/.env.example/.git, cleared env and scratch-only mutable fixtures; no real provider/DB/mail/users. No Node run under the previously invalid512MiB V8 setup. No configuration, dependencies, commits, native review operations or module edits by writers. Source CGI/client behavior is the reference; central backend code is not required for implementing it. Method2 delivery semantics and real provider/key/schema/browser compatibility remain explicit activation limitations, not fake PASS or a reason to request unavailable backend again.

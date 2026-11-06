@@ -1,5 +1,18 @@
 /* SIINDI settings visual contracts, isolated from the shared SIGODT shell. */
 #institutional-settings {
+  --mpch-brand-primary: #0066CC;
+  --mpch-brand-hover: #0052A3;
+  --mpch-action-yellow: #FBC02D;
+  --mpch-action-hover: #f8c83a;
+  --mpch-surface-card: #FFFFFF;
+  --mpch-text-primary: #0F172A;
+  --mpch-text-desc: #475569;
+  --mpch-text-inactive: #64748B;
+  --mpch-text-aux: #94A3B8;
+  --mpch-surface-inactive: #F1F5F9;
+  --mpch-surface-input-disabled: #F8FAFC;
+  --mpch-border-color: #E2E8F0;
+  --mpch-danger: #DC4545;
   box-sizing: border-box;
   flex: 1 0 auto;
   width: 100%;
@@ -201,6 +214,142 @@
   overflow-wrap: anywhere;
 }
 #institutional-settings .field-feedback-error { color: #DC4545; }
+/* Source mainHead.php settings controls and 2FA cards (825–1183), scoped locally.
+   Existing matching panel width, spacing and responsive shell parity stay above. */
+#institutional-settings .custom-input-box { background-color: #FFFFFF; }
+#institutional-settings .custom-input-box.disabled { background-color: var(--mpch-surface-input-disabled); }
+#institutional-settings .custom-native-input { color: var(--mpch-text-primary); }
+#institutional-settings .custom-native-input:disabled { color: var(--mpch-text-inactive); cursor: not-allowed; }
+#institutional-settings .req-star { color: var(--mpch-danger); font-weight: 700; }
+#institutional-settings .input-action-btn {
+  width: 44px;
+  background-color: var(--mpch-action-yellow);
+  color: var(--mpch-text-primary);
+  border: none;
+  border-left: 1px solid var(--mpch-border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+#institutional-settings .input-action-btn:hover { background-color: var(--mpch-action-hover); }
+#institutional-settings .input-action-btn:active { opacity: 0.9; }
+#institutional-settings .input-action-btn:disabled { opacity: 0.6; cursor: wait; }
+#institutional-settings .pwd-recovery-link { font-size: 12px; line-height: 18px; color: var(--mpch-brand-primary); text-decoration: underline; cursor: pointer; }
+#institutional-settings .pwd-recovery-link:hover { color: var(--mpch-brand-hover); }
+#institutional-settings .btn-change-password {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid var(--mpch-action-yellow);
+  border-radius: 6px;
+  background-color: var(--mpch-action-yellow);
+  color: var(--mpch-text-primary) !important;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 18px;
+  text-decoration: none !important;
+  cursor: pointer;
+  width: fit-content;
+  transition: all 0.15s ease;
+}
+#institutional-settings .btn-change-password:hover { background-color: var(--mpch-action-hover); border-color: var(--mpch-action-hover); box-shadow: 0 4px 10px rgba(224, 168, 0, 0.3); }
+#institutional-settings .mpch-2fa-card {
+  border: 1px solid var(--mpch-border-color);
+  border-radius: 8px;
+  box-shadow: none;
+  background: var(--mpch-surface-card);
+  margin: 0;
+  overflow: hidden;
+}
+#institutional-settings .mpch-2fa-header {
+  background: transparent;
+  border-bottom: 1px solid var(--mpch-border-color);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+#institutional-settings .mpch-2fa-icon-box {
+  width: 40px;
+  height: 40px;
+  background-color: #E7F1FB;
+  border: 1px solid #CBD5E1;
+  color: var(--mpch-brand-primary);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+#institutional-settings .mpch-2fa-title {
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 22px;
+  color: var(--mpch-text-primary);
+  margin: 0;
+}
+#institutional-settings .mpch-2fa-subtitle {
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--mpch-text-inactive);
+  margin-top: 1px;
+}
+#institutional-settings .mpch-2fa-body { padding: 20px; }
+#institutional-settings .mpch-2fa-desc-title {
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--mpch-text-primary);
+  margin-bottom: 4px;
+}
+#institutional-settings .mpch-2fa-desc-text {
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 20px;
+  color: var(--mpch-text-inactive);
+  margin-bottom: 12px;
+}
+#institutional-settings .mpch-2fa-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  font-size: 11px;
+  line-height: 18px;
+  color: var(--mpch-text-inactive);
+}
+#institutional-settings .mpch-2fa-meta strong {
+  font-weight: 600;
+  color: var(--mpch-text-desc);
+}
+/* Source mainHead.php 651–673: active profile status pill. */
+#institutional-settings .service-status-pill {
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+#institutional-settings .service-status-pill.status-active {
+  background-color: #ECFDF5;
+  border: 1px solid #A7F3D0;
+  color: #047857;
+}
+#institutional-settings .service-status-pill.status-active .status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background-color: #10B981;
+}
 @media (max-width: 991px) {
   #institutional-settings .settings-card-panel { flex-direction: column; }
   #institutional-settings .settings-sidebar {

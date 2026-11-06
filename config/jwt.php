@@ -158,7 +158,7 @@ class JwtHandler {
      * @return array Standard cookie options.
      */
     public function getCookieOptions(int $expireSeconds = 0, string $path = '/'): array {
-        $expires = $expireSeconds > 0 ? time() + $expireSeconds : 0;
+        $expires = $expireSeconds !== 0 ? time() + $expireSeconds : 0;
 
         if ($path !== '/') {
             $path = '/' . trim($path, '/') . '/';

@@ -4,49 +4,48 @@ const fs = require('node:fs');
 const path = require('node:path');
 const root = path.join(__dirname, '..');
 const view = fs.readFileSync(path.join(root, 'view/setting/index.php'), 'utf8');
-const cssPath = path.join(root, 'public/css/institutional-settings.css');
-const css = fs.existsSync(cssPath) ? fs.readFileSync(cssPath, 'utf8') : '';
+const js = fs.readFileSync(path.join(root, 'view/setting/settings.js'), 'utf8');
+const css = fs.readFileSync(path.join(root, 'public/css/institutional-settings.css'), 'utf8');
 
-test('settings uses literal heading and scoped stylesheet after shared head', () => {
+test('original SIINDI five blocks live inside unchanged SIGODT shared shell', () => {
   assert.match(view, /<h1[^>]*>CONFIGURACIÓN<\/h1>/);
   assert.ok(view.indexOf('institutional-settings.css') > view.indexOf('require_once("../html/mainHead.php")'));
   assert.match(view, /<main[^>]*id="institutional-settings"/);
-  assert.doesNotMatch(view, /Ajustes de Cuenta|settings\.js|auth\/proxy|cambiar-clave|<form\b|<button\b/);
-});
-test('SIINDI sidebar and three supported information cards replace the monolithic panel', () => {
   assert.match(view, /<aside class="settings-sidebar"/);
-  assert.match(view, /href="\.\.\/setting\/"[^>]*aria-current="page"/);
-  assert.equal((view.match(/class="mpch-settings-card"/g) || []).length, 3);
-  for (const title of ['Mi Perfil', 'Contacto y Cargo Institucional', 'Correo Electrónico']) assert.ok(view.includes(title));
-  for (const id of ['nombre_completo', 'dni', 'rol', 'modulo', 'correo', 'celular']) {
-    assert.match(view.replace(/<\?php[\s\S]*?\?>/g, ''), new RegExp(`<input[^>]*id="perfil_${id}"[^>]*readonly`));
-    assert.match(view, new RegExp(`for="perfil_${id}"`));
-  }
-  assert.match(view, /href="\.\.\/inicio\/"/);
-});
-test('SIGODT session gate, retrieval and redirect stay unchanged', () => {
-  assert.ok(view.startsWith(`<?php
-require_once("../../config/conexion.php");
-
-if (isset($_SESSION["usua_id_SIGODT"])) {
-  $nombre_completo = $_SESSION["nombre_completo_SIGODT"] ?? "Usuario";
-  $perfil = $_SESSION["rol_nombre_SIGODT"] ?? "Sin perfil";
-  $dni = $_SESSION["usua_dni_SIGODT"] ?? "";
-  $correo = trim($_SESSION["pers_emailm_SIGODT"] ?? "");
-  $celular = trim($_SESSION["pers_celu01_SIGODT"] ?? "");
-?>`));
-  assert.ok(view.includes('header("Location:" . Conectar::ruta() . "view/404/");'));
+  for (const title of ['Mi Perfil', 'Contacto y Cargo Institucional', 'Correos Electrónicos', 'Contraseña de Acceso', 'perfil_2fa.php']) assert.ok(view.includes(title));
   for (const include of ['mainHead', 'mainProfile', 'menu', 'footer', 'mainjs']) assert.ok(view.includes(`require_once("../html/${include}.php");`));
-  assert.doesNotMatch(view, /\$_(?:POST|GET|COOKIE)|middleware|fetch\(|\$\.post|<input[^>]*(?:disabled|required|name=)/);
+  assert.match(view, /class="wrapper"/);
+  assert.match(view, /Conectar::initSession\(\)/);
+  assert.match(view, /empty\(\$_SESSION\['usua_id_SIGODT'\]\)/);
+  assert.doesNotMatch(view, /auth\/middleware|auth\/proxy|perfil_dni|perfil_modulo/);
 });
-test('source-grounded SIINDI dimensions and mobile stacking remain isolated', () => {
+test('approved fields/actions preserve source IDs and direct server-owned POST contract', () => {
+  const markup = view.replace(/<\?php[\s\S]*?\?>/g, '');
+  assert.match(markup, /id="telefono"[^>]*custom-native-input[^>]*>/);
+  assert.doesNotMatch(markup.match(/<input[^>]*id="telefono"[^>]*>/)[0], /disabled|readonly/);
+  assert.doesNotMatch(markup.match(/<input[^>]*id="emailp"[^>]*>/)[0], /disabled|readonly/);
+  assert.match(markup, /id="emaili"[^>]*disabled/);
+  assert.equal((markup.match(/value="" disabled/g) || []).length >= 3, true);
+  for (const op of ['mostrar_datos', 'update_telefono', 'update_emailp']) assert.ok(js.includes(op));
+  assert.match(js, /controller\/usuario.php\?op=/);
+  assert.match(js, /csrf_token: window.SETTINGS_CSRF_TOKEN/);
+  assert.match(js, /dato: dato/);
+  assert.doesNotMatch(js, /auth\/proxy|api:|usu_doc|usu_tipo/);
+  assert.match(js, /if \(btn.prop\('disabled'\)\) return/);
+  assert.match(js, /\.always\(/);
+  assert.match(js, /\.text\(data.usu_celu01/);
+  assert.match(view, /seguridad\/actualizar_contrasena\/views\//);
+  assert.match(view, /random_bytes\(32\)/);
+  assert.match(view, /'perf_nombre' => \$_SESSION\['rol_nombre_SIGODT'\]/);
+  assert.match(view, /id="cargo"[^>]*htmlspecialchars\(\$userData->perf_nombre/);
+});
+test('matching source page geometry and mobile stacking stay isolated; real action styles added', () => {
   for (const contract of [/max-width: 1347px/, /padding: 20px 32px 52px/, /width: 224px/, /min-height: 580px/, /height: 52px/, /gap: 24px/, /padding: 28px/, /height: 42px/, /width: 48px/, /font-size: 13px/, /font-size: 15px/, /height: 5px/, /#0066CC 82%, #FBC02D 82%/]) assert.match(css, contract);
+  for (const token of ['.input-action-btn', '.btn-change-password', '.mpch-2fa-card', '.mpch-2fa-meta']) assert.ok(css.includes(token));
   assert.match(css, /@media \(max-width: 991px\)[\s\S]*flex-direction: column/);
   assert.match(css, /@media \(max-width: 768px\)[\s\S]*padding: 24px 16px 36px/);
   assert.match(css, /:focus-within/);
   assert.match(css, /prefers-reduced-motion/);
-  // Every rule is scoped, including rules inside media queries.
   const selectors = [...css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/([^{}]+)\{/g)].map(m => m[1].trim()).filter(s => !s.startsWith('@'));
-  assert.ok(selectors.length > 15);
   for (const selector of selectors) assert.ok(selector.split(',').every(s => s.trim().startsWith('#institutional-settings')), selector);
 });

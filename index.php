@@ -4,6 +4,11 @@ require_once "helpers/Recaptcha.php";
 $recaptchaSiteKey = Recaptcha::siteKey();
 $sisVersion = Conectar::getEnv('SIS_VER', '1.0.1');
 $appName = Conectar::getEnv('APP_NAME', 'SIGODT');
+$recoveryEntry = ($_GET['recuperar'] ?? '') === 'si';
+if (($_POST['recuperar'] ?? '') === 'si') {
+  require __DIR__ . '/models/Reset.php';
+  exit;
+}
 
 if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
   require_once "models/Usuario.php";
@@ -59,7 +64,7 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
           <p class="muni-login-entity">MUNICIPALIDAD PROVINCIAL DE CHICLAYO</p>
         </div>
 
-        <h2 class="muni-login-heading">Iniciar sesión</h2>
+        <h2 class="muni-login-heading"><?php echo $recoveryEntry ? 'Recuperar contraseña' : 'Iniciar sesión'; ?></h2>
         <p class="muni-login-subheading">Ingresa tus credenciales institucionales para continuar.</p>
 
         <!-- Mensajes de error -->
@@ -100,7 +105,7 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
                 type="text"
                 id="usu_dni"
                 class="form-control"
-                name="usu_dni"
+                name="<?php echo $recoveryEntry ? 'usu_doc' : 'usu_dni'; ?>"
                 placeholder="Ingrese su DNI"
                 inputmode="numeric"
                 maxlength="8"
@@ -116,10 +121,11 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
             </div>
           </div>
 
+          <?php if (!$recoveryEntry): ?>
           <div class="mb-3">
             <div class="muni-login-label-row">
               <label for="usu_pass" class="muni-login-label mb-0">Contraseña</label>
-              <a class="muni-login-forgot" href="https://www.munichiclayo.gob.pe/sisSeguridad/view/USURecuperacionContra/index.php?sistema=siagth">¿Olvidaste tu contraseña?</a>
+              <a class="muni-login-forgot" href="index.php?recuperar=si">¿Olvidaste tu contraseña?</a>
             </div>
             <div class="input-group muni-input-group">
               <input
@@ -141,6 +147,7 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
             </div>
           </div>
 
+          <?php endif; ?>
           <div class="mb-4" id="contcap">
             <div class="muni-captcha-row">
               <div class="muni-captcha-box">
@@ -177,7 +184,12 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
             <noscript>Active JavaScript para cargar el CAPTCHA e ingresar.</noscript>
           </div>
 
+          <?php if ($recoveryEntry): ?>
+          <input type="hidden" name="recuperar" value="si">
+          <a href="index.php">Volver al acceso</a>
+          <?php else: ?>
           <input type="hidden" name="enviar" value="si">
+          <?php endif; ?>
           <?php if ($recaptchaSiteKey !== ''): ?>
             <input type="hidden" name="recaptchaToken" id="recaptchaToken" value="">
             <div id="recaptchaStatus" class="muni-captcha-status" role="alert" aria-live="assertive"></div>
@@ -190,7 +202,7 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
                 <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" />
                 <path d="M20 12h-13l3 -3m0 6l-3 -3" />
               </svg>
-              <span>Ingresar</span>
+              <span><?php echo $recoveryEntry ? 'Continuar' : 'Ingresar'; ?></span>
             </button>
           </div>
         </form>

@@ -108,7 +108,7 @@ class Conectar {
         }
     }
 
-    protected function conexion($throwOnError = false) {
+    public function conexion($throwOnError = false) {
         if (property_exists(self::class, 'conexionDouble') && self::$conexionDouble !== null) {
             $double = self::$conexionDouble;
             return is_callable($double) ? $double() : $double;
@@ -163,4 +163,6 @@ class Conectar {
 }
 
 Conectar::initSession();
+require_once __DIR__ . '/../helpers/SiindiSessionBridge.php';
+SiindiSessionBridge::bootstrap();
 ?>

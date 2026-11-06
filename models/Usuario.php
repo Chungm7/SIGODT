@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../helpers/Captcha.php';
 require_once __DIR__ . '/../helpers/Recaptcha.php';
+require_once __DIR__ . '/../helpers/SiindiSessionBridge.php';
 class usuario extends conectar
 {
     public function login()
@@ -110,18 +111,17 @@ class usuario extends conectar
             }
 
             // 3. Check for password whitening (blanqueamiento)
-            if (!empty($res['data']['url']) || ($res['detalle'] ?? '') === 'Blanqueamiento de clave') {
-                require_once __DIR__ . '/../config/jwt.php';
-                $jwt = new JwtHandler();
+            if ((int)($res['status'] ?? 0) === 200 && ($res['success'] ?? null) === true
+                && (!empty($res['data']['url']) || ($res['detalle'] ?? '') === 'Blanqueamiento de clave')) {
                 $param = [
                     "usu_doc" => $dni,
                     "usu_tipo" => "P",
                     "success" => true,
                     "blanqueamiento" => 2
                 ];
-                $jweToken = $jwt->encrypt($param, 'blanqueamiento', 1900);
-                $jwt->setCookie("blanqueamiento", $jweToken, 1900, "/sigur/");
-                header("Location: " . $sigurUrl . "view/clave/blanqueamiento.php");
+                SiindiSessionBridge::clearLogin();
+                SiindiSessionBridge::startPasswordContext($param, 'first_access', 1900);
+                header("Location: " . Conectar::ruta() . "seguridad/primer_acceso/views/");
                 exit();
             }
 
@@ -140,8 +140,9 @@ class usuario extends conectar
 
             // 5. Successful login: extract user id and query local db
             $userDataRes = $res['data'] ?? [];
-            $persId = $userDataRes['usu_id'] ?? $userDataRes['pers_id'] ?? null;
-            if (empty($persId)) {
+            $sigurId = $userDataRes['usu_id'] ?? null;
+            $persId = $userDataRes['pers_id'] ?? null;
+            if (empty($sigurId)) {
                 $_SESSION['login_error'] = 'Identificador de usuario no válido';
                 header("Location: " . Conectar::ruta() . "index.php");
                 exit();
@@ -155,17 +156,74 @@ class usuario extends conectar
                         AND perm.sist_id = 8 
                         AND perm.perm_estado = 'A'
                     INNER JOIN sc_seguridad.tb_perfil pf ON perm.perf_id = pf.perf_id
-                    WHERE p.pers_id = :pers_id;";
+                    WHERE p.pers_dni = :pers_dni AND p.pers_estado = 'A';";
             $stmt = $conectar->prepare($sql);
-            $stmt->bindValue(':pers_id', $persId, PDO::PARAM_INT);
+            $stmt->bindValue(':pers_dni', $dni, PDO::PARAM_STR);
             $stmt->execute();
             $userData = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if (!$userData) {
+            if (!$userData || (string)$userData['pers_dni'] !== $dni || (!empty($persId) && (string)$userData['pers_id'] !== (string)$persId)) {
                 $_SESSION['login_error'] = 'El usuario no tiene permisos activos para el sistema SIGODT';
                 header("Location: " . Conectar::ruta() . "index.php");
                 exit();
             }
+
+            // Las credenciales y el permiso no constituyen una sesión completa.
+            SiindiSessionBridge::beginPending([
+                'usu_id' => $sigurId,
+                'pers_id' => $userData['pers_id'],
+                'usu_doc' => $dni,
+                'usu_tipo' => 'P',
+                'usu_nom' => $userData['pers_nombre'] ?? '',
+                'usu_apep' => $userData['pers_apelpat'] ?? '',
+                'usu_apem' => $userData['pers_apelmat'] ?? '',
+                'expires_at' => time() + 300,
+                'challenge_id' => bin2hex(random_bytes(32)),
+                'user_data' => $userData,
+                'ip' => $ip,
+            ]);
+            header('Location: ' . Conectar::ruta() . 'seguridad/2fa/views/selector_metodo.php');
+            exit();
+        }
+    }
+
+    /** Promoción exclusiva tras la recepción correlacionada del módulo original. */
+    public function finalizarLogin2FA(): bool
+    {
+        $pending = $_SESSION['2fa_pending_SIGODT'] ?? null;
+        $verified = $_SESSION['2fa_verified_SIGODT'] ?? null;
+        if (!is_array($pending) || !is_array($verified) || time() >= ($pending['expires_at'] ?? 0)
+            || !empty($_SESSION['usua_id_SIGODT']) || empty($pending['usu_id']) || empty($pending['pers_id'])
+            || ($verified['kind'] ?? '') !== 'siindi_completion'
+            || !is_string($pending['sigodt_nonce'] ?? null) || $pending['sigodt_nonce'] === ''
+            || !is_string($verified['sigodt_nonce'] ?? null)
+            || !hash_equals($pending['sigodt_nonce'], $verified['sigodt_nonce'])
+            || time() >= ($verified['expires_at'] ?? 0)
+            || ($verified['challenge_id'] ?? null) !== ($pending['challenge_id'] ?? '')
+            || ($verified['usu_doc'] ?? null) !== ($pending['usu_doc'] ?? '')
+            || ($verified['usu_id'] ?? null) !== $pending['usu_id']) {
+            return false;
+        }
+        // Cargar la autorización vigente: el snapshot pendiente no autoriza rol ni área.
+        $conectar = parent::conexion();
+        parent::set_names();
+        $stmt = $conectar->prepare("SELECT p.pers_id, p.pers_dni, p.pers_nombre, p.pers_apelpat, p.pers_apelmat,
+                p.pers_estado, p.pers_emailm, p.pers_celu01, p.pers_foto,
+                perm.perf_id, pf.perf_nombre, perm.depe_id
+            FROM sc_escalafon.tb_persona p
+            INNER JOIN sc_seguridad.tb_permiso perm ON p.pers_id = perm.pers_id
+                AND perm.sist_id = 8 AND perm.perm_estado = 'A'
+            INNER JOIN sc_seguridad.tb_perfil pf ON perm.perf_id = pf.perf_id
+            WHERE p.pers_id = :pers_id AND p.pers_dni = :dni AND p.pers_estado = 'A'");
+        $stmt->bindValue(':pers_id', $pending['pers_id'], PDO::PARAM_INT);
+        $stmt->bindValue(':dni', $pending['usu_doc'], PDO::PARAM_STR);
+        $stmt->execute();
+        $current = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$current || (string)$current['pers_id'] !== (string)$pending['pers_id'] || $current['pers_dni'] !== $pending['usu_doc']) { return false; }
+        $userData = $current;
+        if (session_status() !== PHP_SESSION_ACTIVE || !session_regenerate_id(true)) { return false; }
+        $ip = $pending['ip'];
+        unset($_SESSION['2fa_pending_SIGODT'], $_SESSION['2fa_pending_user'], $_SESSION['2fa_verified_SIGODT'], $_SESSION['2fa_email_otp']);
 
             // 6. Record session history in sc_seguridad.tb_historial_sesion
             $hise_id = null;
@@ -184,8 +242,10 @@ class usuario extends conectar
                     $hise_id = $histRow['hise_id'];
                 }
             } catch (Exception $e) {
-                error_log("Failed to insert session history: " . $e->getMessage());
+                // Conservar el SQL institucional, pero nunca promover tras fallo de persistencia.
+                return false;
             }
+            if (!$hise_id) { return false; }
 
             // 7. Auto-provision default area via Area::sincronizar_area_defecto
             if (!empty($userData['pers_id']) && !empty($userData['depe_id'])) {
@@ -195,7 +255,10 @@ class usuario extends conectar
             }
 
             // 8. Populate session variables
+            $_SESSION['sigur_usuario_id_SIGODT'] = $pending['usu_id'];
             $_SESSION["usua_id_SIGODT"] = $userData["pers_id"];
+            $_SESSION['pers_apelpat_SIGODT'] = $userData['pers_apelpat'] ?? '';
+            $_SESSION['pers_apelmat_SIGODT'] = $userData['pers_apelmat'] ?? '';
             $_SESSION["usua_dni_SIGODT"] = $userData["pers_dni"];
             $_SESSION["rol_id_SIGODT"] = $userData["perf_id"];
             $_SESSION["usua_estado_SIGODT"] = $userData["pers_estado"];
@@ -217,10 +280,7 @@ class usuario extends conectar
                 $_SESSION["usua_foto_SIGODT"] = '';
             }
 
-            // 9. Redirect to main module (Inicio)
-            header("Location: " . Conectar::ruta() . "view/inicio/");
-            exit();
-        }
+        return true;
     }
     public function logout($hise_id)
     {
@@ -246,6 +306,7 @@ class usuario extends conectar
             curl_close($ch);
         }
 
+        SiindiSessionBridge::clearLogin();
         $_SESSION = [];
         if (ini_get("session.use_cookies")) {
             $params = session_get_cookie_params();

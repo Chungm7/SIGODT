@@ -1,5 +1,7 @@
 # SIINDI module transfer: contact and source services (partial)
 
+> **Historical modified-port record, superseded by restoration.** The original `seguridad/` template has been restored; the local changes and PASS claims below are not current integration acceptance or activation instructions. See [restoration, proposals and flow comparison](siindi-security-restoration-and-proposals.md).
+
 **Historical contact/services slice record.** The sections below describe the first delivered slice, not the current whole-feature state. The subsequent model/controller/login transfer is documented in `docs/siindi-backend-port.md`; original views/settings are being adapted in parallel. Independent backend verification confirmed one stale-authorization finalization defect; the bounded correction and targeted independent recheck now PASS. Scoped UI verification also PASS. Combined isolated checks passed all 13 PHP suites; Node passed 168/174, with only the six previously confirmed unrelated selector failures. Production activation and rendered-browser acceptance are not approved. Historical statements below such as “login untouched” or “S3 unimplemented” apply only to this initial slice.
 
 ## Source and manifest

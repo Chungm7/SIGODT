@@ -1,0 +1,196 @@
+/**
+ * Estilos para el Módulo de Doble Factor de Autenticación (2FA)
+ * Compatible con Tabler UI y la línea gráfica institucional MPCH.
+ */
+
+/* Input de 6 dígitos para el desafío 2FA */
+.two-factor-input-container {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 20px 0;
+}
+
+.two-factor-digit-input {
+    font-size: 28px !important;
+    font-weight: 700 !important;
+    text-align: center !important;
+    letter-spacing: 10px !important;
+    height: 56px !important;
+    font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+    border-radius: 8px !important;
+    border: 2px solid #cbd5e1 !important;
+    transition: all 0.2s ease-in-out;
+    background-color: #f8fafc;
+}
+
+.two-factor-digit-input:focus {
+    border-color: #066fd1 !important;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(6, 111, 209, 0.15) !important;
+    outline: none;
+}
+
+/* Input Gigante y Llamativo para Enrolamiento Horizontal */
+.two-factor-digit-huge {
+    font-size: 36px !important;
+    font-weight: 800 !important;
+    text-align: center !important;
+    letter-spacing: 12px !important;
+    height: 68px !important;
+    font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, monospace !important;
+    border-radius: 12px !important;
+    border: 2.5px solid #94a3b8 !important;
+    color: #0f172a !important;
+    background: #ffffff !important;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.two-factor-digit-huge:focus {
+    border-color: #066fd1 !important;
+    background: #ffffff !important;
+    box-shadow: 0 0 0 5px rgba(6, 111, 209, 0.2), 0 4px 12px rgba(6, 111, 209, 0.15) !important;
+    transform: translateY(-1px);
+    outline: none;
+}
+
+/* Diseño Horizontal 'Libro' */
+.book-card-container,
+.modal-book-dialog {
+    max-width: 960px !important;
+    width: 95% !important;
+}
+
+.book-header-strip {
+    width: 95% !important;
+    max-width: 960px !important;
+}
+
+.book-left-page {
+    border-right: 1px solid #e2e8f0;
+}
+
+@media (max-width: 768px) {
+    .book-left-page {
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 24px;
+        margin-bottom: 24px;
+    }
+}
+
+.book-right-page {
+    background: #f8fafc;
+    border-radius: 0 0 8px 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+@media (max-width: 768px) {
+    .book-right-page {
+        border-radius: 0 0 8px 8px;
+    }
+}
+
+.store-badge-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #334155;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.store-badge-pill:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+/* Grilla de Códigos de Respaldo */
+.recovery-codes-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 16px 0;
+}
+
+.recovery-code-item {
+    font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+    background: #ffffff;
+    border: 1px dashed #cbd5e1;
+    border-radius: 6px;
+    padding: 8px 12px;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+.recovery-code-item.used {
+    color: #94a3b8;
+    background: #f1f5f9;
+    text-decoration: line-through;
+    border-color: #e2e8f0;
+}
+
+/* Contenedor del Código QR */
+.qr-wrapper {
+    background: #ffffff;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    display: inline-block;
+    margin: 10px auto;
+}
+
+.qr-canvas-holder svg, 
+.qr-canvas-holder canvas {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+/* Clave de texto manual */
+.manual-secret-box {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-family: monospace;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: #0f172a;
+    word-break: break-all;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Iconos de seguridad */
+.icon-2fa-shield {
+    width: 64px;
+    height: 64px;
+    background: #e0f2fe;
+    color: #0369a1;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px auto;
+}

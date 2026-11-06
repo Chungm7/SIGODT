@@ -8,7 +8,7 @@
  *    (e.g., "La contraseña es incorrecta (1/5)", "El usuario no tiene acceso al sistema").
  * 3. Default fallback error message when response message is empty ("Datos incorrectos").
  * 4. Password whitening (blanqueamiento) flow when response contains data.url:
- *    cookie 'blanqueamiento' issued on /sigur/ with encrypted JWE and redirect to view/clave/blanqueamiento.php.
+ *    isolated temporary cookie/context on /SIGODT/ and local original first-access route.
  * 5. Validation of active system 8 permission in local DB (db_simcix):
  *    if absent, $_SESSION['login_error'] = 'El usuario no tiene permisos activos para el sistema SIGODT'.
  * 6. Successful login flow:
@@ -52,6 +52,7 @@ if (PHP_SAPI === 'cli-server') {
     if (strpos($uri, 'login.php') !== false) {
         header('Content-Type: application/json; charset=utf-8');
         $usuDoc = $_POST['usu_doc'] ?? '';
+        if ($usuDoc === '78901234') $usuDoc = 'whitening_user';
         $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
 
         if ($authHeader !== 'Bearer mock_jwt_bearer_token_xyz') {
@@ -142,7 +143,7 @@ if (PHP_SAPI === 'cli-server') {
         $_POST = [
             'enviar' => 'si',
             'captchaInput' => 'CAPT99',
-            'usu_dni' => $scenario,
+            'usu_dni' => $scenario === 'whitening_user' ? '78901234' : (in_array($scenario, ['valid_user', 'complete_user'], true) ? '16477575' : $scenario),
             'usu_pass' => 'TestPass123'
         ];
 
@@ -222,6 +223,7 @@ if (PHP_SAPI === 'cli-server') {
                 public function conexion() { return new MockPdo(self::$scenario); }
                 public function set_names() { return true; }
                 public static function ruta(): string { return 'http://10.10.10.16/SIGODT/'; }
+                public static function getCookiePath(): string { return '/SIGODT/'; }
                 public static function getClientIp(): string { return '192.168.1.50'; }
                 public static function getEnv(string $key, $default = null) {
                     return $_ENV[$key] ?? $default;
@@ -246,7 +248,16 @@ if (PHP_SAPI === 'cli-server') {
         }
 
         // Register shutdown function to output final session snapshot in response body
-        register_shutdown_function(function () {
+        register_shutdown_function(function () use ($scenario) {
+            if ($scenario === 'complete_user' && isset($_SESSION['2fa_pending_SIGODT'])) {
+                // Public factor verification is tested separately in siindi_login_integration_test.php.
+                $p = $_SESSION['2fa_pending_SIGODT'];
+                $_SESSION['2fa_verified_SIGODT'] = ['kind'=>'siindi_completion', 'sigodt_nonce'=>$p['sigodt_nonce'], 'usu_id'=>$p['usu_id'],
+                    'usu_doc'=>$p['usu_doc'], 'challenge_id'=>$p['challenge_id'], 'expires_at'=>$p['expires_at']];
+                if ((new Usuario())->finalizarLogin2FA()) {
+                    header('Location: ' . Conectar::ruta() . 'view/inicio/');
+                }
+            }
             echo json_encode($_SESSION);
         });
 
@@ -294,18 +305,8 @@ $serverProcess = proc_open(
 check(is_resource($serverProcess), "Failed to start local mock CLI server");
 
 try {
-    // Wait for server readiness
-    $ready = false;
-    for ($i = 0; $i < 50; $i++) {
-        $conn = @stream_socket_client('tcp://' . $address, $errno, $error, 0.1);
-        if ($conn) {
-            fclose($conn);
-            $ready = true;
-            break;
-        }
-        usleep(20000);
-    }
-    check($ready, "Local mock server did not become ready in time");
+    // One finite startup allowance; a failed request is never polled/retried.
+    usleep(200000);
 
     $executeLoginTest = function (string $scenario) use ($address): array {
         $ch = curl_init('http://' . $address . '/test-login?scenario=' . urlencode($scenario));
@@ -324,8 +325,8 @@ try {
         preg_match('/^Location:\s*(.*?)$/mi', $headerStr, $locMatches);
         $location = isset($locMatches[1]) ? trim($locMatches[1]) : null;
 
-        preg_match('/^Set-Cookie:\s*blanqueamiento=([^;]+);/mi', $headerStr, $cookieMatches);
-        $blanqueamientoCookie = isset($cookieMatches[1]) ? urldecode(trim($cookieMatches[1])) : null;
+        preg_match_all('/^Set-Cookie:\s*blanqueamiento=([^;]+);/mi', $headerStr, $cookieMatches);
+        $blanqueamientoCookie = !empty($cookieMatches[1]) ? urldecode(trim(end($cookieMatches[1]))) : null;
 
         return [
             'httpCode' => $httpCode,
@@ -396,7 +397,7 @@ try {
     $res5 = $executeLoginTest('whitening_user');
     check($res5['httpCode'] === 302, "Expected HTTP 302 redirect");
     check(
-        $res5['location'] === 'http://10.10.10.16/sigur/view/clave/blanqueamiento.php',
+        $res5['location'] === 'http://10.10.10.16/SIGODT/seguridad/primer_acceso/views/',
         "Expected redirect to blanqueamiento.php, got: " . var_export($res5['location'], true)
     );
     check(!empty($res5['blanqueamientoCookie']), "blanqueamiento cookie must be set");
@@ -407,7 +408,9 @@ try {
     $jwt = new JwtHandler();
     $decodedCookie = $jwt->decrypt($res5['blanqueamientoCookie']);
     check(is_object($decodedCookie) && isset($decodedCookie->data), "Failed to decrypt JWE cookie");
-    check($decodedCookie->data->usu_doc === 'whitening_user', "Cookie usu_doc mismatch");
+    check($decodedCookie->data->usu_doc === '78901234', "Cookie usu_doc mismatch");
+    check(($res5['session']['sigodt_password_context']['stage'] ?? '') === 'first_access', 'Authoritative login creates temporary first-access context');
+    check(str_contains($res5['headers'], 'path=/SIGODT/') && !str_contains($res5['headers'], 'path=/sigur/'), 'Module-only cookies, no central cookie mutation');
     check($decodedCookie->data->blanqueamiento === 2, "Cookie blanqueamiento mismatch");
     echo "  -> Password whitening flow verified.\n";
 
@@ -428,7 +431,11 @@ try {
     // 7. Successful Login Flow: Profile, Session Variables, and Redirection
     // -------------------------------------------------------------------------
     echo "[7/8] Testing successful login flow and session population...\n";
-    $res7 = $executeLoginTest('valid_user');
+    $pending7 = $executeLoginTest('valid_user');
+    check($pending7['httpCode'] === 302, "Expected HTTP 302 redirect to second factor");
+    check($pending7['location'] === 'http://10.10.10.16/SIGODT/seguridad/2fa/views/selector_metodo.php', 'Expected copied selector');
+    check(isset($pending7['session']['2fa_pending_SIGODT']) && !isset($pending7['session']['usua_id_SIGODT']), 'No completed session before factor');
+    $res7 = $executeLoginTest('complete_user');
     check($res7['httpCode'] === 302, "Expected HTTP 302 redirect");
     check(
         $res7['location'] === 'http://10.10.10.16/SIGODT/view/inicio/',

@@ -18,7 +18,7 @@ class SigurMailer {
      * @return array ['success' => bool, 'message' => string, 'simulated' => bool]
      */
     public static function sendVerificationCode($destinatario, $codigo, $nombre = 'Servidor Municipal', $expiraSeg = 120) {
-        $sistema = $_ENV['APP_NAME'] ?? 'SIGODT';
+        $sistema = $_ENV['APP_NAME'] ?? 'sisIndicadores';
         $asunto  = "Código de Seguridad 2FA: {$codigo} - Municipalidad Provincial de Chiclayo";
         $mensaje = self::buildHtmlMessage($codigo, $nombre, $sistema, $expiraSeg);
 
@@ -33,7 +33,7 @@ class SigurMailer {
      * @return array ['success' => bool, 'message' => string, 'simulated' => bool]
      */
     public static function sendDeviceLinkedNotification($destinatario, $nombre = 'Servidor Municipal') {
-        $sistema = $_ENV['APP_NAME'] ?? 'SIGODT';
+        $sistema = $_ENV['APP_NAME'] ?? 'sisIndicadores';
         $asunto  = "Alerta de Seguridad: Nuevo dispositivo vinculado (2FA) - Municipalidad Provincial de Chiclayo";
         $mensaje = self::buildDeviceLinkedHtmlMessage($nombre, $sistema);
 
@@ -43,7 +43,7 @@ class SigurMailer {
     /**
      * Envía cualquier correo mediante los endpoints de SIGUR:
      * 1. POST sigur/auth/ -> Obtener Bearer Token institucional
-     * 2. POST sigur/ws/correo-ss.php -> Enviar correo (contrato observado en SIINDI)
+     * 2. POST sigur/ws/correo.php -> Enviar correo
      *
      * @param string $destinatario Correo electrónico de destino
      * @param string $asunto       Título / Asunto del mensaje
@@ -51,103 +51,124 @@ class SigurMailer {
      * @return array ['success' => bool, 'message' => string, 'simulated' => bool]
      */
     public static function enviarCorreoSigur($destinatario, $asunto, $mensajeHtml) {
-        // SIGODT's existing SIGUR_URL already includes /sigur/; never append it twice.
-        $baseUrl = rtrim((string)($_ENV['SIGUR_URL'] ?? ''), '/') . '/';
-        $authUrl = $_ENV['SIGUR_AUTH_URL'] ?? ($baseUrl . 'auth/');
+        $baseUrl = !empty($_ENV["SIGUR_URL"]) ? $_ENV["SIGUR_URL"] : (!empty($_ENV["BASE_URL"]) ? $_ENV["BASE_URL"] : 'http://10.10.10.16/');
+        $baseUrl = rtrim($baseUrl, '/') . '/';
+
         $sistInic = $_ENV['SIST_INIC'] ?? '';
         $sistPass = $_ENV['SIST_PASS'] ?? '';
-        $failure = [
-            'success' => false,
-            'message' => 'No se pudo enviar el correo de seguridad institucional.',
-            'simulated' => false
-        ];
 
-        // Missing configuration is an error in every environment, not simulated delivery.
-        if (!is_string($sistInic) || $sistInic === '' || !is_string($sistPass) || $sistPass === ''
-            || !is_string($destinatario) || !filter_var($destinatario, FILTER_VALIDATE_EMAIL)
-            || !is_string($asunto) || preg_match('/[\r\n]/', $asunto)
-            || parse_url($baseUrl, PHP_URL_SCHEME) !== 'https'
-            || !is_string($authUrl) || parse_url($authUrl, PHP_URL_SCHEME) !== 'https'
-            || !parse_url($baseUrl, PHP_URL_HOST) || !parse_url($authUrl, PHP_URL_HOST)) {
-            return $failure;
+        // Si faltan credenciales en .env, registrar simulación para no bloquear entornos locales
+        if (empty($sistInic) || empty($sistPass)) {
+            error_log("[SigurMailer SIMULADO] Credenciales SIGUR ausentes en .env. Correo para {$destinatario}");
+            return [
+                'success'   => true,
+                'message'   => 'Modo de prueba (credenciales SIGUR no configuradas en .env).',
+                'simulated' => true
+            ];
         }
 
-        try {
-            // 1. OBTENER TOKEN DE AUTENTICACIÓN EN SIGUR
-            $authData = [
-                'sist_inic' => $sistInic,
-                'sist_pass' => $sistPass
-            ];
-            $ch = curl_init($authUrl);
-            if ($ch === false) { return $failure; }
-            try {
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_POST, true);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($authData));
-                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-                curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-                curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
-                $authResponse = curl_exec($ch);
-                $authError = curl_errno($ch);
-                $authHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            } finally {
-                curl_close($ch);
-            }
-            if ($authResponse === false || $authError || $authHttpCode < 200 || $authHttpCode >= 300) {
-                return $failure;
-            }
-            $authJson = json_decode($authResponse, true);
-            $token = $authJson['data']['token'] ?? null;
-            if (!is_string($token) || $token === '' || preg_match('/[\r\n]/', $token)) {
-                return $failure;
-            }
+        // 1. OBTENER TOKEN DE AUTENTICACIÓN EN SIGUR
+        $authUrl = $baseUrl . 'sigur/auth/';
+        $authData = [
+            'sist_inic' => $sistInic,
+            'sist_pass' => $sistPass
+        ];
 
-            // 2. DESPACHAR EL CORREO A TRAVÉS DE SIGUR
-            $mailUrl = $baseUrl . 'ws/correo-ss.php';
-            $postData = [
-                'destino' => trim($destinatario),
-                'titulo'  => trim($asunto),
-                'mensaje' => $mensajeHtml
+        $ch = curl_init($authUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($authData));
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+
+        $authResponse = curl_exec($ch);
+        $authError    = curl_error($ch);
+        $authHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($authError) {
+            error_log("[SigurMailer] Error de conexión al autenticar con SIGUR ({$authUrl}): {$authError}");
+            return [
+                'success'   => false,
+                'message'   => "Error al autenticar con el servicio de correo institucional: {$authError}",
+                'simulated' => false
             ];
-            $api = curl_init($mailUrl);
-            if ($api === false) { return $failure; }
-            try {
-                curl_setopt($api, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($api, CURLOPT_POST, true);
-                curl_setopt($api, CURLOPT_HTTPHEADER, [
-                    'Authorization: Bearer ' . $token
-                ]);
-                // Preserve SIINDI's observed multipart field contract.
-                curl_setopt($api, CURLOPT_POSTFIELDS, $postData);
-                curl_setopt($api, CURLOPT_CONNECTTIMEOUT, 5);
-                curl_setopt($api, CURLOPT_TIMEOUT, 15);
-                curl_setopt($api, CURLOPT_SSL_VERIFYPEER, true);
-                curl_setopt($api, CURLOPT_SSL_VERIFYHOST, 2);
-                curl_setopt($api, CURLOPT_FOLLOWLOCATION, false);
-                $correoResponse = curl_exec($api);
-                $correoError = curl_errno($api);
-                $httpCode = curl_getinfo($api, CURLINFO_HTTP_CODE);
-            } finally {
-                curl_close($api);
-            }
-            if ($correoResponse === false || $correoError || $httpCode < 200 || $httpCode >= 300) {
-                return $failure;
-            }
-            $correoJson = json_decode($correoResponse, true);
-            if (is_array($correoJson) && ($correoJson['success'] ?? null) === true) {
+        }
+
+        $authJson = json_decode($authResponse, true);
+        if (!$authJson || empty($authJson['data']['token'])) {
+            $msg = $authJson['message'] ?? "No se pudo obtener el token de autorización en SIGUR (HTTP {$authHttpCode})";
+            error_log("[SigurMailer] Fallo en autenticación SIGUR: {$msg}");
+            return [
+                'success'   => false,
+                'message'   => $msg,
+                'simulated' => false
+            ];
+        }
+
+        $token = $authJson['data']['token'];
+
+        // 2. DESPACHAR EL CORREO A TRAVÉS DE SIGUR
+        $mailUrl = $baseUrl . 'sigur/ws/correo-ss.php';
+        $postData = [
+            'destino' => trim($destinatario),
+            'titulo'  => trim($asunto),
+            'mensaje' => $mensajeHtml
+        ];
+
+        $api = curl_init($mailUrl);
+        curl_setopt($api, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($api, CURLOPT_POST, true);
+        curl_setopt($api, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $token
+        ]);
+        curl_setopt($api, CURLOPT_POSTFIELDS, $postData);
+        curl_setopt($api, CURLOPT_TIMEOUT, 15);
+        curl_setopt($api, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($api, CURLOPT_SSL_VERIFYHOST, false);
+
+        $correoResponse = curl_exec($api);
+        $correoError    = curl_error($api);
+        $httpCode       = curl_getinfo($api, CURLINFO_HTTP_CODE);
+        curl_close($api);
+
+        if ($correoError) {
+            error_log("[SigurMailer] Error al conectar con endpoint de correo ({$mailUrl}): {$correoError}");
+            return [
+                'success'   => false,
+                'message'   => "Error de conexión al enviar el correo: {$correoError}",
+                'simulated' => false
+            ];
+        }
+
+        $correoJson = json_decode($correoResponse, true);
+
+        if ($httpCode >= 200 && $httpCode < 300) {
+            if (is_array($correoJson) && isset($correoJson['success']) && $correoJson['success'] === true) {
                 return [
-                    'success' => true,
-                    'message' => 'Correo enviado exitosamente.',
+                    'success'   => true,
+                    'message'   => $correoJson['message'] ?? 'Correo enviado exitosamente.',
                     'simulated' => false
                 ];
             }
-        } catch (Throwable $e) {
-            // No recipient, OTP, credentials, provider response or transport details in errors/logs.
-            return $failure;
+
+            $errMsg = $correoJson['message'] ?? 'El servicio de correo institucional no confirmó la entrega.';
+            error_log("[SigurMailer] Respuesta no exitosa de correo: {$errMsg}");
+            return [
+                'success'   => false,
+                'message'   => $errMsg,
+                'simulated' => false
+            ];
         }
-        return $failure;
+
+        $errMsg = $correoJson['message'] ?? "El servicio de correo respondió con error HTTP {$httpCode}.";
+        error_log("[SigurMailer] Error HTTP {$httpCode}: {$errMsg}");
+        return [
+            'success'   => false,
+            'message'   => $errMsg,
+            'simulated' => false
+        ];
     }
 
     /**
@@ -162,8 +183,6 @@ class SigurMailer {
     public static function buildHtmlMessage($codigo, $nombre, $sistema, $expiraSeg = 120) {
         $nombreSeguro = htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8');
         $sistemaSeguro = htmlspecialchars($sistema, ENT_QUOTES, 'UTF-8');
-        $codigo = htmlspecialchars((string)$codigo, ENT_QUOTES, 'UTF-8');
-        $expiraSeg = max(1, (int)$expiraSeg);
         $minutos = ceil($expiraSeg / 60);
 
         return <<<HTML
@@ -228,7 +247,7 @@ HTML;
         $nombreSeguro = htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8');
         $sistemaSeguro = htmlspecialchars($sistema, ENT_QUOTES, 'UTF-8');
         $fecha = date('d/m/Y H:i:s');
-        $ip = htmlspecialchars((string)($_SERVER['REMOTE_ADDR'] ?? 'No registrada'), ENT_QUOTES, 'UTF-8');
+        $ip = $_SERVER['REMOTE_ADDR'] ?? 'No registrada';
 
         return <<<HTML
 <tr>

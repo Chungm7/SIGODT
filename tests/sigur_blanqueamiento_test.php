@@ -8,7 +8,8 @@
  * 3. Payload preservation (usu_doc, usu_tipo, blanqueamiento, system.APP_NAME).
  * 4. Security cookie attributes (HttpOnly, SameSite=Lax, path=/sigur/, expiry).
  * 5. End-to-end detection of "$detalle === 'Blanqueamiento de clave'" in Usuario::login()
- *    with cookie issuance and redirection to sigur/view/clave/blanqueamiento.php.
+ *    with module-scoped temporary cookie and local original first-access route.
+ * Central /sigur/ cookie helper compatibility is still checked independently.
  */
 
 // If invoked as a built-in CLI server, route mock endpoints
@@ -85,6 +86,7 @@ if (PHP_SAPI === 'cli-server') {
                 }
                 public function set_names() { return true; }
                 public static function ruta() { return 'http://10.10.10.16/SIGODT/'; }
+                public static function getCookiePath() { return '/SIGODT/'; }
                 public static function getClientIp(): string { return '127.0.0.1'; }
                 public static function getEnv(string $key, $default = null) {
                     return $_ENV[$key] ?? $default;
@@ -241,18 +243,8 @@ $serverProcess = proc_open(
 check(is_resource($serverProcess), "Failed to start local mock CLI server");
 
 try {
-    // Wait for server ready
-    $ready = false;
-    for ($i = 0; $i < 50; $i++) {
-        $conn = @stream_socket_client('tcp://' . $address, $errno, $error, 0.1);
-        if ($conn) {
-            fclose($conn);
-            $ready = true;
-            break;
-        }
-        usleep(20000);
-    }
-    check($ready, "Local mock server did not become ready in time");
+    // One finite startup allowance; no polling or request retry.
+    usleep(200000);
 
     // Case A: Successful blanqueamiento detection
     $ch = curl_init('http://' . $address . '/test-login?dni=78901234');
@@ -270,14 +262,15 @@ try {
     check(!empty($locationMatches[1]), "Redirect Location header missing in response");
     $redirectUrl = trim($locationMatches[1]);
     check(
-        $redirectUrl === 'http://10.10.10.16/sigur/view/clave/blanqueamiento.php',
-        "Redirect target mismatch: expected 'http://10.10.10.16/sigur/view/clave/blanqueamiento.php', got '$redirectUrl'"
+        $redirectUrl === 'http://10.10.10.16/SIGODT/seguridad/primer_acceso/views/',
+        "Redirect target mismatch: expected local first-access route, got '$redirectUrl'"
     );
 
     // Verify Set-Cookie header for blanqueamiento
-    preg_match('/^Set-Cookie:\s*blanqueamiento=([^;]+);/mi', $response, $cookieMatches);
+    preg_match_all('/^Set-Cookie:\s*blanqueamiento=([^;]+);/mi', $response, $cookieMatches);
     check(!empty($cookieMatches[1]), "Set-Cookie 'blanqueamiento' missing in redirect response");
-    $cookieToken = urldecode(trim($cookieMatches[1]));
+    $cookieToken = urldecode(trim(end($cookieMatches[1])));
+    check(str_contains($response, 'path=/SIGODT/') && !str_contains($response, 'path=/sigur/'), 'Login must not mutate central cookies');
 
     // Decrypt token from cookie and verify contents
     $cookieDecoded = $jwt->decrypt($cookieToken);
@@ -285,7 +278,7 @@ try {
     check($cookieDecoded->data->usu_doc === '78901234', "Cookie token usu_doc mismatch: got " . ($cookieDecoded->data->usu_doc ?? 'null'));
     check($cookieDecoded->data->usu_tipo === 'P', "Cookie token usu_tipo mismatch");
     check($cookieDecoded->data->blanqueamiento === 2, "Cookie token blanqueamiento mismatch");
-    check($cookieDecoded->data->success === true, "Cookie token success flag mismatch");
+    check(strlen($cookieDecoded->data->sigodt_reset_nonce ?? '') === 64, "Cookie token temporary context nonce mismatch");
     check($cookieDecoded->system->APP_NAME === 'SIGODT', "Cookie token system APP_NAME mismatch");
 
     // Case B: Non-blanqueamiento response ('Datos incorrectos')
