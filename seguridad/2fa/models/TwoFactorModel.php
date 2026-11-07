@@ -62,6 +62,11 @@ class TwoFactorModel {
             if ($lockedUntilTs > $nowTs) {
                 $isLocked = true;
                 $lockMinutes = ceil(($lockedUntilTs - $nowTs) / 60);
+            } else {
+                // Bloqueo temporal expirado: limpiar estado preventivamente
+                self::clearExpiredLock($usu_doc);
+                $record['seus_bloqueo_temp'] = null;
+                $record['seus_intentos_fall'] = 0;
             }
         }
 
@@ -181,19 +186,47 @@ class TwoFactorModel {
     }
 
     /**
-     * Registra un intento fallido y activa bloqueo por 15 minutos si llega a 5 fallos.
+     * Limpia un bloqueo temporal que ya ha expirado.
+     */
+    public static function clearExpiredLock($usu_doc) {
+        try {
+            $con = (new Conectar())->conexion();
+            $stmt = $con->prepare("
+                UPDATE public.tb_seguridad_usuario_2fa
+                SET seus_intentos_fall = 0,
+                    seus_bloqueo_temp  = NULL,
+                    seus_updated_at    = CURRENT_TIMESTAMP
+                WHERE seus_usuario_doc = :usu_doc
+                  AND seus_bloqueo_temp IS NOT NULL
+                  AND seus_bloqueo_temp <= CURRENT_TIMESTAMP
+            ");
+            return $stmt->execute([':usu_doc' => $usu_doc]);
+        } catch (Exception $e) {
+            error_log("[TwoFactorModel::clearExpiredLock] Error: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Registra un intento fallido y activa bloqueo por 2 minutos si llega a 5 fallos.
      * @return array ['attempts' => int, 'locked' => bool, 'lock_minutes' => int]
      */
     public static function recordFailedAttempt($usu_doc) {
         try {
             $con = (new Conectar())->conexion();
             
-            // Incrementar contador
+            // Incrementar contador (reinicia en 1 si el bloqueo anterior ya expiró)
             $stmt = $con->prepare("
                 UPDATE public.tb_seguridad_usuario_2fa
-                SET seus_intentos_fall = seus_intentos_fall + 1,
+                SET seus_intentos_fall = CASE 
+                        WHEN seus_bloqueo_temp IS NOT NULL AND seus_bloqueo_temp <= CURRENT_TIMESTAMP THEN 1
+                        ELSE seus_intentos_fall + 1
+                    END,
                     seus_bloqueo_temp = CASE 
-                        WHEN seus_intentos_fall + 1 >= 5 THEN CURRENT_TIMESTAMP + INTERVAL '15 minutes'
+                        WHEN (CASE WHEN seus_bloqueo_temp IS NOT NULL AND seus_bloqueo_temp <= CURRENT_TIMESTAMP THEN 1 ELSE seus_intentos_fall + 1 END) >= 5 
+                            THEN CURRENT_TIMESTAMP + INTERVAL '2 minutes'
+                        WHEN seus_bloqueo_temp IS NOT NULL AND seus_bloqueo_temp <= CURRENT_TIMESTAMP 
+                            THEN NULL
                         ELSE seus_bloqueo_temp 
                     END,
                     seus_updated_at = CURRENT_TIMESTAMP
@@ -206,10 +239,14 @@ class TwoFactorModel {
             if ($res) {
                 $attempts = (int)$res['seus_intentos_fall'];
                 $isLocked = !empty($res['seus_bloqueo_temp']) && strtotime($res['seus_bloqueo_temp']) > time();
+                $lockMinutes = 0;
+                if ($isLocked) {
+                    $lockMinutes = max(1, (int)ceil((strtotime($res['seus_bloqueo_temp']) - time()) / 60));
+                }
                 return [
                     'attempts'     => $attempts,
                     'locked'       => $isLocked,
-                    'lock_minutes' => $isLocked ? 15 : 0
+                    'lock_minutes' => $lockMinutes
                 ];
             }
         } catch (Exception $e) {
