@@ -10,7 +10,6 @@
         position: relative;
         height: 100%;
         aspect-ratio: 3/4;
-        min-height: 140px;
     }
     .procedimiento-foto-box {
         position: absolute;
