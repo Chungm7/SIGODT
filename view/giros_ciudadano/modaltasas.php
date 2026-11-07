@@ -1,4 +1,40 @@
 <!-- Modal para desglose y liquidación de tasas -->
+<style>
+    .procedimiento-header-grid {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 1rem;
+        align-items: stretch;
+    }
+    .procedimiento-foto-wrapper {
+        position: relative;
+        height: 100%;
+        aspect-ratio: 3/4;
+        min-height: 140px;
+    }
+    .procedimiento-foto-box {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+    .procedimiento-tabla-wrapper {
+        min-width: 0;
+    }
+    @media (max-width: 575.98px) {
+        .procedimiento-header-grid {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .procedimiento-foto-wrapper {
+            width: 140px;
+            height: 180px;
+        }
+    }
+</style>
 <div id="modaltasas" class="modal modal-blur fade" tabindex="-1" aria-labelledby="nombreproced_modal" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content shadow">
@@ -26,13 +62,13 @@
 
                     <!-- Sección de Datos del Procedimiento -->
                     <div class="mb-3" id="procedimientoData">
-                        <div class="row g-3 align-items-stretch">
-                            <div class="col-md-3 d-flex">
-                                <div class="w-100 h-100 border rounded p-1 bg-white d-flex align-items-center justify-content-center overflow-hidden">
-                                    <img id="ciudadano_foto" src="" alt="Fotografía" class="rounded w-100 h-100" style="object-fit: cover; display: block;">
+                        <div class="procedimiento-header-grid">
+                            <div class="procedimiento-foto-wrapper">
+                                <div class="procedimiento-foto-box border rounded p-1 bg-white">
+                                    <img id="ciudadano_foto" src="" alt="Fotografía" class="rounded" style="width: 100%; height: 100%; object-fit: cover; display: block;">
                                 </div>
                             </div>
-                            <div class="col-md-9">
+                            <div class="procedimiento-tabla-wrapper">
                                 <div class="table-responsive">
                                     <table class="table table-sm table-bordered mb-0">
                                         <tbody>
