@@ -23,6 +23,16 @@ class TokenHelper
         return openssl_decrypt($cipher, 'AES-128-ECB', self::getKey());
     }
 }
+function normalizeFotoDataUri(?string $foto): string
+{
+    if (empty($foto)) return "";
+    $trimmed = trim($foto);
+    if (str_starts_with($trimmed, "data:image") || str_starts_with($trimmed, "http") || str_starts_with($trimmed, "../") || str_starts_with($trimmed, "uploads/")) {
+        return $trimmed;
+    }
+    return "data:image/jpeg;base64," . $trimmed;
+}
+
 function response($message, $data = [], $suc = true, $httpStatusCode = 200)
 {
     $status = $httpStatusCode;
@@ -51,7 +61,7 @@ switch ($_GET["op"]) {
                 $output["ciudadano_direccion"] = $row["ciud_domicilio_real"];
                 $output["ciud_sexo"] = $row["ciud_sexo"];
                 $output["ciud_fecha_nac"] = $row["ciud_fecha_nac"];
-                $output["ciud_foto"] = $row["ciud_foto"];
+                $output["ciud_foto"] = normalizeFotoDataUri($row["ciud_foto"]);
             }
             echo json_encode($output);
         }
@@ -315,7 +325,7 @@ switch ($_GET["op"]) {
                 $output["ciudadano_direccion"] = $row["ciud_domicilio_real"];
                 $output["ciud_sexo"] = $row["ciud_sexo"];
                 $output["ciud_fecha_nac"] = $row["ciud_fecha_nac"];
-                $output["ciud_foto"] = $row["ciud_foto"];
+                $output["ciud_foto"] = normalizeFotoDataUri($row["ciud_foto"]);
             }
             echo json_encode($output);
         } else {
@@ -603,6 +613,9 @@ switch ($_GET["op"]) {
     case "mostrar":
         $id = $_POST["ciud_id"];
         $r = $ciudadano->mostrar($id);
+        if ($r && !empty($r["ciud_foto"])) {
+            $r["ciud_foto"] = normalizeFotoDataUri($r["ciud_foto"]);
+        }
         echo json_encode($r);
         break;
 

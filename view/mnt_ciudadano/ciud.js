@@ -212,6 +212,15 @@ function esTipoDni() {
     return desc === "DNI" || val == "1";
 }
 
+function formatFotoSrc(foto) {
+    if (!foto) return "";
+    var trimmed = String(foto).trim();
+    if (trimmed.startsWith("data:image") || trimmed.startsWith("http://") || trimmed.startsWith("https://") || trimmed.startsWith("../../") || trimmed.startsWith("../") || trimmed.startsWith("uploads/")) {
+        return trimmed;
+    }
+    return "data:image/jpeg;base64," + trimmed;
+}
+
 function consultarDocumentoMnt() {
     const numDoc = $("#ciud_numero_documento").val().trim();
     if (!esTipoDni()) {
@@ -245,7 +254,7 @@ function consultarDocumentoMnt() {
                             $("#ciud_fecha_nac").val(response.ciud_fecha_nac);
                         }
                         if (response.ciud_foto) {
-                            $("#previewFoto").attr("src", response.ciud_foto).show();
+                            $("#previewFoto").attr("src", formatFotoSrc(response.ciud_foto)).show();
                             $("#previewFotoDefault").hide();
                         }
                         $("#doc_status").html('<span class="text-success small fw-semibold">✓ RENIEC Sincronizado</span>');
@@ -295,7 +304,7 @@ function editar(id) {
 
             if (d.ciud_foto) {
                 $("#previewFoto")
-                    .attr("src", d.ciud_foto)
+                    .attr("src", formatFotoSrc(d.ciud_foto))
                     .show();
                 $("#previewFotoDefault").hide();
             } else {

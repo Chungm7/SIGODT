@@ -1,5 +1,14 @@
 var ciudadano_id = $("#ciudadano_idx").val();
 
+function formatFotoSrc(foto) {
+  if (!foto) return "";
+  var trimmed = String(foto).trim();
+  if (trimmed.startsWith("data:image") || trimmed.startsWith("http://") || trimmed.startsWith("https://") || trimmed.startsWith("../../") || trimmed.startsWith("../") || trimmed.startsWith("uploads/")) {
+    return trimmed;
+  }
+  return "data:image/jpeg;base64," + trimmed;
+}
+
 const formCiudadanosDetalles = document.getElementById("ciudadanosdetalles_form");
 if (formCiudadanosDetalles) {
   formCiudadanosDetalles.addEventListener("keydown", function (e) {
@@ -451,7 +460,7 @@ function buscarDNI(ciudadano_doc, tipo_documento) {
               .removeClass("d-none")
               .show();
             if (response.ciud_foto) {
-              $("#imagen_ciudadano").attr("src", response.ciud_foto);
+              $("#imagen_ciudadano").attr("src", formatFotoSrc(response.ciud_foto));
             }
             $("#ciudadano_nombre, #ciudadano_apep, #ciudadano_apem").attr("readonly", "readonly");
           } else {
@@ -493,7 +502,7 @@ function buscarDNI(ciudadano_doc, tipo_documento) {
               .show();
 
             if (response.ciud_foto) {
-              $("#imagen_ciudadano").attr("src", response.ciud_foto);
+              $("#imagen_ciudadano").attr("src", formatFotoSrc(response.ciud_foto));
             }
             $("#ciudadano_nombre, #ciudadano_apep, #ciudadano_apem").attr("readonly", "readonly");
           } else {
@@ -537,7 +546,7 @@ function buscarDNI(ciudadano_doc, tipo_documento) {
               .show();
 
             if (response.ciud_foto) {
-              $("#imagen_ciudadano").attr("src", response.ciud_foto);
+              $("#imagen_ciudadano").attr("src", formatFotoSrc(response.ciud_foto));
             }
             $("#ciudadano_nombre, #ciudadano_apep, #ciudadano_apem").attr("readonly", "readonly");
           } else {
@@ -1827,7 +1836,7 @@ function ver(tamiteciudadano_id) {
 
         // Actualiza la foto (se asume que item.ciud_foto viene en base64)
         if (item.ciud_foto) {
-          $("#ciudadano_foto").attr("src", item.ciud_foto);
+          $("#ciudadano_foto").attr("src", formatFotoSrc(item.ciud_foto));
         } else {
           $("#ciudadano_foto").attr("src", "../../public/img/perfil.jpeg");
         }
