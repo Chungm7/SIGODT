@@ -75,7 +75,8 @@ require_once(__DIR__ . "/../models/OrdenGiro.php");
 require_once(__DIR__ . "/../models/Bitacora.php");
 
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+ini_set('display_errors', 0);
+header('Content-Type: application/json; charset=utf-8');
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
     if (class_exists('Conectar', false) && method_exists('Conectar', 'initSession')) {
@@ -344,7 +345,7 @@ switch ($_GET["op"] ?? "") {
         $data = $pers_id > 0 ? $ordengiro->get_orden_giro_by_id($ogciud_id, $pers_id, $rol_id) : false;
 
         if ($data) {
-            echo json_encode(["status" => "success", "data" => $data]);
+            echo json_encode(["status" => "success", "data" => $data], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
         } else {
             echo json_encode(["status" => "error", "message" => "No se encontró la Orden de Giro"]);
         }

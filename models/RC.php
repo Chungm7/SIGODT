@@ -331,6 +331,20 @@ class RC extends Conectar
         }
     }
 
+    public static function toIso($str)
+    {
+        if (!is_string($str) || $str === '') {
+            return '';
+        }
+        if (function_exists('mb_convert_encoding')) {
+            return mb_convert_encoding($str, 'ISO-8859-1', 'UTF-8');
+        }
+        if (function_exists('iconv')) {
+            return iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $str);
+        }
+        return @utf8_decode($str);
+    }
+
     public function generar_pdf_orden_giro($ogciud_id, $pers_id = 0, $rol_id = 0)
     {
         $datos = $this->get_datos_giro_id($ogciud_id, $pers_id, $rol_id);
@@ -353,43 +367,43 @@ class RC extends Conectar
         }
         $pdf->Ln(30);
         $pdf->SetFont("Arial", "B", 14);
-        $pdf->Cell(0, 5, utf8_decode("MUNICIPALIDAD PROVINCIAL DE CHICLAYO"), 0, 1, 'C');
+        $pdf->Cell(0, 5, self::toIso("MUNICIPALIDAD PROVINCIAL DE CHICLAYO"), 0, 1, 'C');
         $pdf->Ln(4);
         $pdf->SetFont("Arial", "", 12);
         $pdf->Cell(0, 5, "RUC: 20141784901", 0, 1, 'C');
         $texto1 = ($detallesGenerales["lomu_denominacion"] ?? '') . ' ' . ($detallesGenerales["lomu_direccion"] ?? '');
 
         $pdf->SetFont("Arial", "", 11);
-        $pdf->MultiCell(0, 5, utf8_decode($texto1), 0, 'C');
+        $pdf->MultiCell(0, 5, self::toIso($texto1), 0, 'C');
 
         $pdf->Ln(4);
         $pdf->SetFont("Arial", "B", 14);
-        $pdf->Cell(0, 5, utf8_decode("Orden de Giro electrónico: " . ($detallesGenerales["ogciud_id"] ?? '')), 0, 1, 'C');
+        $pdf->Cell(0, 5, self::toIso("Orden de Giro electrónico: " . ($detallesGenerales["ogciud_id"] ?? '')), 0, 1, 'C');
         $pdf->Ln(8);
         $pdf->SetFont("Arial", "B", 12);
-        $pdf->Cell(30, 5, utf8_decode("FECHA EMISIÓN:  "));
+        $pdf->Cell(30, 5, self::toIso("FECHA EMISIÓN:  "));
         $pdf->SetFont("Arial", "", 12);
         $pdf->SetX(42);
         $pdf->Cell(0, 5, "    " . ($detallesGenerales["fecha"] ?? '') . "   " . ($detallesGenerales["hora"] ?? ''));
         $pdf->SetFont("Arial", "B", 12);
         $pdf->Ln(6);
-        $pdf->Cell(12, 5, utf8_decode("NORMA: "));
+        $pdf->Cell(12, 5, self::toIso("NORMA: "));
         $pdf->SetFont("Arial", "", 12);
         $pdf->SetX(28);
-        $pdf->Cell(0, 5, ($detallesGenerales["proced_tupa"] ?? ''));
+        $pdf->Cell(0, 5, self::toIso($detallesGenerales["proced_tupa"] ?? ''));
         $pdf->Ln(6);
         $pdf->SetFont("Arial", "B", 12);
-        $pdf->Cell(12, 5, utf8_decode("AREA: "));
+        $pdf->Cell(12, 5, self::toIso("AREA: "));
         $pdf->SetFont("Arial", "", 12);
-        $areacell = utf8_decode($detallesGenerales["depe_denominacion"] ?? '');
+        $areacell = self::toIso($detallesGenerales["depe_denominacion"] ?? '');
         $pdf->SetX(25);
         $pdf->MultiCell(0, 5, $areacell, 0, 'L');
         $pdf->Ln(6);
         $pdf->SetFont("Arial", "B", 12);
-        $pdf->Cell(0, 5, utf8_decode("OP: "));
+        $pdf->Cell(0, 5, self::toIso("OP: "));
         $pdf->SetFont("Arial", "", 12);
         $pdf->SetX(18);
-        $pdf->MultiCell(0, 5, utf8_decode($detallesGenerales["nombre_completo"] ?? ''), 0, 'L');
+        $pdf->MultiCell(0, 5, self::toIso($detallesGenerales["nombre_completo"] ?? ''), 0, 'L');
         $pdf->Ln(2);
         $pdf->Cell(0, 5, "........................................................................................");
         $direccion = "";
@@ -397,7 +411,7 @@ class RC extends Conectar
             ? $detallesGenerales["empr_ruc"]
             : ($detallesGenerales["empresa_ruc"] ?? '');
         if (!empty($ruc)) {
-            $direccion = utf8_decode($detallesGenerales["empr_direccion"] ?? '');
+            $direccion = self::toIso($detallesGenerales["empr_direccion"] ?? '');
             $pdf->Ln(8);
             $pdf->SetFont("Arial", "B", 12);
             $pdf->Cell(0, 5, "RUC: ");
@@ -410,13 +424,13 @@ class RC extends Conectar
                 $pdf->Cell(0, 5, "Razon social: ");
                 $pdf->SetX(38);
                 $pdf->SetFont("Arial", "", 12);
-                $pdf->MultiCell(0, 5, utf8_decode($detallesGenerales["empr_razon_social"] ?? ''), 0, 'L');
+                $pdf->MultiCell(0, 5, self::toIso($detallesGenerales["empr_razon_social"] ?? ''), 0, 'L');
                 $pdf->Ln(5);
                 $pdf->SetFont("Arial", "B", 12);
                 $pdf->Cell(0, 5, "Nombre Com: ");
                 $pdf->SetX(39);
                 $pdf->SetFont("Arial", "", 12);
-                $pdf->MultiCell(0, 5, utf8_decode($detallesGenerales["empr_nombre_comercial"] ?? ''), 0, 'L');
+                $pdf->MultiCell(0, 5, self::toIso($detallesGenerales["empr_nombre_comercial"] ?? ''), 0, 'L');
                 $pdf->Ln(5);
                 $pdf->SetFont("Arial", "B", 12);
                 $pdf->Cell(0, 5, "Direccion : ");
@@ -429,7 +443,7 @@ class RC extends Conectar
                 $pdf->Cell(0, 5, "Razon social: ");
                 $pdf->SetX(38);
                 $pdf->SetFont("Arial", "", 12);
-                $pdf->MultiCell(0, 5, utf8_decode($detallesGenerales["empresa_razon_social"] ?? ''), 0, 'L');
+                $pdf->MultiCell(0, 5, self::toIso($detallesGenerales["empresa_razon_social"] ?? ''), 0, 'L');
             }
             $pdf->Ln(2);
             $pdf->Cell(0, 5, "........................................................................................");
@@ -462,7 +476,7 @@ class RC extends Conectar
         } else if ($tidoId === 4) {
             $pdf->Ln(5);
             $pdf->SetFont("Arial", "B", 12);
-            $pdf->Cell(0, 5, utf8_decode("CARNÉ CPP: "));
+            $pdf->Cell(0, 5, self::toIso("CARNÉ CPP: "));
             $pdf->SetX(38);
             $pdf->SetFont("Arial", "", 12);
             $pdf->Cell(0, 5, ($detallesGenerales["ciudadano_dni"] ?? ''));
@@ -471,32 +485,32 @@ class RC extends Conectar
 
         if ($direccion === '') {
             $pdf->SetFont("Arial", "B", 12);
-            $pdf->Cell(0, 5, utf8_decode("Dirección: "));
+            $pdf->Cell(0, 5, self::toIso("Dirección: "));
             $pdf->Ln(5);
             $pdf->SetFont("Arial", "", 12);
-            $pdf->MultiCell(0, 5, utf8_decode($detallesGenerales["ciud_domicilio_real"] ?? ''), 0, 'L');
+            $pdf->MultiCell(0, 5, self::toIso($detallesGenerales["ciud_domicilio_real"] ?? ''), 0, 'L');
             $pdf->Ln(5);
         }
 
-        $nombreciudadano = utf8_decode("SR(A). " . ($detallesGenerales["nombre_ciudadano"] ?? ''));
+        $nombreciudadano = self::toIso("SR(A). " . ($detallesGenerales["nombre_ciudadano"] ?? ''));
         $pdf->MultiCell(0, 5, $nombreciudadano, 0, 'J');
         $pdf->Cell(0, 5, "........................................................................................");
         $pdf->Ln(5);
         $pdf->SetFont("Arial", "B", 12);
-        $pdf->Cell(0, 5, utf8_decode('UD. Está tramitando: '));
+        $pdf->Cell(0, 5, self::toIso('UD. Está tramitando: '));
         $pdf->Ln(8);
         $pdf->SetFont("Arial", "", 12);
-        $nombreproced = utf8_decode($detallesGenerales["proced_nom"] ?? '');
+        $nombreproced = self::toIso($detallesGenerales["proced_nom"] ?? '');
 
         $pdf->MultiCell(0, 5, $nombreproced, 0, 'J');
         $total = 0;
         $pdf->Cell(0, 5, "........................................................................................");
         $pdf->Ln(5);
         $pdf->SetFont("Arial", "B", 12);
-        $pdf->Cell(0, 5, utf8_decode("Tasa"));
+        $pdf->Cell(0, 5, self::toIso("Tasa"));
         $pdf->SetX(80);
         $pdf->SetFont("Arial", "B", 12);
-        $pdf->Cell(0, 5, utf8_decode("Importe"));
+        $pdf->Cell(0, 5, self::toIso("Importe"));
         $pdf->Ln(8);
         $pdf->SetWidths(array(67, 30));
         foreach ($datos as $detalle) {
@@ -504,7 +518,7 @@ class RC extends Conectar
             $importeNum = isset($detalle["importe"]) ? (float)$detalle["importe"] : 0.0;
             $importeFormateado = number_format($importeNum, 2);
 
-            $tasaNombre = utf8_decode($detalle["tasa_nom"] ?? '');
+            $tasaNombre = self::toIso($detalle["tasa_nom"] ?? '');
             if (!empty($detalle["cantidad"]) && (int)$detalle["cantidad"] > 1) {
                 $tasaNombre .= " (x " . $detalle["cantidad"] . ")";
             }
@@ -520,7 +534,7 @@ class RC extends Conectar
         $totalFormateado = number_format($total, 2);
         if ($total == 0) {
             $pdf->SetX(10);
-            $pdf->MultiCell(0, 5, utf8_decode("El presente recibo y el costo de este procedimiento es gratuito por las razones que sean necesarias con el número de recibo: " . ($detallesGenerales["recibo"] ?? '')), 0, 'C');
+            $pdf->MultiCell(0, 5, self::toIso("El presente recibo y el costo de este procedimiento es gratuito por las razones que sean necesarias con el número de recibo: " . ($detallesGenerales["recibo"] ?? '')), 0, 'C');
         } else {
             $pdf->SetX(67);
             $pdf->Cell(0, 5, "Total:  S/ " . $totalFormateado, 'J');
@@ -532,14 +546,14 @@ class RC extends Conectar
             $pdf->Ln(7);
             $pdf->SetFont("Arial", "", 12);
 
-            $pdf->MultiCell(0, 5, utf8_decode($detallesGenerales["ogciud_comentario"]), 0, 'J');
+            $pdf->MultiCell(0, 5, self::toIso($detallesGenerales["ogciud_comentario"]), 0, 'J');
             $pdf->Ln(5);
             $pdf->Cell(0, 5, "........................................................................................");
             $pdf->Ln(10);
         }
 
         $pdf->SetFont("Arial", "", 12);
-        $pdf->MultiCell(0, 5, utf8_decode("¡ANTES DE SALIR, VERIFIQUE EL NOMBRE, EL MONTO Y LOS CONCEPTOS SEAN LOS CORRECTOS!"), 0, 'C');
+        $pdf->MultiCell(0, 5, self::toIso("¡ANTES DE SALIR, VERIFIQUE EL NOMBRE, EL MONTO Y LOS CONCEPTOS SEAN LOS CORRECTOS!"), 0, 'C');
         $pdf->Ln(7);
 
         return $pdf->Output('S');
