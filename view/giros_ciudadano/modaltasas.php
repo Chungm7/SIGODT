@@ -25,6 +25,10 @@
         flex: 1 1 auto;
         min-width: 0;
     }
+    .procedimiento-tabla-wrapper .table-responsive {
+        min-height: 0 !important;
+        margin-bottom: 0 !important;
+    }
     @media (max-width: 575.98px) {
         .procedimiento-header-flex {
             flex-direction: column;
