@@ -26,9 +26,11 @@
 
                     <!-- Sección de Datos del Procedimiento -->
                     <div class="mb-3" id="procedimientoData">
-                        <div class="row g-3 align-items-center">
-                            <div class="col-md-3 text-center">
-                                <img id="ciudadano_foto" src="" alt="Fotografía" class="img-fluid rounded border p-1" style="max-height: 150px; object-fit: cover;">
+                        <div class="row g-3 align-items-stretch">
+                            <div class="col-md-3 d-flex">
+                                <div class="w-100 h-100 border rounded p-1 bg-white d-flex align-items-center justify-content-center overflow-hidden">
+                                    <img id="ciudadano_foto" src="" alt="Fotografía" class="rounded w-100 h-100" style="object-fit: cover; display: block;">
+                                </div>
                             </div>
                             <div class="col-md-9">
                                 <div class="table-responsive">
