@@ -21,17 +21,25 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
           <div class="page-body">
             <div class="container-xl">
 
-              <!-- Encabezado con breadcrumbs -->
-              <div class="page-header d-print-none mb-3">
+              <!-- Breadcrumb Contextual -->
+              <div class="mpch-subsys-breadcrumb">
+                <a href="../inicio/" class="mpch-bc-sys text-decoration-none" title="Ir al Inicio">SIGODT</a>
+                <span class="mpch-bc-sep">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 6l6 6l-6 6" /></svg>
+                </span>
+                <span class="mpch-bc-sec">Procesos</span>
+                <span class="mpch-bc-sep">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 6l6 6l-6 6" /></svg>
+                </span>
+                <span class="mpch-bc-cur">Órdenes de Derecho de Trámite</span>
+              </div>
+
+              <!-- Encabezado de la Página (Título y Descripción) -->
+              <div class="page-header page-header-context d-print-none mb-3">
                 <div class="row align-items-center">
                   <div class="col">
-                    <ol class="breadcrumb breadcrumb-arrows mb-3" aria-label="breadcrumbs">
-                      <li class="breadcrumb-item"><a href="../inicio/">SIGODT</a></li>
-                      <li class="breadcrumb-item"><a href="#">Procesos</a></li>
-                      <li class="breadcrumb-item active" aria-current="page">Órdenes de Derecho de Trámite</li>
-                    </ol>
-                    <h2 class="page-title">Órdenes de Derecho de Trámite</h2>
-                    <div class="text-secondary mt-2">Emisión y gestión operativa de órdenes de derecho de trámite</div>
+                    <h2 class="page-title text-uppercase">Órdenes de Derecho de Trámite</h2>
+                    <div class="text-secondary mt-1" style="font-size: 14px;">Emisión y gestión operativa de órdenes de derecho de trámite</div>
                   </div>
                 </div>
               </div>

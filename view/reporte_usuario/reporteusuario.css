@@ -1,7 +1,6 @@
 .report-page .btn,
 .report-page .form-control,
 .report-page .form-select { min-height: 44px; }
-.report-page .breadcrumb a { display: inline-flex; align-items: center; min-height: 44px; }
 .report-page .card-title { margin: 0; }
 .report-page .report-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin: 20px 0; }
 .report-page .report-metrics > div {

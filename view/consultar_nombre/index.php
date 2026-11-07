@@ -17,14 +17,27 @@ if (!isset($_SESSION['usua_id_SIGODT'])) {
     <?php require_once('../html/menu.php'); ?>
     <div class="page-wrapper">
       <div class="page-body"><div class="container-xl">
-        <div class="page-header d-print-none mb-3">
-          <ol class="breadcrumb breadcrumb-arrows mb-3" aria-label="breadcrumbs">
-            <li class="breadcrumb-item"><a href="../inicio/">SIGODT</a></li>
-            <li class="breadcrumb-item">Consultas</li>
-            <li class="breadcrumb-item active" aria-current="page">Consulta por Nombre / Razón Social</li>
-          </ol>
-          <h2 class="page-title">Consulta por Nombre / Razón Social</h2>
-          <div class="text-secondary mt-2">Busque ciudadanos o empresas y consulte su historial completo, sin excluir estados ni fechas.</div>
+        <!-- Breadcrumb Contextual -->
+        <div class="mpch-subsys-breadcrumb">
+          <a href="../inicio/" class="mpch-bc-sys text-decoration-none" title="Ir al Inicio">SIGODT</a>
+          <span class="mpch-bc-sep">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 6l6 6l-6 6" /></svg>
+          </span>
+          <span class="mpch-bc-sec">Consultas</span>
+          <span class="mpch-bc-sep">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 6l6 6l-6 6" /></svg>
+          </span>
+          <span class="mpch-bc-cur">Consulta por Nombre / Razón Social</span>
+        </div>
+
+        <!-- Encabezado de la Página (Título y Descripción) -->
+        <div class="page-header page-header-context d-print-none mb-3">
+          <div class="row align-items-center">
+            <div class="col">
+              <h2 class="page-title text-uppercase">Consulta por Nombre / Razón Social</h2>
+              <div class="text-secondary mt-1" style="font-size: 14px;">Busque ciudadanos o empresas y consulte su historial completo, sin excluir estados ni fechas.</div>
+            </div>
+          </div>
         </div>
         <div class="card shadow-sm muni-stripe-top mb-3">
           <div class="card-header py-2"><h3 class="card-title fw-bold mb-0">Criterio de Búsqueda</h3></div>

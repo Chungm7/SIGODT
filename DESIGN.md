@@ -244,6 +244,52 @@ Reemplaza de forma global el texto estándar «Procesando...» de DataTables y s
 
 ---
 
+### 4.7 Breadcrumb y Encabezados de Página Institucional (Estándar SIINDI)
+
+Estructura canónica de navegación y títulos contextuales en cada vista operativa:
+
+```html
+<!-- Breadcrumb Contextual -->
+<div class="mpch-subsys-breadcrumb">
+  <a href="../inicio/" class="mpch-bc-sys text-decoration-none" title="Ir al Inicio">SIGODT</a>
+  <span class="mpch-bc-sep">
+    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 6l6 6l-6 6" /></svg>
+  </span>
+  <span class="mpch-bc-sec">Módulo</span>
+  <span class="mpch-bc-sep">
+    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 6l6 6l-6 6" /></svg>
+  </span>
+  <span class="mpch-bc-cur">Sección Actual</span>
+</div>
+
+<!-- Encabezado de la Página (Título y Descripción) -->
+<div class="page-header page-header-context d-print-none mb-3">
+  <div class="row align-items-center">
+    <div class="col">
+      <h2 class="page-title text-uppercase">TÍTULO DE LA SECCIÓN</h2>
+      <div class="text-secondary mt-1" style="font-size: 14px;">Descripción clara de las operaciones y alcance de la sección.</div>
+    </div>
+    <!-- Botón de acción opcional alineado a la derecha -->
+    <div class="col-auto ms-auto d-print-none">
+      <button class="btn btn-muni-action">...</button>
+    </div>
+  </div>
+</div>
+```
+
+**Reglas de estilo y espaciado:**
+- `.page-wrapper > .page-body`: `margin-top: 0 !important; padding-top: 0 !important;` para balance simétrico superior/inferior.
+- `.mpch-subsys-breadcrumb`: `padding: 24px 0 2px 0 !important; font-size: 13.5px; line-height: 20px; gap: 6px;`.
+- `.mpch-bc-sys`: `color: #0066CC; font-weight: 700; text-transform: uppercase;`.
+- `.mpch-bc-sep`: Chevron derecho SVG `15x15px`, color `#475569`.
+- `.mpch-bc-sec`: `color: #334155; font-weight: 600;`.
+- `.mpch-bc-cur`: `color: #0F172A; font-weight: 700;`.
+- `.page-title`: `font-size: 20px !important; font-weight: 700 !important; line-height: 32px !important; color: #0F172A !important; text-transform: uppercase;`.
+- `.page-header .text-secondary`: `font-size: 14px !important; color: #475569 !important; margin-top: 4px;`.
+
+
+---
+
 ## 5. Guía de Replicación para Nuevos Sistemas Municipales
 
 Para trasladar este sistema de diseño a un nuevo proyecto o módulo dentro de la infraestructura de la MPCH:

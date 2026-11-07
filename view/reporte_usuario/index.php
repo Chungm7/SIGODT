@@ -16,14 +16,24 @@ catch (InvalidArgumentException $error) {
 <div class="page"><div class="wrapper">
 <?php require_once '../html/mainProfile.php'; require_once '../html/menu.php'; ?>
 <div class="page-wrapper"><div class="page-body"><main class="container-xl report-page">
-<header class="page-header mb-3">
-  <ol class="breadcrumb breadcrumb-arrows mb-3" aria-label="Ruta de navegación">
-    <li class="breadcrumb-item"><a href="../inicio/">SIGODT</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Reportes</li>
-  </ol>
-  <h1 class="page-title">Reportes</h1>
-  <p class="text-muted mt-2 mb-0">Consulte las órdenes que usted emitió, sus conceptos y sus importes por periodo.</p>
-</header>
+<!-- Breadcrumb Contextual -->
+<div class="mpch-subsys-breadcrumb">
+  <a href="../inicio/" class="mpch-bc-sys text-decoration-none" title="Ir al Inicio">SIGODT</a>
+  <span class="mpch-bc-sep">
+    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 6l6 6l-6 6" /></svg>
+  </span>
+  <span class="mpch-bc-cur">Reportes</span>
+</div>
+
+<!-- Encabezado de la Página (Título y Descripción) -->
+<div class="page-header page-header-context d-print-none mb-3">
+  <div class="row align-items-center">
+    <div class="col">
+      <h1 class="page-title text-uppercase">Reportes</h1>
+      <div class="text-secondary mt-1" style="font-size: 14px;">Consulte las órdenes que usted emitió, sus conceptos y sus importes por periodo.</div>
+    </div>
+  </div>
+</div>
 <form id="reportForm" class="card shadow-sm muni-stripe-top mb-3">
   <div class="card-header"><h2 class="card-title">Filtros de consulta</h2></div>
   <div class="card-body"><div class="row g-3">

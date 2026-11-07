@@ -248,3 +248,112 @@
   }
   #navbar-menu .mpch-subsys-navbar .dropdown-item { white-space: normal; }
 }
+
+/* ============================================================================
+   BREADCRUMB Y ENCABEZADOS DE PÁGINA (ESTÁNDAR INSTITUCIONAL SIINDI)
+   ============================================================================ */
+
+/* Ajuste de .page-body y Breadcrumb contextual para que el espacio superior e inferior sea parejo */
+.page-wrapper > .page-body {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+.mpch-subsys-breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 !important;
+  padding: 24px 0 2px 0 !important;
+  font-size: 13.5px;
+  line-height: 20px;
+}
+
+.mpch-main-container > .mpch-subsys-breadcrumb {
+  padding: 10px 0 0px 0 !important;
+}
+
+.mpch-bc-sys {
+  color: var(--muni-brand-blue, #0066CC) !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-decoration: none !important;
+  transition: color 0.15s ease-in-out;
+}
+
+.mpch-bc-sys:hover {
+  color: var(--muni-brand-blue-hover, #0052A3) !important;
+  text-decoration: underline !important;
+}
+
+.mpch-bc-sep {
+  color: #475569;
+  display: inline-flex;
+  align-items: center;
+}
+
+.mpch-bc-sep svg {
+  display: block;
+}
+
+.mpch-bc-sec {
+  color: #334155;
+  font-weight: 600;
+}
+
+.mpch-bc-cur {
+  color: var(--muni-text-heading, #0F172A);
+  font-weight: 700;
+}
+
+/* Page header y títulos alineados a SIINDI */
+.page-header-context {
+  margin-bottom: 20px !important;
+}
+
+.page-title {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  line-height: 32px !important;
+  color: var(--muni-text-heading, #0F172A) !important;
+  margin: 0 !important;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+.page-desc,
+.page-header .text-secondary {
+  font-size: 14px !important;
+  color: var(--muni-text-body, #475569) !important;
+  margin-top: 4px;
+}
+
+[data-bs-theme="dark"] .mpch-bc-sys,
+body.theme-dark .mpch-bc-sys {
+  color: #60A5FA !important;
+}
+[data-bs-theme="dark"] .mpch-bc-sep,
+body.theme-dark .mpch-bc-sep {
+  color: #94A3B8 !important;
+}
+[data-bs-theme="dark"] .mpch-bc-sec,
+body.theme-dark .mpch-bc-sec {
+  color: #CBD5E1 !important;
+}
+[data-bs-theme="dark"] .mpch-bc-cur,
+body.theme-dark .mpch-bc-cur {
+  color: #F8FAFC !important;
+}
+[data-bs-theme="dark"] .page-title,
+body.theme-dark .page-title {
+  color: #F8FAFC !important;
+}
+[data-bs-theme="dark"] .page-desc,
+[data-bs-theme="dark"] .page-header .text-secondary,
+body.theme-dark .page-desc,
+body.theme-dark .page-header .text-secondary {
+  color: #94A3B8 !important;
+}
+

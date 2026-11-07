@@ -22,17 +22,25 @@ if (Conectar::esAdministrador()) {
                     <div class="page-body">
                         <div class="container-xl">
 
-                            <!-- Encabezado con breadcrumbs y botón de acción -->
-                            <div class="page-header d-print-none mb-3">
+                            <!-- Breadcrumb Contextual -->
+                            <div class="mpch-subsys-breadcrumb">
+                                <a href="../inicio/" class="mpch-bc-sys text-decoration-none" title="Ir al Inicio">SIGODT</a>
+                                <span class="mpch-bc-sep">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 6l6 6l-6 6" /></svg>
+                                </span>
+                                <span class="mpch-bc-sec">Mantenimientos</span>
+                                <span class="mpch-bc-sep">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 6l6 6l-6 6" /></svg>
+                                </span>
+                                <span class="mpch-bc-cur">Tributos</span>
+                            </div>
+
+                            <!-- Encabezado de la Página (Título y Descripción) -->
+                            <div class="page-header page-header-context d-print-none mb-3">
                                 <div class="row align-items-center">
                                     <div class="col">
-                                        <ol class="breadcrumb breadcrumb-arrows mb-3" aria-label="breadcrumbs">
-                                            <li class="breadcrumb-item"><a href="../inicio/">SIGODT</a></li>
-                                            <li class="breadcrumb-item"><a href="#">Mantenimientos</a></li>
-                                            <li class="breadcrumb-item active" aria-current="page">Tributos</li>
-                                        </ol>
-                                        <h2 class="page-title">Asignación de Tributos y Tasas</h2>
-                                        <div class="text-muted mt-2">Configuración de conceptos arancelarios, importes y códigos contables por procedimiento</div>
+                                        <h2 class="page-title text-uppercase">Asignación de Tributos y Tasas</h2>
+                                        <div class="text-secondary mt-1" style="font-size: 14px;">Configuración de conceptos arancelarios, importes y códigos contables por procedimiento</div>
                                     </div>
                                     <div class="col-auto ms-auto d-print-none">
                                         <button id="botonRegistrarNuevo" onclick="nuevo()" class="btn btn-muni-action">
@@ -40,7 +48,7 @@ if (Conectar::esAdministrador()) {
                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                 <line x1="12" y1="5" x2="12" y2="19" />
                                                 <line x1="5" y1="12" x2="19" y2="12" />
-                                            </svg>
+                                                </svg>
                                             <span>ASIGNAR TASA</span>
                                         </button>
                                     </div>

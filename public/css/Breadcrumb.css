@@ -1,5 +1,78 @@
 /* ==========================================================================
-   🍞 Breadcrumb - Light & Dark Mode Navigation
+   🍞 Breadcrumb Institucional MPCH (Estándar SIINDI)
+   ========================================================================== */
+
+.mpch-subsys-breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 !important;
+  padding: 24px 0 2px 0 !important;
+  font-size: 13.5px;
+  line-height: 20px;
+}
+
+.mpch-main-container > .mpch-subsys-breadcrumb {
+  padding: 10px 0 0px 0 !important;
+}
+
+.mpch-bc-sys {
+  color: #0066CC !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-decoration: none !important;
+  transition: color 0.15s ease-in-out;
+}
+
+.mpch-bc-sys:hover {
+  color: #0052A3 !important;
+  text-decoration: underline !important;
+}
+
+.mpch-bc-sep {
+  color: #475569;
+  display: inline-flex;
+  align-items: center;
+}
+
+.mpch-bc-sep svg {
+  display: block;
+}
+
+.mpch-bc-sec {
+  color: #334155;
+  font-weight: 600;
+}
+
+.mpch-bc-cur {
+  color: #0F172A;
+  font-weight: 700;
+}
+
+[data-bs-theme="dark"] .mpch-bc-sys,
+body.theme-dark .mpch-bc-sys {
+  color: #60A5FA !important;
+}
+
+[data-bs-theme="dark"] .mpch-bc-sep,
+body.theme-dark .mpch-bc-sep {
+  color: #94A3B8 !important;
+}
+
+[data-bs-theme="dark"] .mpch-bc-sec,
+body.theme-dark .mpch-bc-sec {
+  color: #CBD5E1 !important;
+}
+
+[data-bs-theme="dark"] .mpch-bc-cur,
+body.theme-dark .mpch-bc-cur {
+  color: #F8FAFC !important;
+}
+
+/* ==========================================================================
+   🍞 Breadcrumb - Light & Dark Mode Navigation (Legacy Fallback)
    ========================================================================== */
 
 .breadcrumb {
