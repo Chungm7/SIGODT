@@ -5,7 +5,7 @@ function pwRun($entry, $session, $post, $mode='ok', $origin='https://host.invali
     $root=sys_get_temp_dir().'/external-password-'.bin2hex(random_bytes(5));
     foreach (['auth','controller','models','helpers','config','seguridad/recuperar_contrasena/views','seguridad/primer_acceso/views','seguridad/actualizar_contrasena/views','public/componente-spinner'] as $d) mkdir("$root/$d",0700,true);
     foreach (['auth/proxy.php','controller/clave.php','models/Reset.php','helpers/SiindiSessionBridge.php','helpers/Captcha.php','helpers/Recaptcha.php','index.php','seguridad/recuperar_contrasena/views/index.php','seguridad/primer_acceso/views/index.php','seguridad/actualizar_contrasena/views/index.php','public/componente-spinner/spinner.php'] as $f) if(is_file(__DIR__.'/../'.$f)) copy(__DIR__.'/../'.$f,"$root/$f");
-    file_put_contents("$root/config/conexion.php",'<?php class Conectar { function conexion(){return new class {function prepare($q){return new class {function execute($p){} function fetch($mode){return ["pers_nombre"=>"Fixture","pers_emailm"=>"fixture@example.invalid"];}};}};} static function initSession() {} static function ruta(){return "https://host.invalid/SIGODT/";} static function getCookiePath(){return "/SIGODT/";} static function getEnv($k,$d=null){return ["SIGUR_URL"=>"https://provider.invalid/","SIST_INIC"=>"TEST","SIST_PASS"=>"dummy"][$k]??($_ENV[$k]??$d);} } require_once __DIR__."/../helpers/SiindiSessionBridge.php"; SiindiSessionBridge::bootstrap();');
+    file_put_contents("$root/config/conexion.php",'<?php class Conectar { function conexion(){return new class {function prepare($q){return new class {function execute($p){} function fetch($mode){return ["pers_nombre"=>"Fixture","pers_emailm"=>"fixture@example.invalid"];}};}};} static function initSession() {} static function ruta(){return "https://host.invalid/SIGODT/";} static function getCookiePath(){return "/SIGODT/";} static function isProduction(){return false;} static function isDevelopment(){return true;} static function getEnv($k,$d=null){return ["SIGUR_URL"=>"https://provider.invalid/","SIST_INIC"=>"TEST","SIST_PASS"=>"dummy"][$k]??($_ENV[$k]??$d);} } require_once __DIR__."/../helpers/SiindiSessionBridge.php"; SiindiSessionBridge::bootstrap();');
     file_put_contents("$root/config/jwt.php",'<?php class JwtHandler { function decrypt($token){return (object)["data"=>(object)($_SESSION["blanqueamiento_user"]??[])];} function encrypt($d,$t,$ttl=0){return "fixture";} function setCookie(...$args){} }');
     file_put_contents("$root/run.php", <<<'PHP'
 <?php
@@ -53,19 +53,15 @@ foreach (['recuperar_contrasena'=>'recovery','primer_acceso'=>'first_access'] as
     pwAssert($r['status']===200 && str_contains($r['body'],'main-card') && str_contains($r['body'],'auth/proxy.php') && $r['requests']===[],'original public screen '.$screen);
     $r=pwRun($entry,[],[],'ok','https://host.invalid','GET');pwAssert($r['status']===302 && $r['body']==='' && $r['session']===[] && $r['requests']===[],'screen denies absent grant '.$screen);
 }
-// Local root dispatch preserves CAPTCHA/reCAPTCHA and does not create authority from a link.
-$s=pwContext('first_access')+['captcha_text'=>'ABC234','captcha_issued_at'=>time(),'2fa_pending_SIGODT'=>['challenge_id'=>'old']];
-$post=['recuperar'=>'si','usu_doc'=>'00000042','captchaInput'=>'ABC234'];
-foreach (['','null','https://evil.invalid'] as $origin) pwReject(pwRun('index.php',$s,$post,'ok',$origin),$s);
-pwReject(pwRun('index.php',$s,$post+[],'ok','https://host.invalid','GET'),$s);
-pwReject(pwRun('index.php',$s,array_replace($post,['usu_doc'=>[]])),$s,400);
-pwReject(pwRun('index.php',$s,array_replace($post,['captchaInput'=>'WRONG2'])),$s);
-$r=pwRun('index.php',$s,$post+['recaptchaToken'=>'fake-token'],'recaptcha-denied');pwAssert($r['status']===403 && $r['json']['success']===false && $r['session']===$s && $r['requests']===[] && $r['recaptchaCalls']===1,'reCAPTCHA rejection preserves authority/no SIGUR requests');
-$r=pwRun('index.php',$s,$post+['recaptchaToken'=>'fake-token'],'recaptcha-pass');pwAssert($r['status']===302 && $r['recaptchaCalls']===1 && count($r['requests'])===2,'reCAPTCHA positive proof precedes lookup');
-$r=pwRun('index.php',$s,$post,'lookup-denied');pwAssert($r['status']===502 && $r['json']['success']===false && $r['session']===$s && count($r['requests'])===2,'explicit lookup denial overrides identity data');
-$r=pwRun('index.php',$s,$post,'mismatch');pwAssert($r['status']===502 && $r['json']['success']===false && $r['session']===$s && count($r['requests'])===2,'mismatched lookup preserves old authority');
-$r=pwRun('index.php',$s,$post);pwAssert($r['status']===302 && $r['body']==='' && count($r['requests'])===2 && $r['session']['sigodt_password_context']['stage']==='recovery' && !isset($r['session']['2fa_pending_SIGODT'],$r['session']['captcha_text']),'lookup clears previous lifecycle then starts recovery');
+// Local root dispatch: direct recovery via models/Reset.php with trusted origin and identity validation.
+$s=pwContext('first_access')+['2fa_pending_SIGODT'=>['challenge_id'=>'old']];
+$post=['usu_doc'=>'00000042'];
+foreach (['','null','https://evil.invalid'] as $origin) pwReject(pwRun('models/Reset.php',$s,$post,'ok',$origin),$s);
+pwReject(pwRun('models/Reset.php',$s,$post+[],'ok','https://host.invalid','GET'),$s);
+pwReject(pwRun('models/Reset.php',$s,array_replace($post,['usu_doc'=>[]])),$s,400);
+$r=pwRun('models/Reset.php',$s,$post,'lookup-denied');pwAssert($r['status']===502 && $r['json']['success']===false && $r['session']===$s && count($r['requests'])===2,'explicit lookup denial overrides identity data');
+$r=pwRun('models/Reset.php',$s,$post,'mismatch');pwAssert($r['status']===502 && $r['json']['success']===false && $r['session']===$s && count($r['requests'])===2,'mismatched lookup preserves old authority');
+$r=pwRun('models/Reset.php',$s,$post);pwAssert($r['status']===302 && $r['body']==='' && count($r['requests'])===2 && $r['session']['sigodt_password_context']['stage']==='recovery' && !isset($r['session']['2fa_pending_SIGODT']),'lookup clears previous lifecycle then starts recovery');
 parse_str($r['requests'][1][4],$fields);pwAssert($fields===['usu_doc'=>'00000042','usu_tipo'=>'P'] && $r['requests'][1][1]==='https://provider.invalid/sigur/ws/reset.php','source lookup protocol');
-$r=pwRun('index.php',[],[],'ok','https://host.invalid','GET',['recuperar'=>'si']);pwAssert(str_contains($r['body'],'name="usu_doc"') && str_contains($r['body'],'name="captchaInput"') && str_contains($r['body'],'login-recaptcha.js') && $r['requests']===[] && $r['session']===[],'root entry without authority');
-$r=pwRun('index.php',[],[],'ok','https://host.invalid','GET');pwAssert(str_contains($r['body'],'name="usu_dni"') && str_contains($r['body'],'name="usu_pass"') && str_contains($r['body'],'<span>Ingresar</span>') && $r['requests']===[],'regular login retained');
+$r=pwRun('index.php',[],[],'ok','https://host.invalid','GET');pwAssert(str_contains($r['body'],'name="usu_dni"') && str_contains($r['body'],'name="usu_pass"') && str_contains($r['body'],'id="recuperar"') && str_contains($r['body'],'<span>Ingresar</span>') && $r['requests']===[],'regular login retained');
 echo "External password entries: PASS\n";

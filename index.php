@@ -4,11 +4,6 @@ require_once "helpers/Recaptcha.php";
 $recaptchaSiteKey = Recaptcha::siteKey();
 $sisVersion = Conectar::getEnv('SIS_VER', '1.0.1');
 $appName = Conectar::getEnv('APP_NAME', 'SIGODT');
-$recoveryEntry = ($_GET['recuperar'] ?? '') === 'si';
-if (($_POST['recuperar'] ?? '') === 'si') {
-  require __DIR__ . '/models/Reset.php';
-  exit;
-}
 
 if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
   require_once "models/Usuario.php";
@@ -64,8 +59,10 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
           <p class="muni-login-entity">MUNICIPALIDAD PROVINCIAL DE CHICLAYO</p>
         </div>
 
-        <h2 class="muni-login-heading"><?php echo $recoveryEntry ? 'Recuperar contraseña' : 'Iniciar sesión'; ?></h2>
+        <h2 class="muni-login-heading">Iniciar sesión</h2>
         <p class="muni-login-subheading">Ingresa tus credenciales institucionales para continuar.</p>
+
+        <div id="message"></div>
 
         <!-- Mensajes de error -->
         <?php if (isset($_SESSION["login_error"])): ?>
@@ -98,6 +95,7 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
         <?php endif; ?>
 
         <form id="loginForm" action="" method="POST" autocomplete="off"<?php if ($recaptchaSiteKey !== ''): ?> data-recaptcha-site-key="<?php echo htmlspecialchars($recaptchaSiteKey, ENT_QUOTES, 'UTF-8'); ?>"<?php endif; ?>>
+          <input type="hidden" id="usu_tipo" name="usu_tipo" value="P">
           <div class="mb-3">
             <label for="usu_dni" class="muni-login-label">Usuario</label>
             <div class="input-group muni-input-group">
@@ -105,7 +103,7 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
                 type="text"
                 id="usu_dni"
                 class="form-control"
-                name="<?php echo $recoveryEntry ? 'usu_doc' : 'usu_dni'; ?>"
+                name="usu_dni"
                 placeholder="Ingrese su DNI"
                 inputmode="numeric"
                 maxlength="8"
@@ -121,11 +119,10 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
             </div>
           </div>
 
-          <?php if (!$recoveryEntry): ?>
           <div class="mb-3">
             <div class="muni-login-label-row">
               <label for="usu_pass" class="muni-login-label mb-0">Contraseña</label>
-              <a class="muni-login-forgot" href="index.php?recuperar=si">¿Olvidaste tu contraseña?</a>
+              <a id="recuperar" href="#" class="muni-login-forgot forgot-link">¿Olvidaste tu contraseña?</a>
             </div>
             <div class="input-group muni-input-group">
               <input
@@ -146,8 +143,6 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
               </a>
             </div>
           </div>
-
-          <?php endif; ?>
           <div class="mb-4" id="contcap">
             <div class="muni-captcha-row">
               <div class="muni-captcha-box">
@@ -184,12 +179,7 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
             <noscript>Active JavaScript para cargar el CAPTCHA e ingresar.</noscript>
           </div>
 
-          <?php if ($recoveryEntry): ?>
-          <input type="hidden" name="recuperar" value="si">
-          <a href="index.php">Volver al acceso</a>
-          <?php else: ?>
           <input type="hidden" name="enviar" value="si">
-          <?php endif; ?>
           <?php if ($recaptchaSiteKey !== ''): ?>
             <input type="hidden" name="recaptchaToken" id="recaptchaToken" value="">
             <div id="recaptchaStatus" class="muni-captcha-status" role="alert" aria-live="assertive"></div>
@@ -202,13 +192,21 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
                 <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" />
                 <path d="M20 12h-13l3 -3m0 6l-3 -3" />
               </svg>
-              <span><?php echo $recoveryEntry ? 'Continuar' : 'Ingresar'; ?></span>
+              <span>Ingresar</span>
             </button>
           </div>
         </form>
       </div>
     </section>
   </main>
+
+  <!-- Componente Spinner MPCH -->
+  <?php
+  $spinnerFile = __DIR__ . '/public/componente-spinner/spinner.php';
+  if (file_exists($spinnerFile)) {
+      require_once $spinnerFile;
+  }
+  ?>
 
   <!-- Libs JS -->
   <script src="public/lib/jquery/jquery.min.js"></script>
@@ -239,6 +237,24 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
         e.preventDefault();
         const input = el.closest('.input-group').querySelector('input');
         input.type = input.type === 'password' ? 'text' : 'password';
+      });
+    });
+
+    $(document).ready(function () {
+      $('#recuperar').on('click', function (e) {
+        e.preventDefault();
+        const dni = ($('#usu_dni').val() || '').trim();
+        if (dni.length === 0) {
+          $('#message').html('<div class="alert alert-danger alert-dismissible fade show" role="alert">Para recuperar o cambiar la contraseña (usuario nuevo), debe ingresar su DNI en el campo Usuario.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+          $('#usu_dni').focus();
+          return;
+        }
+        if (typeof showSpinner === 'function') {
+          showSpinner();
+        }
+        const form = $('#loginForm');
+        $('#usu_pass, #captchaInput').removeAttr('required');
+        form.attr('action', 'models/Reset.php').submit();
       });
     });
   </script>

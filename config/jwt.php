@@ -165,6 +165,16 @@ class JwtHandler {
         }
 
         $domain = $_ENV['DOMAIN'] ?? getenv('DOMAIN') ?: '';
+        $httpHost = explode(':', $_SERVER['HTTP_HOST'] ?? '')[0];
+        if (empty($domain)
+            || $domain === 'localhost'
+            || $domain === '127.0.0.1'
+            || filter_var($domain, FILTER_VALIDATE_IP)
+            || ($httpHost && filter_var($httpHost, FILTER_VALIDATE_IP))
+            || ($httpHost && $httpHost === 'localhost')
+            || ($httpHost && $domain !== $httpHost)) {
+            $domain = '';
+        }
 
         return [
             'expires'  => $expires,

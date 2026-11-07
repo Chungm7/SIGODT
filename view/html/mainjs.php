@@ -1,5 +1,4 @@
-<!-- jQuery -->
-<script src="../../public/lib/jquery/jquery.min.js"></script>
+<!-- jQuery cargado en mainHead.php para disponibilidad inmediata de componentes -->
 
 <!-- Tabler Core -->
 <script src="../../public/tabler/js/tabler.min.js" defer></script>

@@ -31,17 +31,34 @@ class Conectar {
     }
 
     /**
+     * Determina si el entorno actual es de producción.
+     * Soporta 'production' y 'produccion' (inglés y español).
+     */
+    public static function isProduction(): bool {
+        $env = strtolower(trim((string)self::getEnv('APP_ENV', 'produccion')));
+        return in_array($env, ['production', 'produccion', 'prod'], true);
+    }
+
+    /**
+     * Determina si el entorno actual es de desarrollo o pruebas.
+     * Soporta 'development', 'desarrollo', 'local', 'testing', etc.
+     */
+    public static function isDevelopment(): bool {
+        $env = strtolower(trim((string)self::getEnv('APP_ENV', 'local')));
+        return in_array($env, ['development', 'desarrollo', 'dev', 'local', 'testing', 'test'], true);
+    }
+
+    /**
      * Obtiene la IP del cliente de forma segura.
      * En entornos no productivos, si la conexión proviene de localhost o IPv6 local,
      * permite utilizar la IP configurada en DEV_MOCK_IP para interactuar con sisSeguridad.
      */
     public static function getClientIp(): string {
-        $appEnv = self::getEnv('APP_ENV', 'production');
         $devMockIp = self::getEnv('DEV_MOCK_IP', '');
         $remoteIp = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
 
         // Solo permitir mock en desarrollo/local cuando la IP sea loopback o IPv6
-        if ($appEnv !== 'production' && !empty($devMockIp)) {
+        if (!self::isProduction() && !empty($devMockIp)) {
             if ($remoteIp === '127.0.0.1' || $remoteIp === '::1' || strpos($remoteIp, '::') === 0) {
                 return $devMockIp;
             }

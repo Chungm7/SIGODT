@@ -11,6 +11,8 @@
 <link href="../../public/css/tabler-vendors.min.css?1692870487" rel="stylesheet" />
 <link href="../../public/css/demo.min.css?1692870487" rel="stylesheet" />
 <script src="../../public/js/demo-theme.min.js?1692870487"></script>
+<!-- jQuery Core -->
+<script src="../../public/lib/jquery/jquery.min.js"></script>
 
 <!-- Módulos CSS Reutilizables de Plantilla (sisGitse) -->
 <link href="../../public/css/datatable.css" rel="stylesheet" />

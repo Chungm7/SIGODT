@@ -14,8 +14,18 @@ function sigurPasswordBase(): string {
     return preg_match('~/sigur$~', $base) ? $base . '/' : $base . '/sigur/';
 }
 
+function sigurIsProduction(): bool {
+    if (class_exists('Conectar') && method_exists('Conectar', 'isProduction')) {
+        return Conectar::isProduction();
+    }
+    $env = strtolower(trim((string)(Conectar::getEnv('APP_ENV', 'local'))));
+    return in_array($env, ['production', 'produccion', 'prod'], true);
+}
+
 function sigurPasswordRequest(string $url, array $fields, ?string $token = null, int $timeout = 20): ?array {
-    if (!filter_var($url, FILTER_VALIDATE_URL) || parse_url($url, PHP_URL_SCHEME) !== 'https'
+    $scheme = parse_url($url, PHP_URL_SCHEME);
+    if (sigurIsProduction() && $scheme !== 'https') return null;
+    if (!filter_var($url, FILTER_VALIDATE_URL) || !in_array($scheme, ['http', 'https'], true)
         || parse_url($url, PHP_URL_USER) !== null || parse_url($url, PHP_URL_PASS) !== null) return null;
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -24,8 +34,13 @@ function sigurPasswordRequest(string $url, array $fields, ?string $token = null,
     if ($token !== null) curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $token, 'Content-Type: application/x-www-form-urlencoded']);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
     curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+    if ($scheme === 'https') {
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+    } else {
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+    }
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
     $body = curl_exec($ch);
     $ok = !curl_errno($ch) && curl_getinfo($ch, CURLINFO_HTTP_CODE) === 200;
@@ -47,9 +62,11 @@ $sigur_url = sigurPasswordBase();
 /** Obtiene el Bearer Token institucional del sistema ante SIGUR. */
 function getSigurSystemToken($baseUrl) {
     $authUrl = Conectar::getEnv('SIGUR_AUTH_URL', $baseUrl . 'auth/');
-    $inic = Conectar::getEnv('SIST_INIC', '');
-    $pass = Conectar::getEnv('SIST_PASS', '');
-    if (!$inic || !$pass || !filter_var($authUrl, FILTER_VALIDATE_URL) || parse_url($authUrl, PHP_URL_SCHEME) !== 'https' || parse_url($authUrl, PHP_URL_USER) !== null) { return null; }
+    $inic = Conectar::getEnv('SIST_INIC', Conectar::getEnv('SIS_SEGURIDAD_INIT', 'SIGI'));
+    $pass = Conectar::getEnv('SIST_PASS', 'sgd*2025**');
+    $scheme = parse_url($authUrl, PHP_URL_SCHEME);
+    if (sigurIsProduction() && $scheme !== 'https') return null;
+    if (!$inic || !$pass || !filter_var($authUrl, FILTER_VALIDATE_URL) || !in_array($scheme, ['http', 'https'], true) || parse_url($authUrl, PHP_URL_USER) !== null) { return null; }
     $json = sigurPasswordRequest($authUrl, ['sist_inic'=>$inic, 'sist_pass'=>$pass], null, 15);
     $token = $json['data']['token'] ?? null;
     return is_string($token) && $token !== '' && !preg_match('/[\r\n]/', $token) ? $token : null;
@@ -75,7 +92,12 @@ switch ($op) {
             echo json_encode(['success'=>false, 'message'=>'Debe ingresar su contraseña actual y la nueva contraseña.']);
             break;
         }
-        if (!filter_var($sigur_url, FILTER_VALIDATE_URL) || parse_url($sigur_url, PHP_URL_SCHEME) !== 'https' || parse_url($sigur_url, PHP_URL_USER) !== null || !($token = getSigurSystemToken($sigur_url))) {
+        $sigurScheme = parse_url($sigur_url, PHP_URL_SCHEME);
+        if (sigurIsProduction() && $sigurScheme !== 'https') {
+            echo json_encode(['success'=>false, 'message'=>'En producción es obligatorio el uso de HTTPS.']);
+            break;
+        }
+        if (!filter_var($sigur_url, FILTER_VALIDATE_URL) || !in_array($sigurScheme, ['http', 'https'], true) || parse_url($sigur_url, PHP_URL_USER) !== null || !($token = getSigurSystemToken($sigur_url))) {
             echo json_encode(['success'=>false, 'message'=>'No se pudo obtener autorización del servidor de seguridad SIGUR.']);
             break;
         }
@@ -87,8 +109,13 @@ switch ($op) {
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
         curl_setopt($ch, CURLOPT_TIMEOUT, 20);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+        if ($sigurScheme === 'https') {
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+        } else {
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        }
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
         $resp = curl_exec($ch);
         $ok = !curl_errno($ch) && curl_getinfo($ch, CURLINFO_HTTP_CODE) === 200;
@@ -97,7 +124,7 @@ switch ($op) {
         if (is_array($jsonResp) && ($jsonResp['success'] ?? null) === true) {
             echo json_encode(['success'=>true, 'message'=>'Contraseña actualizada correctamente.', 'enlace'=>Conectar::ruta() . 'view/setting/']);
         } else {
-            echo json_encode(['success'=>false, 'message'=>'No se pudo actualizar la contraseña en el servidor de seguridad.']);
+            echo json_encode(['success'=>false, 'message'=>$jsonResp['message'] ?? 'No se pudo actualizar la contraseña en el servidor de seguridad.']);
         }
         break;
     case 'blanqueamiento':

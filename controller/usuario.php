@@ -6,9 +6,22 @@ $bitacora = new Bitacora();
 $usuario =  new Usuario();
 
 /** SIINDI contact seam: the original token + POST contract, with verified transport. */
+function sigurIsProduction(): bool
+{
+    if (class_exists('Conectar') && method_exists('Conectar', 'isProduction')) {
+        return Conectar::isProduction();
+    }
+    $env = strtolower(trim((string)(Conectar::getEnv('APP_ENV', 'local'))));
+    return in_array($env, ['production', 'produccion', 'prod'], true);
+}
+
 function sigurUsuarioRequest(string $url, array $fields, ?string $token = null): array
 {
-    if (parse_url($url, PHP_URL_SCHEME) !== 'https' || !parse_url($url, PHP_URL_HOST)) {
+    $scheme = parse_url($url, PHP_URL_SCHEME);
+    if (sigurIsProduction() && $scheme !== 'https') {
+        throw new RuntimeException('En producción es obligatorio el uso de HTTPS.');
+    }
+    if (!in_array($scheme, ['http', 'https'], true) || !parse_url($url, PHP_URL_HOST)) {
         throw new RuntimeException('Servicio no disponible.');
     }
     $ch = curl_init($url);
@@ -21,8 +34,13 @@ function sigurUsuarioRequest(string $url, array $fields, ?string $token = null):
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($fields));
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
         curl_setopt($ch, CURLOPT_TIMEOUT, 15);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+        if ($scheme === 'https') {
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+        } else {
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        }
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array_merge(
             ['Content-Type: application/x-www-form-urlencoded'],
@@ -80,9 +98,11 @@ switch ($_GET["op"]) {
         try {
             $sigurUrl = rtrim((string)Conectar::getEnv('SIGUR_URL', ''), '/') . '/';
             $authUrl = (string)Conectar::getEnv('SIGUR_AUTH_URL', $sigurUrl . 'auth/');
+            $sistInic = Conectar::getEnv('SIST_INIC', Conectar::getEnv('SIS_SEGURIDAD_INIT', 'SIGI'));
+            $sistPass = Conectar::getEnv('SIST_PASS', 'sgd*2025**');
             $authJson = sigurUsuarioRequest($authUrl, [
-                'sist_inic' => Conectar::getEnv('SIST_INIC', ''),
-                'sist_pass' => Conectar::getEnv('SIST_PASS', '')
+                'sist_inic' => $sistInic,
+                'sist_pass' => $sistPass
             ]);
             $token = $authJson['data']['token'] ?? null;
             if (!is_string($token) || $token === '' || preg_match('/[\r\n]/', $token)) {

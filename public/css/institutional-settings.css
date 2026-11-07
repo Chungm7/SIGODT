@@ -1,9 +1,10 @@
-/* SIINDI settings visual contracts, isolated from the shared SIGODT shell. */
-#institutional-settings {
+/* SIINDI settings visual contracts, synchronized with MPCH Design System. */
+:root {
   --mpch-brand-primary: #0066CC;
   --mpch-brand-hover: #0052A3;
   --mpch-action-yellow: #FBC02D;
   --mpch-action-hover: #f8c83a;
+  --mpch-surface-page: #E7F1FB;
   --mpch-surface-card: #FFFFFF;
   --mpch-text-primary: #0F172A;
   --mpch-text-desc: #475569;
@@ -12,7 +13,20 @@
   --mpch-surface-inactive: #F1F5F9;
   --mpch-surface-input-disabled: #F8FAFC;
   --mpch-border-color: #E2E8F0;
+  --mpch-border-inactive: #E2E8F0;
   --mpch-danger: #DC4545;
+  --mpch-success: #047857;
+  --status-active-bg: #ECFDF5;
+  --status-active-border: #A7F3D0;
+  --status-active-dot: #10B981;
+  --status-active-text: #047857;
+  --status-dev-bg: #FFFBEB;
+  --status-dev-border: #FDE68A;
+  --status-dev-dot: #F59E0B;
+  --status-dev-text: #B45309;
+}
+
+#institutional-settings {
   box-sizing: border-box;
   flex: 1 0 auto;
   width: 100%;
