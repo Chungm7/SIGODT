@@ -324,14 +324,18 @@ $headerSisAbrNom = 'SIGODT';
                         </div>
 
                         <!-- Recuadro 5: Módulo de Doble Factor de Autenticación (2FA) (Figma 103:320) -->
+                        <?php
+                        $enable2FA = filter_var(
+                            method_exists('Conectar', 'getEnv') ? Conectar::getEnv('ENABLE_2FA', 'true') : ($_ENV['ENABLE_2FA'] ?? 'true'),
+                            FILTER_VALIDATE_BOOLEAN
+                        );
+                        $twoFactorPerfilFile = __DIR__ . '/../../seguridad/2fa/views/perfil_2fa.php';
+                        if ($enable2FA && file_exists($twoFactorPerfilFile)):
+                        ?>
                         <div class="mt-1">
-                            <?php
-                            $twoFactorPerfilFile = __DIR__ . '/../../seguridad/2fa/views/perfil_2fa.php';
-                            if (file_exists($twoFactorPerfilFile)) {
-                                require_once $twoFactorPerfilFile;
-                            }
-                            ?>
+                            <?php require_once $twoFactorPerfilFile; ?>
                         </div>
+                        <?php endif; ?>
 
                         <!-- Notificaciones / Mensajes de Estado -->
                         <?php if (isset($message)): ?>

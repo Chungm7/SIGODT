@@ -168,6 +168,23 @@ class usuario extends conectar
                 exit();
             }
 
+            // Feature Flag de 2FA: si está desactivado, promueve sesión directa sin fricción.
+            $enable2FA = filter_var(Conectar::getEnv('ENABLE_2FA', 'true'), FILTER_VALIDATE_BOOLEAN);
+            if (!$enable2FA) {
+                if (session_status() !== PHP_SESSION_ACTIVE || !session_regenerate_id(true)) {
+                    $_SESSION['login_error'] = 'No se pudo regenerar la sesión.';
+                    header("Location: " . Conectar::ruta() . "index.php");
+                    exit();
+                }
+                if ($this->promoverSesion($userData, $ip, $sigurId)) {
+                    header("Location: " . Conectar::ruta() . "view/inicio/");
+                    exit();
+                }
+                $_SESSION['login_error'] = 'No se pudo iniciar sesión en el sistema.';
+                header("Location: " . Conectar::ruta() . "index.php");
+                exit();
+            }
+
             // Las credenciales y el permiso no constituyen una sesión completa.
             SiindiSessionBridge::beginPending([
                 'usu_id' => $sigurId,
@@ -225,63 +242,76 @@ class usuario extends conectar
         $ip = $pending['ip'];
         unset($_SESSION['2fa_pending_SIGODT'], $_SESSION['2fa_pending_user'], $_SESSION['2fa_verified_SIGODT'], $_SESSION['2fa_email_otp']);
 
-            // 6. Record session history in sc_seguridad.tb_historial_sesion
-            $hise_id = null;
-            try {
-                $histSql = "INSERT INTO sc_seguridad.tb_historial_sesion (
-                                pers_id, hise_ip, hise_fechafin, hise_horafin
-                            ) VALUES (
-                                :pers_id, :hise_ip, (CURRENT_TIMESTAMP + interval '5 hours')::date, (CURRENT_TIMESTAMP + interval '5 hours')::time
-                            ) RETURNING hise_id;";
-                $histStmt = $conectar->prepare($histSql);
-                $histStmt->bindValue(':pers_id', $userData['pers_id'], PDO::PARAM_INT);
-                $histStmt->bindValue(':hise_ip', $ip, PDO::PARAM_STR);
-                $histStmt->execute();
-                $histRow = $histStmt->fetch(PDO::FETCH_ASSOC);
-                if ($histRow && !empty($histRow['hise_id'])) {
-                    $hise_id = $histRow['hise_id'];
-                }
-            } catch (Exception $e) {
-                // Conservar el SQL institucional, pero nunca promover tras fallo de persistencia.
-                return false;
-            }
-            if (!$hise_id) { return false; }
+        return $this->promoverSesion($userData, $ip, $pending['usu_id']);
+    }
 
-            // 7. Auto-provision default area via Area::sincronizar_area_defecto
-            if (!empty($userData['pers_id']) && !empty($userData['depe_id'])) {
-                require_once __DIR__ . '/Area.php';
-                $areaModel = new Area();
-                $areaModel->sincronizar_area_defecto($userData['pers_id'], $userData['depe_id']);
-            }
+    /**
+     * Establece el historial de sesión, sincroniza área por defecto y puebla variables de sesión.
+     * Compartido por el flujo de promoción 2FA y por el flujo directo cuando ENABLE_2FA=false.
+     */
+    private function promoverSesion(array $userData, string $ip, $sigurId = null): bool
+    {
+        $conectar = parent::conexion();
+        parent::set_names();
 
-            // 8. Populate session variables
-            $_SESSION['sigur_usuario_id_SIGODT'] = $pending['usu_id'];
-            $_SESSION["usua_id_SIGODT"] = $userData["pers_id"];
-            $_SESSION['pers_apelpat_SIGODT'] = $userData['pers_apelpat'] ?? '';
-            $_SESSION['pers_apelmat_SIGODT'] = $userData['pers_apelmat'] ?? '';
-            $_SESSION["usua_dni_SIGODT"] = $userData["pers_dni"];
-            $_SESSION["rol_id_SIGODT"] = $userData["perf_id"];
-            $_SESSION["usua_estado_SIGODT"] = $userData["pers_estado"];
-            $_SESSION["pers_apellidos_SIGODT"] = trim(($userData["pers_apelpat"] ?? '') . " " . ($userData["pers_apelmat"] ?? ''));
-            $_SESSION["pers_nombre_SIGODT"] = $userData["pers_nombre"] ?? '';
-            $_SESSION["nombre_completo_SIGODT"] = trim(($userData["pers_nombre"] ?? '') . " " . ($userData["pers_apelpat"] ?? '') . " " . ($userData["pers_apelmat"] ?? ''));
-            $_SESSION["rol_nombre_SIGODT"] = $userData["perf_nombre"] ?? '';
-            $_SESSION["pers_emailm_SIGODT"] = $userData["pers_emailm"] ?? '';
-            $_SESSION["pers_celu01_SIGODT"] = $userData["pers_celu01"] ?? '';
-            $_SESSION["historial_login_SIGODT"] = $hise_id;
-            $_SESSION["usu_depe_id_SIGODT"] = $userData["depe_id"];
-
-            $rawFoto = !empty($userData["pers_foto"]) ? trim($userData["pers_foto"]) : '';
-            if ($rawFoto !== '') {
-                $_SESSION["usua_foto_SIGODT"] = (strpos($rawFoto, 'data:image') === 0)
-                    ? $rawFoto
-                    : 'data:image/jpeg;base64,' . $rawFoto;
-            } else {
-                $_SESSION["usua_foto_SIGODT"] = '';
+        // 6. Record session history in sc_seguridad.tb_historial_sesion
+        $hise_id = null;
+        try {
+            $histSql = "INSERT INTO sc_seguridad.tb_historial_sesion (
+                            pers_id, hise_ip, hise_fechafin, hise_horafin
+                        ) VALUES (
+                            :pers_id, :hise_ip, (CURRENT_TIMESTAMP + interval '5 hours')::date, (CURRENT_TIMESTAMP + interval '5 hours')::time
+                        ) RETURNING hise_id;";
+            $histStmt = $conectar->prepare($histSql);
+            $histStmt->bindValue(':pers_id', $userData['pers_id'], PDO::PARAM_INT);
+            $histStmt->bindValue(':hise_ip', $ip, PDO::PARAM_STR);
+            $histStmt->execute();
+            $histRow = $histStmt->fetch(PDO::FETCH_ASSOC);
+            if ($histRow && !empty($histRow['hise_id'])) {
+                $hise_id = $histRow['hise_id'];
             }
+        } catch (Exception $e) {
+            // Conservar el SQL institucional, pero nunca promover tras fallo de persistencia.
+            return false;
+        }
+        if (!$hise_id) { return false; }
+
+        // 7. Auto-provision default area via Area::sincronizar_area_defecto
+        if (!empty($userData['pers_id']) && !empty($userData['depe_id'])) {
+            require_once __DIR__ . '/Area.php';
+            $areaModel = new Area();
+            $areaModel->sincronizar_area_defecto($userData['pers_id'], $userData['depe_id']);
+        }
+
+        // 8. Populate session variables
+        $_SESSION['sigur_usuario_id_SIGODT'] = $sigurId;
+        $_SESSION["usua_id_SIGODT"] = $userData["pers_id"];
+        $_SESSION['pers_apelpat_SIGODT'] = $userData['pers_apelpat'] ?? '';
+        $_SESSION['pers_apelmat_SIGODT'] = $userData['pers_apelmat'] ?? '';
+        $_SESSION["usua_dni_SIGODT"] = $userData["pers_dni"];
+        $_SESSION["rol_id_SIGODT"] = $userData["perf_id"];
+        $_SESSION["usua_estado_SIGODT"] = $userData["pers_estado"];
+        $_SESSION["pers_apellidos_SIGODT"] = trim(($userData["pers_apelpat"] ?? '') . " " . ($userData["pers_apelmat"] ?? ''));
+        $_SESSION["pers_nombre_SIGODT"] = $userData["pers_nombre"] ?? '';
+        $_SESSION["nombre_completo_SIGODT"] = trim(($userData["pers_nombre"] ?? '') . " " . ($userData["pers_apelpat"] ?? '') . " " . ($userData["pers_apelmat"] ?? ''));
+        $_SESSION["rol_nombre_SIGODT"] = $userData["perf_nombre"] ?? '';
+        $_SESSION["pers_emailm_SIGODT"] = $userData["pers_emailm"] ?? '';
+        $_SESSION["pers_celu01_SIGODT"] = $userData["pers_celu01"] ?? '';
+        $_SESSION["historial_login_SIGODT"] = $hise_id;
+        $_SESSION["usu_depe_id_SIGODT"] = $userData["depe_id"];
+
+        $rawFoto = !empty($userData["pers_foto"]) ? trim($userData["pers_foto"]) : '';
+        if ($rawFoto !== '') {
+            $_SESSION["usua_foto_SIGODT"] = (strpos($rawFoto, 'data:image') === 0)
+                ? $rawFoto
+                : 'data:image/jpeg;base64,' . $rawFoto;
+        } else {
+            $_SESSION["usua_foto_SIGODT"] = '';
+        }
 
         return true;
     }
+
     public function logout($hise_id)
     {
         $conectar = parent::conexion();
