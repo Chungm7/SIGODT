@@ -242,7 +242,10 @@ final class SiindiSessionBridge
             $module = str_starts_with($script, $root . '/seguridad/');
             $landing = $script === $root . '/view/inicio/index.php';
             if (!$module && !$landing) return;
-            if ($module) $_ENV['APP_NAME'] = trim(Conectar::getCookiePath(), '/');
+            if ($module) {
+                $_ENV['APP_NAME'] = trim(Conectar::getCookiePath(), '/');
+                if (empty($_ENV['SIST_INIC'])) $_ENV['SIST_INIC'] = Conectar::getEnv('APP_NAME', 'SIGODT');
+            }
             $controller = $script === $root . '/seguridad/2fa/controllers/TwoFactorController.php';
             if ($controller) self::requireTrustedPost(); // Reject before touching stored authority/counters.
             if ($module) {
