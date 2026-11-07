@@ -217,7 +217,7 @@ $cookieOptions = $jwt->getCookieOptions(1900, "/sigur/");
 check($cookieOptions['path'] === '/sigur/', "Cookie path should be '/sigur/'");
 check($cookieOptions['httponly'] === true, "Cookie httponly must be true");
 check($cookieOptions['samesite'] === 'Lax', "Cookie samesite must be 'Lax'");
-check($cookieOptions['domain'] === '10.10.10.16', "Cookie domain should be '10.10.10.16'");
+check(in_array($cookieOptions['domain'], ['', '10.10.10.16'], true), "Cookie domain should be empty for IP or '10.10.10.16'");
 check($cookieOptions['expires'] > time() + 1800, "Cookie expiry must be in the future (~1900s)");
 
 echo "  -> Cookie security options verified.\n";

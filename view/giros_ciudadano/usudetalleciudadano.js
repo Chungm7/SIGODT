@@ -1860,7 +1860,7 @@ function ver(tamiteciudadano_id) {
       }
     },
     error: function (xhr, status, error) {
-      console.error("Error al obtener datos: ", error);
+      console.error("Error al obtener datos: ", error, xhr.status, xhr.responseText);
       $("#nombreproced_modal").html("Error al cargar datos");
       $("#modalSpinner").hide();
       $("#modalAlert").show();

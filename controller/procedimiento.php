@@ -4,9 +4,9 @@ require_once("../models/Procedimiento.php");
 require_once("../models/Bitacora.php");
 $bitacora = new Bitacora();
 $proced = new Procedimiento();
- ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+if (function_exists('ini_set')) {
+    ini_set('display_errors', '0');
+}
 $pers_id = isset($_SESSION["usua_id_SIGODT"])
     ? filter_var($_SESSION["usua_id_SIGODT"], FILTER_VALIDATE_INT, ["options" => ["min_range" => 1]])
     : false;
@@ -345,55 +345,49 @@ switch ($_GET["op"]) {
         break;
 
     case "get_data_proced_ciud":
-        $datos = $pers_id > 0
-            ? $proced->get_data_proced_ciud($_POST["proceciudadano_id"] ?? 0, $pers_id, $rol_id)
-            : [];
+        header('Content-Type: application/json; charset=utf-8');
+        try {
+            $datos = $pers_id > 0
+                ? $proced->get_data_proced_ciud($_POST["proceciudadano_id"] ?? 0, $pers_id, $rol_id)
+                : [];
 
-        // Recorrer cada registro para procesar la imagen (si existe)
-        foreach ($datos as &$row) {
-            if (!empty($row["ciud_foto"])) {
-                $imagen_base64 = $row["ciud_foto"];
-
-                // Si el string incluye el prefijo "data:image/...", eliminarlo
-                if (strpos($imagen_base64, 'data:image') === 0) {
-                    $imagen_base64 = preg_replace('/^data:image\/\w+;base64,/', '', $imagen_base64);
-                }
-
-                // Opcional: Verificar la longitud de la cadena
-                // error_log("Longitud de la cadena base64: " . strlen($imagen_base64));
-
-                // Decodificar la imagen en modo estricto
-                $imagen_decodificada = base64_decode($imagen_base64, true);
-                if ($imagen_decodificada !== false) {
-                    // Definir la ruta donde se guardará la imagen
-                    $ruta_carpeta = "uploads/ciudadanos/";
-                    if (!file_exists($ruta_carpeta)) {
-                        mkdir($ruta_carpeta, 0777, true);
+            foreach ($datos as &$row) {
+                if (!empty($row["ciud_foto"])) {
+                    $imagen_base64 = $row["ciud_foto"];
+                    if (strpos($imagen_base64, 'data:image') === 0) {
+                        $imagen_base64 = preg_replace('/^data:image\/\w+;base64,/', '', $imagen_base64);
                     }
 
-                    // Usar el documento del ciudadano como nombre de archivo
-                    $nombre_archivo = "foto_" . $row["ciud_numero_documento"] . ".png";
-                    $ruta_imagen = $ruta_carpeta . $nombre_archivo;
-
-                    // Guardar la imagen y verificar que se hayan escrito bytes
-                    $bytes_escritos = file_put_contents($ruta_imagen, $imagen_decodificada);
-                    if ($bytes_escritos !== false && $bytes_escritos > 0) {
-                        // Reemplazar el contenido de la imagen por la ruta accesible
-                        $row["ciud_foto"] = "../../controller/" . $ruta_imagen;
+                    $imagen_decodificada = base64_decode($imagen_base64, true);
+                    if ($imagen_decodificada !== false) {
+                        $ruta_carpeta = "uploads/ciudadanos/";
+                        if (!file_exists($ruta_carpeta)) {
+                            @mkdir($ruta_carpeta, 0777, true);
+                        }
+                        $nombre_archivo = "foto_" . $row["ciud_numero_documento"] . ".png";
+                        $ruta_imagen = $ruta_carpeta . $nombre_archivo;
+                        if (!file_exists($ruta_imagen) || is_writable($ruta_imagen)) {
+                            @file_put_contents($ruta_imagen, $imagen_decodificada);
+                        }
+                        if (file_exists($ruta_imagen) && filesize($ruta_imagen) > 0) {
+                            $row["ciud_foto"] = "../../controller/" . $ruta_imagen;
+                        } else {
+                            $row["ciud_foto"] = "data:image/jpeg;base64," . $imagen_base64;
+                        }
                     } else {
-                        error_log("Error al guardar la imagen en: " . $ruta_imagen);
                         $row["ciud_foto"] = "";
                     }
                 } else {
-                    error_log("Error al decodificar la imagen para el documento: " . $row["ciud_numero_documento"]);
                     $row["ciud_foto"] = "";
                 }
-            } else {
-                $row["ciud_foto"] = "";
             }
-        }
+            unset($row);
 
-        echo json_encode($datos);
+            echo json_encode($datos, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+        } catch (Throwable $e) {
+            error_log("Error en get_data_proced_ciud: " . $e->getMessage());
+            echo json_encode([]);
+        }
         break;
 
     case "tasaEditar":
