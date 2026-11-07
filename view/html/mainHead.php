@@ -11,6 +11,21 @@
 <link href="../../public/css/tabler-vendors.min.css?1692870487" rel="stylesheet" />
 <link href="../../public/css/demo.min.css?1692870487" rel="stylesheet" />
 <script src="../../public/js/demo-theme.min.js?1692870487"></script>
+<!-- Polyfill para crypto.randomUUID en contextos HTTP (IP local / LAN) -->
+<script>
+    if (typeof window !== 'undefined' && typeof window.crypto !== 'undefined') {
+        if (!window.crypto.randomUUID) {
+            window.crypto.randomUUID = function() {
+                return '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, function(c) {
+                    return (+c ^ (window.crypto.getRandomValues ? window.crypto.getRandomValues(new Uint8Array(1))[0] : Math.floor(Math.random() * 256)) & 15 >> +c / 4).toString(16);
+                });
+            };
+        }
+        if (typeof Crypto !== 'undefined' && Crypto.prototype && !Crypto.prototype.randomUUID) {
+            Crypto.prototype.randomUUID = window.crypto.randomUUID;
+        }
+    }
+</script>
 <!-- jQuery Core -->
 <script src="../../public/lib/jquery/jquery.min.js"></script>
 

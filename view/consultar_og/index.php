@@ -243,11 +243,19 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
               currentPdfBase64 = orden.pdf_base64 || "";
               let openPdfBtn = document.getElementById("openPdfBtn");
               if (currentPdfBase64 && currentPdfBase64.startsWith("JVBERi")) {
-                let pdfUrl = "data:application/pdf;base64," + currentPdfBase64;
-                document.getElementById("ordenGiroPdf").src = pdfUrl;
+                if (window.currentPdfBlobUrl) {
+                  URL.revokeObjectURL(window.currentPdfBlobUrl);
+                }
+                var blob = base64ToBlob(currentPdfBase64, 'application/pdf');
+                window.currentPdfBlobUrl = URL.createObjectURL(blob);
+                document.getElementById("ordenGiroPdf").src = window.currentPdfBlobUrl;
                 if (openPdfBtn) openPdfBtn.classList.remove("disabled");
               } else {
                 currentPdfBase64 = "";
+                if (window.currentPdfBlobUrl) {
+                  URL.revokeObjectURL(window.currentPdfBlobUrl);
+                  window.currentPdfBlobUrl = null;
+                }
                 document.getElementById("ordenGiroPdf").src = "about:blank";
                 if (openPdfBtn) openPdfBtn.classList.add("disabled");
               }
@@ -270,10 +278,12 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
       });
 
       document.getElementById("openPdfBtn").addEventListener("click", function() {
-        if (!currentPdfBase64) return;
-        var blob = base64ToBlob(currentPdfBase64, 'application/pdf');
-        var blobUrl = URL.createObjectURL(blob);
-        window.open(blobUrl, '_blank');
+        if (!window.currentPdfBlobUrl && !currentPdfBase64) return;
+        if (!window.currentPdfBlobUrl) {
+          var blob = base64ToBlob(currentPdfBase64, 'application/pdf');
+          window.currentPdfBlobUrl = URL.createObjectURL(blob);
+        }
+        window.open(window.currentPdfBlobUrl, '_blank');
       });
 
       function base64ToBlob(base64, mimeType) {
