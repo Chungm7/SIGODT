@@ -254,7 +254,7 @@ if (isset($_POST["enviar"]) && $_POST["enviar"] == "si") {
         }
         const form = $('#loginForm');
         $('#usu_pass, #captchaInput').removeAttr('required');
-        form.attr('action', 'models/Reset.php').submit();
+        form.attr('action', 'models/Recuperar.php').submit();
       });
     });
   </script>

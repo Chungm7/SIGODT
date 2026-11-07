@@ -1,5 +1,5 @@
 <?php
-/** Source Reset client: system authentication, then POST ws/reset.php. No local OTP. */
+/** Cliente de recuperación de contraseña: autenticación del sistema y POST a ws/reset.php. */
 require_once __DIR__ . '/../config/conexion.php';
 require_once __DIR__ . '/../helpers/SiindiSessionBridge.php';
 Conectar::initSession();
