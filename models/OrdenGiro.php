@@ -660,26 +660,15 @@ SQL;
             return false;
         }
 
-        $baseUrl = Conectar::getEnv('APP_URL', 'http://10.10.10.16/SIGODT');
-        $pdfUrl = rtrim($baseUrl, '/') . "/controller/rc.php?op=imprimirxid";
-        $postData = http_build_query(["ogciud_id" => $ogciud_id]);
+        require_once __DIR__ . "/RC.php";
+        $recibo = new RC();
+        $pdfContent = $recibo->generar_pdf_orden_giro($ogciud_id, $pers_id, $rol_id);
 
-        $options = [
-            "http" => [
-                "header" => "Content-type: application/x-www-form-urlencoded",
-                "method" => "POST",
-                "content" => $postData,
-                "timeout" => 10
-            ]
-        ];
-        $context = stream_context_create($options);
-        $pdfContent = @file_get_contents($pdfUrl, false, $context);
-
-        if ($pdfContent === false) {
-            return false;
+        if ($pdfContent !== false && strpos($pdfContent, '%PDF') === 0) {
+            $data["pdf_base64"] = base64_encode($pdfContent);
+        } else {
+            $data["pdf_base64"] = "";
         }
-
-        $data["pdf_base64"] = base64_encode($pdfContent);
 
         return $data;
     }

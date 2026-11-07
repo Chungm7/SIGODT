@@ -330,4 +330,218 @@ class RC extends Conectar
             return null;
         }
     }
+
+    public function generar_pdf_orden_giro($ogciud_id, $pers_id = 0, $rol_id = 0)
+    {
+        $datos = $this->get_datos_giro_id($ogciud_id, $pers_id, $rol_id);
+        if (empty($datos)) {
+            return false;
+        }
+
+        require_once dirname(__DIR__) . "/public/plantilla_reporte.php";
+
+        $detallesGenerales = $datos[0];
+        $pdf = new PDF("P", "mm", array(117, 550));
+        $pdf->AliasNbPages();
+        $pdf->AddPage();
+
+        $posXImagenCentrada = ((117) / 2) - 10;
+        $pdf->SetX($posXImagenCentrada);
+        $logoPath = dirname(__DIR__) . '/public/logo144.png';
+        if (file_exists($logoPath)) {
+            $pdf->Image($logoPath, $pdf->GetX() - 5, $pdf->GetY() - 5, 0, 30);
+        }
+        $pdf->Ln(30);
+        $pdf->SetFont("Arial", "B", 14);
+        $pdf->Cell(0, 5, utf8_decode("MUNICIPALIDAD PROVINCIAL DE CHICLAYO"), 0, 1, 'C');
+        $pdf->Ln(4);
+        $pdf->SetFont("Arial", "", 12);
+        $pdf->Cell(0, 5, "RUC: 20141784901", 0, 1, 'C');
+        $texto1 = ($detallesGenerales["lomu_denominacion"] ?? '') . ' ' . ($detallesGenerales["lomu_direccion"] ?? '');
+
+        $pdf->SetFont("Arial", "", 11);
+        $pdf->MultiCell(0, 5, utf8_decode($texto1), 0, 'C');
+
+        $pdf->Ln(4);
+        $pdf->SetFont("Arial", "B", 14);
+        $pdf->Cell(0, 5, utf8_decode("Orden de Giro electrónico: " . ($detallesGenerales["ogciud_id"] ?? '')), 0, 1, 'C');
+        $pdf->Ln(8);
+        $pdf->SetFont("Arial", "B", 12);
+        $pdf->Cell(30, 5, utf8_decode("FECHA EMISIÓN:  "));
+        $pdf->SetFont("Arial", "", 12);
+        $pdf->SetX(42);
+        $pdf->Cell(0, 5, "    " . ($detallesGenerales["fecha"] ?? '') . "   " . ($detallesGenerales["hora"] ?? ''));
+        $pdf->SetFont("Arial", "B", 12);
+        $pdf->Ln(6);
+        $pdf->Cell(12, 5, utf8_decode("NORMA: "));
+        $pdf->SetFont("Arial", "", 12);
+        $pdf->SetX(28);
+        $pdf->Cell(0, 5, ($detallesGenerales["proced_tupa"] ?? ''));
+        $pdf->Ln(6);
+        $pdf->SetFont("Arial", "B", 12);
+        $pdf->Cell(12, 5, utf8_decode("AREA: "));
+        $pdf->SetFont("Arial", "", 12);
+        $areacell = utf8_decode($detallesGenerales["depe_denominacion"] ?? '');
+        $pdf->SetX(25);
+        $pdf->MultiCell(0, 5, $areacell, 0, 'L');
+        $pdf->Ln(6);
+        $pdf->SetFont("Arial", "B", 12);
+        $pdf->Cell(0, 5, utf8_decode("OP: "));
+        $pdf->SetFont("Arial", "", 12);
+        $pdf->SetX(18);
+        $pdf->MultiCell(0, 5, utf8_decode($detallesGenerales["nombre_completo"] ?? ''), 0, 'L');
+        $pdf->Ln(2);
+        $pdf->Cell(0, 5, "........................................................................................");
+        $direccion = "";
+        $ruc = !empty($detallesGenerales["empr_ruc"])
+            ? $detallesGenerales["empr_ruc"]
+            : ($detallesGenerales["empresa_ruc"] ?? '');
+        if (!empty($ruc)) {
+            $direccion = utf8_decode($detallesGenerales["empr_direccion"] ?? '');
+            $pdf->Ln(8);
+            $pdf->SetFont("Arial", "B", 12);
+            $pdf->Cell(0, 5, "RUC: ");
+            $pdf->SetX(22);
+            $pdf->SetFont("Arial", "", 12);
+            $pdf->Cell(0, 5, $ruc);
+            if (!empty($detallesGenerales["empr_ruc"])) {
+                $pdf->Ln(5);
+                $pdf->SetFont("Arial", "B", 12);
+                $pdf->Cell(0, 5, "Razon social: ");
+                $pdf->SetX(38);
+                $pdf->SetFont("Arial", "", 12);
+                $pdf->MultiCell(0, 5, utf8_decode($detallesGenerales["empr_razon_social"] ?? ''), 0, 'L');
+                $pdf->Ln(5);
+                $pdf->SetFont("Arial", "B", 12);
+                $pdf->Cell(0, 5, "Nombre Com: ");
+                $pdf->SetX(39);
+                $pdf->SetFont("Arial", "", 12);
+                $pdf->MultiCell(0, 5, utf8_decode($detallesGenerales["empr_nombre_comercial"] ?? ''), 0, 'L');
+                $pdf->Ln(5);
+                $pdf->SetFont("Arial", "B", 12);
+                $pdf->Cell(0, 5, "Direccion : ");
+                $pdf->Ln(5);
+                $pdf->SetFont("Arial", "", 12);
+                $pdf->MultiCell(0, 5, $direccion, 0, 'L');
+            } else {
+                $pdf->Ln(5);
+                $pdf->SetFont("Arial", "B", 12);
+                $pdf->Cell(0, 5, "Razon social: ");
+                $pdf->SetX(38);
+                $pdf->SetFont("Arial", "", 12);
+                $pdf->MultiCell(0, 5, utf8_decode($detallesGenerales["empresa_razon_social"] ?? ''), 0, 'L');
+            }
+            $pdf->Ln(2);
+            $pdf->Cell(0, 5, "........................................................................................");
+        }
+        $tidoId = isset($detallesGenerales["tido_id"]) ? (int)$detallesGenerales["tido_id"] : 0;
+        if ($tidoId === 1) {
+            $pdf->Ln(5);
+            $pdf->SetFont("Arial", "B", 12);
+            $pdf->Cell(0, 5, "DNI:");
+            $pdf->SetX(20);
+            $pdf->SetFont("Arial", "", 12);
+            $pdf->Cell(0, 5, ($detallesGenerales["ciudadano_dni"] ?? ''));
+            $pdf->Ln(5);
+        } else if ($tidoId === 2) {
+            $pdf->Ln(5);
+            $pdf->SetFont("Arial", "B", 12);
+            $pdf->Cell(0, 5, "N° Pasaporte: ");
+            $pdf->SetX(42);
+            $pdf->SetFont("Arial", "", 12);
+            $pdf->Cell(0, 5, ($detallesGenerales["ciudadano_dni"] ?? ''));
+            $pdf->Ln(5);
+        } else if ($tidoId === 3) {
+            $pdf->Ln(5);
+            $pdf->SetFont("Arial", "B", 12);
+            $pdf->Cell(0, 5, "CEE: ");
+            $pdf->SetX(22);
+            $pdf->SetFont("Arial", "", 12);
+            $pdf->Cell(0, 5, ($detallesGenerales["ciudadano_dni"] ?? ''));
+            $pdf->Ln(5);
+        } else if ($tidoId === 4) {
+            $pdf->Ln(5);
+            $pdf->SetFont("Arial", "B", 12);
+            $pdf->Cell(0, 5, utf8_decode("CARNÉ CPP: "));
+            $pdf->SetX(38);
+            $pdf->SetFont("Arial", "", 12);
+            $pdf->Cell(0, 5, ($detallesGenerales["ciudadano_dni"] ?? ''));
+            $pdf->Ln(5);
+        }
+
+        if ($direccion === '') {
+            $pdf->SetFont("Arial", "B", 12);
+            $pdf->Cell(0, 5, utf8_decode("Dirección: "));
+            $pdf->Ln(5);
+            $pdf->SetFont("Arial", "", 12);
+            $pdf->MultiCell(0, 5, utf8_decode($detallesGenerales["ciud_domicilio_real"] ?? ''), 0, 'L');
+            $pdf->Ln(5);
+        }
+
+        $nombreciudadano = utf8_decode("SR(A). " . ($detallesGenerales["nombre_ciudadano"] ?? ''));
+        $pdf->MultiCell(0, 5, $nombreciudadano, 0, 'J');
+        $pdf->Cell(0, 5, "........................................................................................");
+        $pdf->Ln(5);
+        $pdf->SetFont("Arial", "B", 12);
+        $pdf->Cell(0, 5, utf8_decode('UD. Está tramitando: '));
+        $pdf->Ln(8);
+        $pdf->SetFont("Arial", "", 12);
+        $nombreproced = utf8_decode($detallesGenerales["proced_nom"] ?? '');
+
+        $pdf->MultiCell(0, 5, $nombreproced, 0, 'J');
+        $total = 0;
+        $pdf->Cell(0, 5, "........................................................................................");
+        $pdf->Ln(5);
+        $pdf->SetFont("Arial", "B", 12);
+        $pdf->Cell(0, 5, utf8_decode("Tasa"));
+        $pdf->SetX(80);
+        $pdf->SetFont("Arial", "B", 12);
+        $pdf->Cell(0, 5, utf8_decode("Importe"));
+        $pdf->Ln(8);
+        $pdf->SetWidths(array(67, 30));
+        foreach ($datos as $detalle) {
+            $pdf->SetFont("Arial", "", 12);
+            $importeNum = isset($detalle["importe"]) ? (float)$detalle["importe"] : 0.0;
+            $importeFormateado = number_format($importeNum, 2);
+
+            $tasaNombre = utf8_decode($detalle["tasa_nom"] ?? '');
+            if (!empty($detalle["cantidad"]) && (int)$detalle["cantidad"] > 1) {
+                $tasaNombre .= " (x " . $detalle["cantidad"] . ")";
+            }
+
+            $pdf->Row2(array($tasaNombre, "  S/ " . $importeFormateado));
+            $total += $importeNum;
+            $pdf->Ln(2);
+        }
+
+        $pdf->Cell(0, 5, "........................................................................................");
+        $pdf->Ln(5);
+
+        $totalFormateado = number_format($total, 2);
+        if ($total == 0) {
+            $pdf->SetX(10);
+            $pdf->MultiCell(0, 5, utf8_decode("El presente recibo y el costo de este procedimiento es gratuito por las razones que sean necesarias con el número de recibo: " . ($detallesGenerales["recibo"] ?? '')), 0, 'C');
+        } else {
+            $pdf->SetX(67);
+            $pdf->Cell(0, 5, "Total:  S/ " . $totalFormateado, 'J');
+        }
+        $pdf->Ln(15);
+        if (!empty($detallesGenerales["ogciud_comentario"])) {
+            $pdf->SetFont("Arial", "B", 12);
+            $pdf->Cell(0, 5, "Comentario: ");
+            $pdf->Ln(7);
+            $pdf->SetFont("Arial", "", 12);
+
+            $pdf->MultiCell(0, 5, utf8_decode($detallesGenerales["ogciud_comentario"]), 0, 'J');
+            $pdf->Ln(5);
+            $pdf->Cell(0, 5, "........................................................................................");
+            $pdf->Ln(10);
+        }
+
+        $pdf->SetFont("Arial", "", 12);
+        $pdf->MultiCell(0, 5, utf8_decode("¡ANTES DE SALIR, VERIFIQUE EL NOMBRE, EL MONTO Y LOS CONCEPTOS SEAN LOS CORRECTOS!"), 0, 'C');
+        $pdf->Ln(7);
+
+        return $pdf->Output('S');
+    }
 }

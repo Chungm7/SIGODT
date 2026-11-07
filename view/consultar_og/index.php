@@ -240,9 +240,17 @@ if (isset($_SESSION["usua_id_SIGODT"])) {
               document.getElementById("importe").textContent = "S/ " + parseFloat(orden.importe).toFixed(2);
               document.getElementById("estado").innerHTML = `<span class="muni-status-pill ${estadoData.pill_class} badge bg-${estadoData.color_barra}-lt">${estadoData.estado}</span>`;
 
-              currentPdfBase64 = orden.pdf_base64;
-              let pdfUrl = "data:application/pdf;base64," + currentPdfBase64;
-              document.getElementById("ordenGiroPdf").src = pdfUrl;
+              currentPdfBase64 = orden.pdf_base64 || "";
+              let openPdfBtn = document.getElementById("openPdfBtn");
+              if (currentPdfBase64 && currentPdfBase64.startsWith("JVBERi")) {
+                let pdfUrl = "data:application/pdf;base64," + currentPdfBase64;
+                document.getElementById("ordenGiroPdf").src = pdfUrl;
+                if (openPdfBtn) openPdfBtn.classList.remove("disabled");
+              } else {
+                currentPdfBase64 = "";
+                document.getElementById("ordenGiroPdf").src = "about:blank";
+                if (openPdfBtn) openPdfBtn.classList.add("disabled");
+              }
 
               mostrarResultados();
             } else {
