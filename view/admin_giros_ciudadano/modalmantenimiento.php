@@ -92,10 +92,13 @@
                                 </div>
                             </div>
 
-                            <div class="col-lg-4 d-flex flex-column align-items-center justify-content-center">
-                                <div class="text-center p-2 border rounded bg-light">
-                                    <img id="imagen_ciudadano" src="../../public/img/perfil.jpeg" alt="Fotografía" class="rounded img-fluid" style="width: 140px; height: 140px; object-fit: cover;">
-                                    <div class="text-secondary small mt-1">Fotografía RENIEC</div>
+                            <div class="col-lg-4 d-flex flex-column align-items-center">
+                                <label class="form-label invisible d-none d-lg-block mb-2">Fotografía</label>
+                                <div id="mantenimiento_foto_box" class="text-center p-2 border rounded bg-light d-flex flex-column align-items-center justify-content-between" style="width: 140px; height: 195px; box-sizing: border-box;">
+                                    <div class="d-flex align-items-center justify-content-center overflow-hidden flex-grow-1 w-100 mb-1" style="min-height: 0;">
+                                        <img id="imagen_ciudadano" src="../../public/img/perfil.jpeg" alt="Fotografía" class="rounded" style="width: 100%; height: 100%; max-height: 155px; object-fit: cover; display: block;">
+                                    </div>
+                                    <div class="text-secondary small">Fotografía RENIEC</div>
                                 </div>
                             </div>
 
@@ -376,4 +379,35 @@
             buscaRUC();
         }
     }
+
+    function sincronizarFotoModalMantenimientoAdmin() {
+        if (window.innerWidth < 992) {
+            var boxMob = document.getElementById('mantenimiento_foto_box');
+            if (boxMob) {
+                boxMob.style.height = '180px';
+            }
+            return;
+        }
+        var dni = document.getElementById('ciudadano_doc');
+        var ape = document.getElementById('ciudadano_apep');
+        var box = document.getElementById('mantenimiento_foto_box');
+        if (dni && ape && box && dni.offsetParent !== null) {
+            var dniRect = dni.getBoundingClientRect();
+            var apeRect = ape.getBoundingClientRect();
+            var desiredH = Math.round(apeRect.bottom - dniRect.top);
+            if (desiredH > 100) {
+                box.style.height = desiredH + 'px';
+            }
+        }
+    }
+
+    $(document).on('shown.bs.modal', '#modalmantenimiento', function () {
+        sincronizarFotoModalMantenimientoAdmin();
+        setTimeout(sincronizarFotoModalMantenimientoAdmin, 50);
+        setTimeout(sincronizarFotoModalMantenimientoAdmin, 150);
+    });
+
+    $(window).on('resize', function () {
+        sincronizarFotoModalMantenimientoAdmin();
+    });
 </script>
