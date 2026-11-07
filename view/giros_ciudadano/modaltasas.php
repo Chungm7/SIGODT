@@ -1,36 +1,40 @@
 <!-- Modal para desglose y liquidación de tasas -->
 <style>
-    .procedimiento-header-grid {
-        display: grid;
-        grid-template-columns: auto 1fr;
+    .procedimiento-header-flex {
+        display: flex;
+        align-items: flex-start;
         gap: 1rem;
-        align-items: stretch;
     }
-    .procedimiento-foto-wrapper {
-        position: relative;
-        height: 100%;
-        aspect-ratio: 3/4;
-    }
-    .procedimiento-foto-box {
-        position: absolute;
-        inset: 0;
+    #procedimiento_foto_col {
+        flex-shrink: 0;
         display: flex;
         align-items: center;
         justify-content: center;
         overflow: hidden;
+        height: 220px;
+        width: 165px;
+        box-sizing: border-box;
+    }
+    #procedimiento_foto_col img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
     }
     .procedimiento-tabla-wrapper {
+        flex: 1 1 auto;
         min-width: 0;
     }
     @media (max-width: 575.98px) {
-        .procedimiento-header-grid {
-            display: flex;
+        .procedimiento-header-flex {
             flex-direction: column;
             align-items: center;
         }
-        .procedimiento-foto-wrapper {
-            width: 140px;
-            height: 180px;
+        #procedimiento_foto_col {
+            width: 135px !important;
+            height: 180px !important;
+            min-width: 135px !important;
+            max-width: 135px !important;
         }
     }
 </style>
@@ -61,11 +65,9 @@
 
                     <!-- Sección de Datos del Procedimiento -->
                     <div class="mb-3" id="procedimientoData">
-                        <div class="procedimiento-header-grid">
-                            <div class="procedimiento-foto-wrapper">
-                                <div class="procedimiento-foto-box border rounded p-1 bg-white">
-                                    <img id="ciudadano_foto" src="" alt="Fotografía" class="rounded" style="width: 100%; height: 100%; object-fit: cover; display: block;">
-                                </div>
+                        <div class="procedimiento-header-flex">
+                            <div id="procedimiento_foto_col" class="border rounded p-1 bg-white shadow-sm">
+                                <img id="ciudadano_foto" src="" alt="Fotografía" class="rounded">
                             </div>
                             <div class="procedimiento-tabla-wrapper">
                                 <div class="table-responsive">
@@ -164,3 +166,53 @@
         </div>
     </div>
 </div>
+
+<script>
+    function sincronizarFotoModalTasas() {
+        if (window.innerWidth < 576) {
+            var fotoMob = document.getElementById('procedimiento_foto_col');
+            if (fotoMob) {
+                fotoMob.style.height = '180px';
+                fotoMob.style.width = '135px';
+                fotoMob.style.minWidth = '135px';
+                fotoMob.style.maxWidth = '135px';
+            }
+            return;
+        }
+        var tabla = document.querySelector('#procedimientoData table');
+        var foto = document.getElementById('procedimiento_foto_col');
+        if (tabla && foto) {
+            var h = tabla.offsetHeight;
+            if (h > 50) {
+                var w = Math.round(h * 0.75);
+                foto.style.height = h + 'px';
+                foto.style.width = w + 'px';
+                foto.style.minWidth = w + 'px';
+                foto.style.maxWidth = w + 'px';
+            }
+        }
+    }
+
+    if (window.ResizeObserver) {
+        var _roTasas = null;
+        $(function () {
+            var tabla = document.querySelector('#procedimientoData table');
+            if (tabla) {
+                _roTasas = new ResizeObserver(function () {
+                    sincronizarFotoModalTasas();
+                });
+                _roTasas.observe(tabla);
+            }
+        });
+    }
+
+    $(document).on('shown.bs.modal', '#modaltasas', function () {
+        sincronizarFotoModalTasas();
+        setTimeout(sincronizarFotoModalTasas, 50);
+        setTimeout(sincronizarFotoModalTasas, 150);
+    });
+
+    $(window).on('resize', function () {
+        sincronizarFotoModalTasas();
+    });
+</script>

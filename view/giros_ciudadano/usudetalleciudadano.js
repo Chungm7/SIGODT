@@ -1795,6 +1795,31 @@ function redirect_by_post(purl, pparameters, in_new_tab) {
   return false;
 }
 
+window.sincronizarFotoModalTasas = function () {
+  if (window.innerWidth < 576) {
+    var fotoMob = document.getElementById("procedimiento_foto_col");
+    if (fotoMob) {
+      fotoMob.style.height = "180px";
+      fotoMob.style.width = "135px";
+      fotoMob.style.minWidth = "135px";
+      fotoMob.style.maxWidth = "135px";
+    }
+    return;
+  }
+  var tabla = document.querySelector("#procedimientoData table");
+  var foto = document.getElementById("procedimiento_foto_col");
+  if (tabla && foto) {
+    var h = tabla.offsetHeight;
+    if (h > 50) {
+      var w = Math.round(h * 0.75);
+      foto.style.height = h + "px";
+      foto.style.width = w + "px";
+      foto.style.minWidth = w + "px";
+      foto.style.maxWidth = w + "px";
+    }
+  }
+};
+
 function ver(tamiteciudadano_id) {
   // Oculta el contenido y muestra el spinner y oculta alerta
   $("#modalContent").hide();
@@ -1840,6 +1865,11 @@ function ver(tamiteciudadano_id) {
         } else {
           $("#ciudadano_foto").attr("src", "../../public/img/perfil.jpeg");
         }
+        $("#ciudadano_foto").off("load.modaltasas").on("load.modaltasas", function () {
+          if (typeof sincronizarFotoModalTasas === "function") {
+            sincronizarFotoModalTasas();
+          }
+        });
 
         // Actualiza los demás datos
         $("#pc_cod").html(item.procedciudadano_cod);
@@ -1862,6 +1892,11 @@ function ver(tamiteciudadano_id) {
         // Oculta el spinner y muestra el contenido
         $("#modalSpinner").hide();
         $("#modalContent").show();
+        if (typeof sincronizarFotoModalTasas === "function") {
+          sincronizarFotoModalTasas();
+          setTimeout(sincronizarFotoModalTasas, 30);
+          setTimeout(sincronizarFotoModalTasas, 100);
+        }
       } else {
         $("#nombreproced_modal").html("Datos no encontrados");
         $("#modalSpinner").hide();
