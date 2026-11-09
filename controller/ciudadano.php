@@ -23,14 +23,16 @@ class TokenHelper
         return openssl_decrypt($cipher, 'AES-128-ECB', self::getKey());
     }
 }
-function normalizeFotoDataUri(?string $foto): string
-{
-    if (empty($foto)) return "";
-    $trimmed = trim($foto);
-    if (str_starts_with($trimmed, "data:image") || str_starts_with($trimmed, "http") || str_starts_with($trimmed, "../") || str_starts_with($trimmed, "uploads/")) {
-        return $trimmed;
+if (!function_exists('normalizeFotoDataUri')) {
+    function normalizeFotoDataUri(?string $foto): string
+    {
+        if (empty($foto)) return "";
+        $trimmed = trim($foto);
+        if (str_starts_with($trimmed, "data:image") || str_starts_with($trimmed, "http") || str_starts_with($trimmed, "../") || str_starts_with($trimmed, "uploads/")) {
+            return $trimmed;
+        }
+        return "data:image/jpeg;base64," . $trimmed;
     }
-    return "data:image/jpeg;base64," . $trimmed;
 }
 
 function response($message, $data = [], $suc = true, $httpStatusCode = 200)
@@ -79,44 +81,7 @@ switch ($_GET["op"]) {
                 $output["ciudadano_direccion"] = $row["ciud_domicilio_real"];
                 $output["ciud_sexo"] = $row["ciud_sexo"];
                 $output["ciud_fecha_nac"] = $row["ciud_fecha_nac"];
-                // Guardar la foto en una carpeta temporal
-                if (!empty($row["ciud_foto"])) {
-                    $imagen_base64 = $row["ciud_foto"];
-
-                    // Si la cadena incluye el prefijo "data:image/...", eliminarlo
-                    if (strpos($imagen_base64, 'data:image') === 0) {
-                        $imagen_base64 = preg_replace('/^data:image\/\w+;base64,/', '', $imagen_base64);
-                    }
-
-                    // Opcional: registrar la longitud de la cadena base64 para verificar que no esté truncada
-                    error_log("Longitud de la cadena base64: " . strlen($imagen_base64));
-
-                    // Decodificar en modo estricto
-                    $imagen_decodificada = base64_decode($imagen_base64, true);
-                    if ($imagen_decodificada === false) {
-                        error_log("Error al decodificar la imagen para DNI " . $_POST["ciudadano_doc"]);
-                    }
-
-                    // Definir la ruta donde se guardará la imagen
-                    $ruta_carpeta = "uploads/ciudadanos/";
-                    if (!file_exists($ruta_carpeta)) {
-                        mkdir($ruta_carpeta, 0777, true); // Crear la carpeta si no existe
-                    }
-
-                    $nombre_archivo = "foto_" . $_POST["ciudadano_doc"] . ".png";
-                    $ruta_imagen = $ruta_carpeta . $nombre_archivo;
-
-                    // Guardar la imagen en el servidor y comprobar cuántos bytes se escribieron
-                    $bytes_escritos = file_put_contents($ruta_imagen, $imagen_decodificada);
-                    if ($bytes_escritos === false || $bytes_escritos == 0) {
-                        error_log("Error al guardar la imagen en: " . $ruta_imagen);
-                    }
-
-                    // Devolver la ruta en la respuesta JSON (asegúrate de que la ruta sea accesible)
-                    $output["ciud_foto"] = "../../controller/" . $ruta_imagen;
-                } else {
-                    $output["ciud_foto"] = "";
-                }
+                $output["ciud_foto"] = normalizeFotoDataUri($row["ciud_foto"] ?? "");
             }
             echo json_encode($output);
         } else {
@@ -207,46 +172,7 @@ switch ($_GET["op"]) {
                         $output["ciudadano_apep"] = $reniecData["data"]["apPrimer"];
                         $output["ciudadano_apem"] = $reniecData["data"]["apSegundo"];
                         $output["ciudadano_direccion"] = $reniecData["data"]["direccion"];
-
-                        if (!empty($reniecData["data"]["foto"])) {
-                            $imagen_base64 = $reniecData["data"]["foto"];
-
-                            // Si la cadena incluye el prefijo "data:image/...", eliminarlo
-                            if (strpos($imagen_base64, 'data:image') === 0) {
-                                $imagen_base64 = preg_replace('/^data:image\/\w+;base64,/', '', $imagen_base64);
-                            }
-
-                            // Opcional: registrar la longitud de la cadena base64 para verificar que no esté truncada
-                            error_log("Longitud de la cadena base64: " . strlen($imagen_base64));
-
-                            // Decodificar en modo estricto
-                            $imagen_decodificada = base64_decode($imagen_base64, true);
-                            if ($imagen_decodificada === false) {
-                                error_log("Error al decodificar la imagen para DNI " . $_POST["ciudadano_doc"]);
-                            }
-
-                            // Definir la ruta donde se guardará la imagen
-                            $ruta_carpeta = "uploads/ciudadanos/";
-                            if (!file_exists($ruta_carpeta)) {
-                                mkdir($ruta_carpeta, 0777, true); // Crear la carpeta si no existe
-                            }
-
-                            $nombre_archivo = "foto_" . $_POST["ciudadano_doc"] . ".png";
-                            $ruta_imagen = $ruta_carpeta . $nombre_archivo;
-
-                            // Guardar la imagen en el servidor y comprobar cuántos bytes se escribieron
-                            $bytes_escritos = file_put_contents($ruta_imagen, $imagen_decodificada);
-                            if ($bytes_escritos === false || $bytes_escritos == 0) {
-                                error_log("Error al guardar la imagen en: " . $ruta_imagen);
-                            }
-
-                            // Devolver la ruta en la respuesta JSON (asegúrate de que la ruta sea accesible)
-                            $output["ciud_foto"] = "../../controller/" . $ruta_imagen;
-                        } else {
-                            $output["ciud_foto"] = "";
-                        }
-
-
+                        $output["ciud_foto"] = normalizeFotoDataUri($reniecData["data"]["foto"] ?? "");
                     } else {
                         // Si ocurrió un error al insertar al ciudadano, devolver un mensaje de error
                         $output = array("error" => "Error al insertar al ciudadano en la base de datos.");
@@ -577,35 +503,45 @@ switch ($_GET["op"]) {
         break;
 
     case "crear":
-        $fotoInput = $_POST["ciud_foto"] ?? null;
-        $d = [
-            "ciud_numero_documento" => $_POST["ciud_numero_documento"],
-            "ciud_primer_apellido"  => $_POST["ciud_primer_apellido"],
-            "ciud_segundo_apellido" => $_POST["ciud_segundo_apellido"],
-            "ciud_nombre"           => $_POST["ciud_nombre"],
-            "ciud_foto"             => $fotoInput !== '' ? $fotoInput : null,
-            "ciud_fecha_nac"        => $_POST["ciud_fecha_nac"],
-            "ciud_sexo"             => $_POST["ciud_sexo"],
-            "tido_id"               => $_POST["tido_id"]
-        ];
+        try {
+            $fotoInput = $_POST["ciud_foto"] ?? null;
+            $fechaNac  = trim((string)($_POST["ciud_fecha_nac"] ?? ''));
+            $sexoInput = trim((string)($_POST["ciud_sexo"] ?? ''));
+            $d = [
+                "ciud_numero_documento" => trim((string)($_POST["ciud_numero_documento"] ?? '')),
+                "ciud_primer_apellido"  => trim((string)($_POST["ciud_primer_apellido"] ?? '')),
+                "ciud_segundo_apellido" => trim((string)($_POST["ciud_segundo_apellido"] ?? '')),
+                "ciud_nombre"           => trim((string)($_POST["ciud_nombre"] ?? '')),
+                "ciud_foto"             => ($fotoInput !== '' && $fotoInput !== null) ? $fotoInput : null,
+                "ciud_fecha_nac"        => $fechaNac !== '' ? $fechaNac : null,
+                "ciud_sexo"             => $sexoInput !== '' ? $sexoInput : null,
+                "tido_id"               => $_POST["tido_id"] ?? 1
+            ];
 
-        if ($ciudadano->existeDocumento($d["ciud_numero_documento"], $d["tido_id"])) {
+            if ($ciudadano->existeDocumento($d["ciud_numero_documento"], $d["tido_id"])) {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Ya existe un ciudadano con ese número y tipo de documento."
+                ]);
+                break;
+            }
+
+            if ($ciudadano->insertar($d)) {
+                echo json_encode([
+                    "success" => true,
+                    "message" => "Ciudadano registrado correctamente."
+                ]);
+            } else {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Ocurrió un error al registrar el ciudadano."
+                ]);
+            }
+        } catch (Throwable $e) {
+            error_log("Error en crear ciudadano: " . $e->getMessage());
             echo json_encode([
                 "success" => false,
-                "message" => "Ya existe un ciudadano con ese número y tipo de documento."
-            ]);
-            break;
-        }
-
-        if ($ciudadano->insertar($d)) {
-            echo json_encode([
-                "success" => true,
-                "message" => "Ciudadano registrado correctamente."
-            ]);
-        } else {
-            echo json_encode([
-                "success" => false,
-                "message" => "Ocurrió un error al registrar el ciudadano."
+                "message" => "Error al registrar ciudadano: " . $e->getMessage()
             ]);
         }
         break;
@@ -620,20 +556,32 @@ switch ($_GET["op"]) {
         break;
 
     case "editar":
-        $fotoInput = $_POST["ciud_foto"] ?? null;
-        $d = [
-            "ciud_numero_documento" => $_POST["ciud_numero_documento"],
-            "ciud_primer_apellido"  => $_POST["ciud_primer_apellido"],
-            "ciud_segundo_apellido" => $_POST["ciud_segundo_apellido"],
-            "ciud_nombre"           => $_POST["ciud_nombre"],
-            "ciud_foto"             => $fotoInput !== '' ? $fotoInput : null,
-            "ciud_fecha_nac"        => $_POST["ciud_fecha_nac"],
-            "ciud_sexo"             => $_POST["ciud_sexo"],
-            "tido_id"               => $_POST["tido_id"]
-        ];
-        echo json_encode([
-            "success" => $ciudadano->editar($_POST["ciud_id"], $d)
-        ]);
+        try {
+            $fotoInput = $_POST["ciud_foto"] ?? null;
+            $fechaNac  = trim((string)($_POST["ciud_fecha_nac"] ?? ''));
+            $sexoInput = trim((string)($_POST["ciud_sexo"] ?? ''));
+            $d = [
+                "ciud_numero_documento" => trim((string)($_POST["ciud_numero_documento"] ?? '')),
+                "ciud_primer_apellido"  => trim((string)($_POST["ciud_primer_apellido"] ?? '')),
+                "ciud_segundo_apellido" => trim((string)($_POST["ciud_segundo_apellido"] ?? '')),
+                "ciud_nombre"           => trim((string)($_POST["ciud_nombre"] ?? '')),
+                "ciud_foto"             => ($fotoInput !== '' && $fotoInput !== null) ? $fotoInput : null,
+                "ciud_fecha_nac"        => $fechaNac !== '' ? $fechaNac : null,
+                "ciud_sexo"             => $sexoInput !== '' ? $sexoInput : null,
+                "tido_id"               => $_POST["tido_id"] ?? 1
+            ];
+            $ok = $ciudadano->editar($_POST["ciud_id"], $d);
+            echo json_encode([
+                "success" => (bool)$ok,
+                "message" => $ok ? "Ciudadano actualizado correctamente." : "No se pudo actualizar el ciudadano."
+            ]);
+        } catch (Throwable $e) {
+            error_log("Error en editar ciudadano: " . $e->getMessage());
+            echo json_encode([
+                "success" => false,
+                "message" => "Error al actualizar ciudadano: " . $e->getMessage()
+            ]);
+        }
         break;
 
     case "cambiar_estado":

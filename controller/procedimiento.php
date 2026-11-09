@@ -7,6 +7,17 @@ $proced = new Procedimiento();
 if (function_exists('ini_set')) {
     ini_set('display_errors', '0');
 }
+if (!function_exists('normalizeFotoDataUri')) {
+    function normalizeFotoDataUri(?string $foto): string
+    {
+        if (empty($foto)) return "";
+        $trimmed = trim($foto);
+        if (str_starts_with($trimmed, "data:image") || str_starts_with($trimmed, "http") || str_starts_with($trimmed, "../") || str_starts_with($trimmed, "uploads/")) {
+            return $trimmed;
+        }
+        return "data:image/jpeg;base64," . $trimmed;
+    }
+}
 $pers_id = isset($_SESSION["usua_id_SIGODT"])
     ? filter_var($_SESSION["usua_id_SIGODT"], FILTER_VALIDATE_INT, ["options" => ["min_range" => 1]])
     : false;
@@ -352,34 +363,7 @@ switch ($_GET["op"]) {
                 : [];
 
             foreach ($datos as &$row) {
-                if (!empty($row["ciud_foto"])) {
-                    $imagen_base64 = $row["ciud_foto"];
-                    if (strpos($imagen_base64, 'data:image') === 0) {
-                        $imagen_base64 = preg_replace('/^data:image\/\w+;base64,/', '', $imagen_base64);
-                    }
-
-                    $imagen_decodificada = base64_decode($imagen_base64, true);
-                    if ($imagen_decodificada !== false) {
-                        $ruta_carpeta = "uploads/ciudadanos/";
-                        if (!file_exists($ruta_carpeta)) {
-                            @mkdir($ruta_carpeta, 0777, true);
-                        }
-                        $nombre_archivo = "foto_" . $row["ciud_numero_documento"] . ".png";
-                        $ruta_imagen = $ruta_carpeta . $nombre_archivo;
-                        if (!file_exists($ruta_imagen) || is_writable($ruta_imagen)) {
-                            @file_put_contents($ruta_imagen, $imagen_decodificada);
-                        }
-                        if (file_exists($ruta_imagen) && filesize($ruta_imagen) > 0) {
-                            $row["ciud_foto"] = "../../controller/" . $ruta_imagen;
-                        } else {
-                            $row["ciud_foto"] = "data:image/jpeg;base64," . $imagen_base64;
-                        }
-                    } else {
-                        $row["ciud_foto"] = "";
-                    }
-                } else {
-                    $row["ciud_foto"] = "";
-                }
+                $row["ciud_foto"] = normalizeFotoDataUri($row["ciud_foto"] ?? "");
             }
             unset($row);
 

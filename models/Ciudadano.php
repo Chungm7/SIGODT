@@ -301,9 +301,13 @@ class ciudadano extends conectar
         $foto = (isset($d['ciud_foto']) && $d['ciud_foto'] !== '')
             ? $d['ciud_foto']
             : null;
-        $fecha     = $d['ciud_fecha_nac'];
-        $sexo      = $d['ciud_sexo'];
-        $tido      = $d['tido_id'];
+        $fecha = (isset($d['ciud_fecha_nac']) && trim((string)$d['ciud_fecha_nac']) !== '')
+            ? trim((string)$d['ciud_fecha_nac'])
+            : null;
+        $sexo  = (isset($d['ciud_sexo']) && trim((string)$d['ciud_sexo']) !== '')
+            ? trim((string)$d['ciud_sexo'])
+            : null;
+        $tido  = $d['tido_id'];
 
         $sql = "INSERT INTO public.tb_ciudadano (
                 ciud_numero_documento,
@@ -346,16 +350,20 @@ class ciudadano extends conectar
         $foto = (isset($d['ciud_foto']) && $d['ciud_foto'] !== '')
             ? $d['ciud_foto']
             : null;
-        $fecha     = $d['ciud_fecha_nac'];
-        $sexo      = $d['ciud_sexo'];
-        $tido      = $d['tido_id'];
+        $fecha = (isset($d['ciud_fecha_nac']) && trim((string)$d['ciud_fecha_nac']) !== '')
+            ? trim((string)$d['ciud_fecha_nac'])
+            : null;
+        $sexo  = (isset($d['ciud_sexo']) && trim((string)$d['ciud_sexo']) !== '')
+            ? trim((string)$d['ciud_sexo'])
+            : null;
+        $tido  = $d['tido_id'];
 
         $sql = "UPDATE public.tb_ciudadano SET
                 ciud_numero_documento = ?,
                 ciud_primer_apellido  = ?,
                 ciud_segundo_apellido = ?,
                 ciud_nombre           = ?,
-                ciud_foto             = ?,
+                ciud_foto             = COALESCE(?, ciud_foto),
                 ciud_fecha_nac        = ?,
                 ciud_sexo             = ?,
                 tido_id               = ?,

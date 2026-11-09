@@ -24,10 +24,6 @@ Thumbs.db
 api/logs/*.log
 !api/logs/.gitkeep
 
-# Citizen uploads / PII cached photos
-controller/uploads/ciudadanos/*
-!controller/uploads/ciudadanos/.gitkeep
-
 # Code intelligence / Local indices
 .codegraph/
 .playwright-mcp/
